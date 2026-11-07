@@ -76,6 +76,15 @@ blender -b --factory-startup --python-exit-code 1 -P Source/Formation/Build/buil
 
 需要重打资源包时，将仓库的 `Assets/Transperceneige` 连同 .meta 文件复制到 Unity 6 URP 工程，将上述三个编辑器脚本放入该工程的 `Assets/Editor`，在该工程中运行 `-executeMethod Winterbourne.Editor.FleetImport.Build -formationRoot "<仓库绝对路径>"`。生成的完整包写入仓库的 `Releases` 目录。
 
+<details>
+<summary>书柜木材纹理与生成提示</summary>
+
+[胡桃木表面纹理](Assets/Transperceneige/Pass/Station/WeatheredWalnut.png) 使用内置 ImageGen 生成。纹理贴在独立建模的柜板、压线和柜门上，书籍及前后滑轨的形状由模型决定。原始纹理提示如下。
+
+> Seamless tileable photogrammetry-style albedo texture, a single continuous planar surface of aged British ebonised walnut from a 1900 railway library bookcase, fills the entire square, orthographic direct overhead. Very subdued cool umber with desaturated brown in cut rays, satin-worn oil, subtle vertical wood grain running straight from bottom to top with occasional irregular arching fleck and fine old scratches. Fine grain visible and softly varied at being within 40 cm of historic joinery. Middle-low exposure but detail in shadows, average midtone about sRGB 95,79,68. NO planks or seams, NO beveled border, NO objects or lettering, NO directional light, NO bright knot or hole, NO dramatic black streaks. Flat, neutral illumination so the engine can light the material and physically texture tall carved vertical stiles and wooden book shelves in an abandoned Edwardian library.
+
+</details>
+
 ## 实物参考
 
 - *Fingall* 普尔曼餐车的木饰、餐厅与厨房。[Bluebell Railway](https://www.bluebell-railway.co.uk/bluebell/pics/car_fingall.html)
