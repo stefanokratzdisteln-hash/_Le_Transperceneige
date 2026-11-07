@@ -34,7 +34,7 @@ namespace Winterbourne.Pass
         public bool EscapeReady => Distance>=Bridge+TrainLength+4 && Distance<Break &&
             PassAtmosphere.GroundHeight(7,Distance-TrainLength)<-12;
         public float SecondsToBreak => Mathf.Max(0,(Break-Distance)/6);
-        public string Notice => Time.unscaledTime<=noticeUntil ? PassText.Get(notice) + (noticeItem == null ? "" : ItemName(noticeItem)) : "";
+        public string Notice => Time.unscaledTime<=noticeUntil ? PassText.Get(notice)+(noticeItem==null ? "" : ItemName(noticeItem)) : "";
         public string Slot(int index) => slots[index];
         public string ItemName(string id) => id!=null && labels.TryGetValue(id,out string name) ? PassText.Get(name) : id;
         readonly string[] slots=new string[8];
@@ -56,11 +56,12 @@ namespace Winterbourne.Pass
         bool beforeStation, beforeBridge, sounded, wreck;
         string notice="", noticeItem;
         float noticeUntil, flightAge, fallRate, wreckAge, boardingAge=-1;
-        Vector3 jumpStart,boardingStart;
+        Vector3 boardingStart;
 
         sealed class Checkpoint
         {
             public float distance, speed, dwell, cold, pitch;
+            public int health;
             public JourneyPhase phase;
             public bool aboard, first, second, sounded;
             public Vector3 position;
@@ -98,6 +99,8 @@ namespace Winterbourne.Pass
             walker.interactionDistance=2.25f;
             walker.runningSpeed=5.8f;
             walker.jumpOverride=TryJump;
+            walker.externalInput=ReadFlightInput;
+            walker.groundImpact=ApplyGroundImpact;
             walker.useOverride=UseLookedAtDoor;
             if (sleeperSpawn) PlaceAt(sleeperSpawn, consist);
             else walker.transform.SetParent(consist,true);
@@ -116,7 +119,7 @@ namespace Winterbourne.Pass
 
         void OnDestroy()
         {
-            if(walker){ walker.useOverride=null; walker.jumpOverride=null; }
+            if(walker){ walker.useOverride=null; walker.jumpOverride=null; walker.externalInput=null; walker.groundImpact=null; }
             if(whistle) Destroy(whistle);
             if(bell) Destroy(bell);
         }
@@ -145,7 +148,6 @@ namespace Winterbourne.Pass
             if(!body || InStartMenu) return;
             PollPortals();
             ReconcileBoarding();
-            if(!Terminal && Aboard && walker.transform.position.y < -3.5f) Finish(JourneyPhase.Fell);
             if(gripLamp) gripLamp.enabled=Phase==JourneyPhase.Chase;
             if(air) air.Apply(Lighting,-walker.transform.position.z);
         }
@@ -215,7 +217,7 @@ namespace Winterbourne.Pass
         public bool DoorAvailable(PassDoor door)
         {
             if (!door || Terminal || Phase == JourneyPhase.Jumping || Phase == JourneyPhase.UnderCanopy) return false;
-            if (door.Interior) return true;
+            if (door.Interior || door.kind==PassDoorKind.Cottage) return true;
             if (door.kind == PassDoorKind.Escape) return EscapeReady && Aboard && Phase == JourneyPhase.Running;
             if (Phase == JourneyPhase.Dwell) return true;
             if (Phase != JourneyPhase.Chase || door.ExteriorSide != -1) return false;
@@ -227,7 +229,7 @@ namespace Winterbourne.Pass
 
         public bool TryDoor(PassDoor door)
         {
-            if (!door || Terminal || InventoryOpen || InHub || AtLanding || InStartMenu) return false;
+            if (!door || Terminal || InventoryOpen || InStartMenu || ((InHub || AtLanding) && door.kind!=PassDoorKind.Cottage)) return false;
             if (!DoorAvailable(door))
             {
                 Tell(door.kind == PassDoorKind.Escape ? "车尾进入峡谷后解锁" : "车门已锁闭");
@@ -250,6 +252,7 @@ namespace Winterbourne.Pass
             if (Terminal || InventoryOpen || InStartMenu || !walker || !walker.eyeCamera) return "";
             if(walker.HasMouse && TryLookAtCover(out var cover))
                 return PassText.Get(cover.TargetClosed ? "E   开门" : "E   关门");
+            if (TryCottageDoorPrompt(out string entryPrompt)) return entryPrompt;
             if (InHub || AtLanding)
             {
                 if (!walker.HasMouse) return PassText.Get("hub.click");
@@ -278,7 +281,7 @@ namespace Winterbourne.Pass
             if(body==null || InStartMenu || AtLanding || (InHub && !VisitingStation) || seconds<=0 || float.IsNaN(seconds) || float.IsInfinity(seconds)) return;
             Started=true;
             while(seconds>.00001f && !AtLanding && (!InHub || VisitingStation)){
-                float dt=Mathf.Min(seconds,.10f); seconds-=dt;
+                float dt=Mathf.Min(seconds,Airborne ? 1f/40f : .10f); seconds-=dt;
                 if(Terminal){
                     if(Phase==JourneyPhase.Crashed) WreckStep(dt);
                     else break;
@@ -327,7 +330,7 @@ namespace Winterbourne.Pass
             if(Distance>=Bridge && Distance-Speed*dt<Bridge) Sound(bell);
             if(Distance>=Break){
                 wreck=true;
-                if(Aboard) Finish(JourneyPhase.Crashed);
+                if(Aboard && !TryGorgeFall()) Finish(JourneyPhase.Crashed);
             }
         }
 
@@ -344,41 +347,6 @@ namespace Winterbourne.Pass
                 if (door.ExteriorSide == 0 || !door.TargetOpen || DoorAvailable(door)) continue;
                 // The leaf waits for an occupied threshold or swing arc to clear.
                 door.SetOpen(false);
-            }
-        }
-
-        void Fly(float dt)
-        {
-            float previousHeight=walker.transform.position.y;
-            flightAge+=dt;
-            if(Phase==JourneyPhase.Jumping){
-                var p=jumpStart+new Vector3(7.5f*flightAge,
-                    4.8f*flightAge-4.905f*flightAge*flightAge,-2.4f*flightAge);
-                walker.transform.position=p;
-                if(HasParachute && flightAge>=.92f){
-                    Phase=JourneyPhase.UnderCanopy; fallRate=2;
-                    if(canopy) canopy.SetActive(true);
-                    PlanDescent(p);
-                    Tell("伞已展开");
-                    return;
-                }
-            }else{
-                GlideToBank(dt);
-                return;
-            }
-            var now=walker.transform.position;
-            float floor=PassAtmosphere.GroundHeight(now.x,-now.z);
-            // Sample the triangulated snowy bank, whose surface can differ slightly
-            // from the continuous terrain profile. The pack opens beyond the parapet.
-            if(now.x>4.4f && now.y<floor+4){
-                float from=Mathf.Max(previousHeight,floor)+6;
-                if(Physics.Raycast(new Vector3(now.x,from,now.z),Vector3.down,out var hit,
-                    Mathf.Max(12,from-now.y+3),Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore))
-                    floor=hit.point.y;
-            }
-            if(flightAge>.55f && now.y<=floor+.09f){
-                now.y=floor+.09f; walker.transform.position=now;
-                Finish(JourneyPhase.Fell);
             }
         }
 
@@ -422,7 +390,7 @@ namespace Winterbourne.Pass
         void SaveCheckpoint()
         {
             saved=new Checkpoint{
-                distance=Distance,speed=Speed,dwell=StationSeconds,cold=ColdSeconds,phase=Phase,
+                distance=Distance,speed=Speed,dwell=StationSeconds,cold=ColdSeconds,phase=Phase,health=Health,
                 first=beforeStation,second=beforeBridge,sounded=sounded,aboard=Aboard,
                 position=Aboard ? walker.transform.localPosition : walker.transform.position,
                 rotation=walker.transform.localRotation,pitch=walker.ViewPitch,
@@ -436,8 +404,10 @@ namespace Winterbourne.Pass
 
         public void Retry()
         {
-            if(saved==null || InHub || InStartMenu || Phase==JourneyPhase.TimedOut) return;
+            if(saved==null || (InHub && !Terminal) || InStartMenu || Phase==JourneyPhase.TimedOut) return;
+            bool initialHut=InHub && saved==initialRide;
             RestoreRide(saved);
+            if(initialHut){ Started=false; EnterHut(false); }
             ResumeExpedition();
             Tell("已回到检查点");
         }
@@ -447,9 +417,10 @@ namespace Winterbourne.Pass
             location=JourneyLocation.Railway;
             stationVisit=false; MissedTrainInHub=false;
             if(returnGate) returnGate.gameObject.SetActive(false);
+            ResetFlight(); Health=c.health; LastImpactDamage=0;
             Distance=c.distance; Speed=c.speed; Phase=c.phase; Aboard=c.aboard;
             beforeStation=c.first; beforeBridge=c.second; sounded=c.sounded;
-            StationSeconds=c.dwell; ColdSeconds=c.cold; wreck=false; wreckAge=flightAge=0; boardingAge=-1;
+            StationSeconds=c.dwell; ColdSeconds=c.cold; wreck=false; wreckAge=0; boardingAge=-1;
             for(int i=0;i<rollingStock.Length;i++) rollingStock[i].SetLocalPositionAndRotation(restPosition[i],restRotation[i]);
             SyncTrain();
             for(int i=0;i<doors.Length;i++) doors[i].Restore(c.amount[i],c.target[i]);

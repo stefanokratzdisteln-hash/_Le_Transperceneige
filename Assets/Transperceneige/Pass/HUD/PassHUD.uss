@@ -87,3 +87,9 @@
 .settlement { color:#f2d5a5; font-size:16px; white-space:normal; -unity-text-align:middle-center; }
 .settlement-value { color:#d5c5a5; font-size:14px; -unity-text-align:middle-center; margin-bottom:8px; }
 .hidden { display:none; }
+
+.deploy-prompt { position:absolute; top:61%; left:15%; right:15%; flex-direction:row; align-items:center; justify-content:center; }
+.deploy-key { font-size:22px; -unity-font-style:bold; color:#202b2e; padding:5px 13px; border-radius:3px; background-color:#f1d49a; }
+.deploy-action { font-size:20px; color:#fff0cc; padding:6px 13px; background-color:rgba(25,31,34,.93); white-space:normal; }
+.impact-loss { font-size:14px; -unity-font-style:bold; color:#ffb499; margin-left:4px; background-color:rgba(43,25,24,.90); }
+.impact-result { font-size:16px; color:#edb190; margin-top:7px; white-space:normal; }

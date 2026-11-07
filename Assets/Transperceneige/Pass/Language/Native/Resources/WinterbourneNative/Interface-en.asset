@@ -19,7 +19,7 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 1420951580
-    m_Localized: "Bridge keeper's cottage"
+    m_Localized: Bridge keeper's cottage
     m_Metadata:
       m_Items: []
   - m_Id: 1420951572
@@ -39,7 +39,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951605
-    m_Localized: "Bridge keeper's cottage"
+    m_Localized: Bridge keeper's cottage
     m_Metadata:
       m_Items: []
   - m_Id: 1420951593
@@ -63,7 +63,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951594
-    m_Localized: "Safe landing \xB7 Walk to the return gate"
+    m_Localized: "Safe landing \xB7 Walk through the return gate or enter the cottage
+      through its lit door."
     m_Metadata:
       m_Items: []
   - m_Id: 1420951576
@@ -186,11 +187,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951569
-    m_Localized: In freefall
+    m_Localized: Freefall
     m_Metadata:
       m_Items: []
   - m_Id: 1420951562
-    m_Localized: "Canopy open \xB7 Descending to the valley"
+    m_Localized: "Canopy open \xB7 WASD to steer the glide"
     m_Metadata:
       m_Items: []
   - m_Id: 1420951554
@@ -202,11 +203,12 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951553
-    m_Localized: Go to the rear door of van 09
+    m_Localized: 'Van 09: E at the rear door. Space to jump, then press Space again
+      to open the parachute.'
     m_Metadata:
       m_Items: []
   - m_Id: 1420951555
-    m_Localized: Get ready at the rear of the train
+    m_Localized: Get to the rear of van 09. In the air, press Space again to deploy.
     m_Metadata:
       m_Items: []
   - m_Id: 1420951604
@@ -231,8 +233,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951567
-    m_Localized: You fell into the gorge. Collect the parachute in van 09 before
-      jumping.
+    m_Localized: Fatal impact. Take the pack from van 09 and press Space again just
+      after jumping.
     m_Metadata:
       m_Items: []
   - m_Id: 1420951617
@@ -308,11 +310,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951622
-    m_Localized: "Space   Jump \xB7 Parachute ready"
+    m_Localized: "Space to jump \xB7 Press Space again in the air to deploy"
     m_Metadata:
       m_Items: []
   - m_Id: 1420951623
-    m_Localized: "Space   Jump \xB7 No parachute"
+    m_Localized: "No parachute \xB7 Collect the pack in van 09 before you jump"
     m_Metadata:
       m_Items: []
   - m_Id: 1420951621
@@ -381,6 +383,44 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 1632065683457
     m_Localized: Recovered {0} / {1}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15208948039680
+    m_Localized: Press Space to open the parachute
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15208948039682
+    m_Localized: No parachute pack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15208948039685
+    m_Localized: WASD   Steer the parachute
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15208948039684
+    m_Localized: SPACE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15208948039683
+    m_Localized: Open parachute
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15208948039681
+    m_Localized: 'Impact: -{0} HP     Health: {1} / 100'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15208885125120
+    m_Localized: E at the lit cottage door to go inside.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15604575764480
+    m_Localized: The canopy opened too late to slow your fall. Deploy while you still
+      have height.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15604655456256
+    m_Localized: Your parachute was still packed at impact. Press Space again as
+      soon as you leave the train.
     m_Metadata:
       m_Items: []
   references:

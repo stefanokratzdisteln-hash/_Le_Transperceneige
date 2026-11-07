@@ -6,9 +6,9 @@
 
 在 Unity 6 的 URP 工程中导入[完整资源包](Releases/Winterbourne.unitypackage)，打开 [WinterbournePass 场景](Assets/Transperceneige/Pass/WinterbournePass.unity)，点击 **Play**，单击小屋画面行走。左前方的书柜是滑动盖门，固定的蓝色入口在右后方。对准书柜或把手按 **E** 可开合，走进露出的蓝光就到 07 号卧铺。需要随时查看车辆模型时，可打开独立的 [WinterbourneExpress 自由参观场景](Assets/Transperceneige/Formation/Demo/WinterbourneExpress.unity)。
 
-游戏界面首次默认英文。小屋右上角、背包和开始画面的 **English / 中文** 按钮可立即切换语言。进入小屋立即开始 **12 分钟**整局倒计时。地点及停站、断桥时钟在左上，整局时钟与价值目标在顶端中央。底部血条开局为 **100**，背包和顶部共用携带价值。首版不投放计价战利品，不计算逐次受伤。行走时按 **Esc** 释放鼠标。在小屋点 **End Game** 结算。时限内携带价值达到 **240,000** 才算撤离成功，低于目标显示失败。整局时限耗尽则死亡。开局价值为 0，当前自然试玩不会累积到目标值。结算画面上的 **New Game** 重开，**Quit** 退出。
+游戏界面首次默认英文。小屋右上角、背包和开始画面的 **English / 中文** 按钮可立即切换语言。进入小屋立即开始 **12 分钟**整局倒计时。地点及停站、断桥时钟在左上，整局时钟与价值目标在顶端中央。底部血条开局为 **100**，背包和顶部共用携带价值。高处落地会按撞击速度扣血，生命值归零即死亡。首版不投放计价战利品。行走时按 **Esc** 释放鼠标。在小屋点 **End Game** 结算。时限内携带价值达到 **240,000** 才算撤离成功，低于目标显示失败。整局时限耗尽则死亡。开局价值为 0，当前自然试玩不会累积到目标值。结算画面上的 **New Game** 重开，**Quit** 退出。
 
-[书柜实机开合](Previews/Pass/BookcaseSlide.gif) · [可编辑的 Blender 书柜](Source/Pass/BookshelfPortal.blend) · [谷底回程门](Previews/Pass/LandingGate.png)
+[书柜实机开合](Previews/Pass/BookcaseSlide.gif) · [可编辑的 Blender 书柜](Source/Pass/BookshelfPortal.blend) · [谷底回程门](Previews/Pass/LandingGate.png) · [小屋外门与雪地台阶](Previews/Pass/CottageEntrance.png) · [空中开伞提示实拍](Previews/Pass/FreefallPrompt.png)
 
 书柜在前轨滑动 1.57 米。Blender 时间轴第 1 帧为开启，第 28 帧为关闭，书和柜体一同移动。
 
@@ -19,14 +19,14 @@
 | WASD／方向键、鼠标 | 行走、观察。按住左或右 **Shift** 逐渐加速，松开减速。Esc 释放鼠标。 |
 | E | 对准门扇、把手或门框拉手开关门。车内门随时可开；停稳后两侧外门解锁。发车时，仍在站台旁的那扇门可以重新打开。 |
 | F、Tab／B | F 拾取物品，Tab 或 B 展开或收起八格背包。底部常显前四格；打开背包后依次点两格可以换位。 |
-| 空格 | 原地跳、跑跳或斜跳。掉到站台下时，面向站台边缘按空格攀回去。在峡谷中，从已解锁的 09 号尾台向外跃出。 |
+| 空格 | 原地跳、跑跳或斜跳。掉到站台下时，面向站台边缘按空格攀回去。在 09 号尾台按空格跃出；松开后，在空中**再按一次空格开伞**，再用 **WASD** 控制滑翔方向。 |
 | L、R | L 在雪山黄昏、风雪白昼、暴雪深夜间切换。结局画面按 R 从最近的检查点重试。 |
 
 列车沿 2.12 公里线路行驶。穿过 300 米长的山体隧道后，列车在 Fellbridge 的 190 米站台停靠 **2 分钟**，最后 **15 秒**鸣哨。发车时若还在站上，先靠近任意一扇仍在站台边的门，**按 E 开门，按住 Shift 追平，按空格斜跳进门洞**。车门逐扇驶离站台后上锁，09 号亮灯侧踏板是最后的登车机会。留在站台错过最后一节车会失温。
 
 站台后方的两层站长楼设有售票厅、行李间和楼上的办公室。一楼传送门可回桥下小屋，列车继续计时，背包和整局倒计时随行。只要车尾仍在站台旁，穿回小屋的门即可返回站长楼追车。若列车已离开，小屋里会显示误车提醒，可选 **End Game / 结束游戏** 回开始画面。
 
-在 **09 号行李车靠值班室的低层架子**上可以找到帆布跳伞包。上桥后，列车以约 6 米/秒驶向已炸断的桥跨，预警时间约 **120 秒**。等车尾悬在峡谷上方，到朝后的尾门按 E 开门，再到尾部平台按空格跳伞。背包的八个格子都可以装伞；携带时自动开伞，降落到谷底后收伞，玩家可以徒步走进落点旁的回程门，回小屋开始下一趟旅程。留在列车上或无伞坠落都有独立失败结局。停站前及上桥前自动记录检查点。
+在 **09 号行李车靠值班室的低层架子**上可以找到帆布跳伞包。上桥后，列车以约 6 米/秒驶向已炸断的桥跨，预警时间约 **120 秒**。等车尾悬在峡谷上方，到朝后的尾门按 E 开门，再到尾部平台按空格跳伞。伞包放在八格中的任一格都可使用。**松开空格，在空中再按一次空格开伞，用 WASD 调整滑翔方向。** 未开伞直落或开伞过晚，落地时会按撞击速度扣血，生命值归零即死亡。安全着陆后可穿过落点旁的书柜，也可沿雪地走到小屋窗旁亮着灯的入口，按 **E** 开门进屋结算。停站前及上桥前自动记录检查点。
 
 [桥下阅览室](Previews/Pass/KeepersRoom.png) · [站长楼售票厅](Previews/Pass/FellbridgeBookingHall.png) · [二楼办公室](Previews/Pass/FellbridgeDutyRoom.png) · [二楼窗景](Previews/Pass/FellbridgeDutyWindow.png) · [卧铺窗外的黄昏](Previews/Pass/MountainDusk.png) · [白昼](Previews/Pass/MountainDay.png) · [深夜](Previews/Pass/MountainNight.png) · [山体隧道](Previews/Pass/Tunnel.png) · [站台](Previews/Pass/Platform.png) · [高架桥](Previews/Pass/Viaduct.png) · [断口](Previews/Pass/BrokenSpan.png)
 

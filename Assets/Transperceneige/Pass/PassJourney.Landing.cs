@@ -115,29 +115,81 @@ namespace Winterbourne.Pass
             descentPlanned=TryFindLandingPair(canopyPosition,out touchdown,out gateFoot);
         }
 
+        void SteerApproach(Vector3 position,float dt)
+        {
+            if(steerDirection.sqrMagnitude<.001f || position.y-touchdown.y<6f) return;
+            steerOffset=Vector3.ClampMagnitude(steerOffset+steerDirection*(5f*dt),22f);
+            if(flightAge<nextSurvey) return;
+            nextSurvey=flightAge+.45f;
+            Vector3 desired=approachOrigin+steerOffset;
+            desired.x=Mathf.Clamp(desired.x,12f,34f);
+            if(SampleBank(desired,out var bank) && FindGateOnBank(bank,out var gate))
+            {
+                touchdown=bank;
+                gateFoot=gate;
+            }
+        }
+
         void GlideToBank(float dt)
         {
-            var p=walker.transform.position;
-            fallRate=Mathf.MoveTowards(fallRate,4.2f,dt*1.5f);
-            if(!descentPlanned)
+            Vector3 p=walker.transform.position;
+            float previousRate=fallRate;
+            fallRate=Mathf.MoveTowards(fallRate,GlideSink,(fallRate>GlideSink ? OpeningBrake : FlightGravity)*dt);
+            // Opening the pack cannot erase speed or rescue someone already at impact.
+            float sink=.5f*(previousRate+fallRate);
+            bool inflated=fallRate<GlideSink+.15f;
+            if(!descentPlanned && flightAge>=nextSurvey)
             {
-                // A modified level can temporarily obstruct all of the surveyed sites.
-                // Continue under an open canopy and retry from downwind, keeping
-                // terrain clearance; never activate a gate on an unchecked destination.
-                p+=new Vector3(1.8f,0,-3.4f)*dt;
-                p.y=Mathf.Max(p.y,PassAtmosphere.GroundHeight(p.x,-p.z)+4);
-                walker.transform.position=p;
-                if(Mathf.FloorToInt(flightAge)!=Mathf.FloorToInt(flightAge-dt)) PlanDescent(p);
-                return;
+                PlanDescent(p);
+                if(descentPlanned) approachOrigin=touchdown;
+                nextSurvey=flightAge+.75f;
             }
             Vector3 target=touchdown+Vector3.up*.045f;
-            float dy=Mathf.Max(.001f,p.y-target.y);
-            float step=Mathf.Clamp01(fallRate*dt/dy);
-            var next=Vector3.Lerp(p,target,step);
-            if(Vector3.ProjectOnPlane(target-next,Vector3.up).sqrMagnitude>1f)
-                next.y=Mathf.Max(next.y,PassAtmosphere.GroundHeight(next.x,-next.z)+.38f);
+            Vector3 desired=new Vector3(2.35f,0,-1.05f);
+            if(descentPlanned)
+            {
+                SteerApproach(p,dt);
+                target=touchdown+Vector3.up*.045f;
+                Vector3 delta=Vector3.ProjectOnPlane(target-p,Vector3.up);
+                float timeToGround=Mathf.Max(.18f,(p.y-target.y)/GlideSink);
+                desired=Vector3.ClampMagnitude(delta/timeToGround,11.5f);
+            }
+            float clearance=descentPlanned ? p.y-target.y : p.y-PassAtmosphere.GroundHeight(p.x,-p.z);
+            desired+=4.2f*Mathf.InverseLerp(4f,9f,clearance)*steerDirection;
+            // Pulling immediately still carries the jumper out past the steelwork.
+            // Only then can steering turn the canopy back toward the railway.
+            if(clearingParapet){
+                if(p.x>=10f) clearingParapet=false;
+                else desired.x=Mathf.Max(desired.x,4.2f);
+            }
+            Vector3 horizontal=Vector3.MoveTowards(Vector3.ProjectOnPlane(airVelocity,Vector3.up),
+                desired,9f*dt);
+            airVelocity=horizontal+Vector3.down*fallRate;
+            Vector3 next=p+horizontal*dt+Vector3.down*(sink*dt);
+            // Keep a piloted approach in the surveyed lane when steering toward the steelwork.
+            if(descentPlanned && p.x>=10f) next.x=Mathf.Clamp(next.x,10f,Mathf.Max(36f,p.x));
+
+            float remaining=descentPlanned ? Vector3.ProjectOnPlane(target-next,Vector3.up).magnitude : float.PositiveInfinity;
+            if(inflated && descentPlanned)
+            {
+                if(remaining<.28f && next.y<=target.y+.12f)
+                {
+                    // A flare covers at most a foot, over the verified dry touchdown site.
+                    LandSafely(target);
+                    return;
+                }
+                // Stay clear of the rising bank in the final approach, only after the
+                // opening has actually arrested the fall. An unopened/late canopy gets
+                // the normal contact test and its actual vertical impact speed.
+                if(remaining>=.28f) next.y=Mathf.Max(next.y,PassAtmosphere.GroundHeight(next.x,-next.z)+.42f);
+            }
+            if(HitGround(p,next,out var impact))
+            {
+                float fraction=Mathf.InverseLerp(p.y,next.y,impact.y);
+                TouchSurface(impact,Mathf.Lerp(previousRate,fallRate,fraction));
+                return;
+            }
             walker.transform.position=next;
-            if(Vector3.Distance(next,target)<.06f) LandSafely(target);
         }
 
         void LandSafely(Vector3 feet)

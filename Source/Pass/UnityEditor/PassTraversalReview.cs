@@ -153,13 +153,20 @@ namespace Winterbourne.Editor
             doors = route.consist.GetComponentsInChildren<PassDoor>(true);
             grips = route.consist.GetComponentsInChildren<PassDoorTarget>(true);
             yield return Capture();
+            yield return CottageFrontDoor();
             PassReview.EnterFromRoom(route);
+            if(Array.IndexOf(Environment.GetCommandLineArgs(),"-onlyFlight")>=0){
+                yield return OrdinaryDrop();
+                yield return RearEscape();
+                yield break;
+            }
             yield return Couplings();
             ClockToStation();
             yield return DoorSweep();
             foreach (int number in new[] { 5, 7, 9 }) yield return Chase(number);
             ClockToStation();
             yield return Recovery();
+            yield return OrdinaryDrop();
             yield return RearEscape();
         }
 
@@ -373,12 +380,64 @@ namespace Winterbourne.Editor
             Debug.Log("TRAVERSAL INPUT: ordinary platform mantle and screenshot-style coupling trap both recovered with Space");
         }
 
-        static IEnumerator RearEscape()
+        static IEnumerator OrdinaryDrop()
         {
             ClockToStation();
-            route.Advance(121);
-            while (!route.EscapeReady && !route.Terminal) route.Advance(.5f);
-            Check(route.EscapeReady, "Tail did not reach the playable escape location");
+            var platformPoint=new Vector3(-3.1f,1.40f,-1002);
+            Pose(platformPoint+Vector3.up*4.5f,Vector3.forward,false);
+            route.ReconcileBoarding();
+            Keys();
+            yield return Frames(75);
+            Check(!route.Aboard && !route.Terminal && Feet.y<1.50f && Feet.y>1.30f &&
+                route.LastImpactDamage>0 && route.Health==100-route.LastImpactDamage && route.Health>0,
+                $"4.5m platform fall: feet={Feet:F2}, HP={route.Health}, impact={route.LastImpactDamage}");
+            int health=route.Health;
+            yield return Tap(Key.Space);
+            Check(Feet.y>1.56f,"Expected an actual standing jump before retesting benign impacts: "+Feet);
+            yield return Frames(38);
+            Check(route.Health==health,"A normal standing jump damaged the passenger");
+            int previous=health;
+            for(int attempt=0;attempt<3 && !route.Terminal;attempt++){
+                Pose(platformPoint+Vector3.up*4.5f,Vector3.forward,false);
+                yield return Frames(75);
+                Check(route.LastImpactDamage>0 && route.Health==previous-route.LastImpactDamage,
+                    "Repeated landings did not deduct from the remaining HP");
+                previous=route.Health;
+            }
+            Check(route.Phase==JourneyPhase.Fell && route.Health==0,"A series of smaller impacts never reached death");
+            route.Retry();
+            Check(route.Health==100,"Rewinding a pre-fall checkpoint did not restore recorded health");
+            yield return Capture();
+            Debug.Log($"TRAVERSAL IMPACT: 4.5m platform fall left {health} HP; ordinary jump safe; smaller impacts cumulatively reached zero, checkpoint restored");
+        }
+
+        static IEnumerator CottageFrontDoor()
+        {
+            var door=route.CottageDoor;
+            Check(door && !door.TargetOpen,"Missing a closed exterior cottage door at the start");
+            Vector3 floor=door.threshold.position-Vector3.up*1.065f;
+            Vector3 inside=floor-door.car.right*1.57f;
+            Vector3 outside=floor+door.car.right*1.57f;
+            Vector3 eyeOffset=Vector3.up*walker.eyeCamera.transform.localPosition.y;
+            Pose(inside,door.threshold.position-inside-eyeOffset,false);
+            yield return Tap(Key.E);yield return Frames(40);
+            Check(door.IsOpen && route.InsideCottage,"Inside E failed on the cottage front door");
+            yield return WalkToward(outside);
+            Check(!route.InsideCottage,"Did not walk from the cottage across its threshold onto the porch");
+
+            Pose(Feet,door.threshold.position+door.car.forward*.635f-Feet-eyeOffset,false);
+            yield return Tap(Key.E);yield return Frames(40);
+            Check(!door.TargetOpen && door.Openness<.01f,"Porch E did not shut the cottage door");
+            Pose(Feet,door.threshold.position-Feet-eyeOffset,false);
+            yield return Tap(Key.E);yield return Frames(40);
+            Check(door.IsOpen,"Porch E did not open the same door from the snow side");
+            yield return WalkToward(inside);
+            Check(route.InsideCottage && route.Distance==0,"Native WASD did not enter the room from the porch");
+            Debug.Log("TRAVERSAL INPUT: inside E opened the cottage, walked outside, porch E closed and reopened it, walked back indoors");
+        }
+
+        static IEnumerator OpenRearAndWalkThrough()
+        {
             var rear = doors.Single(d => d.kind == PassDoorKind.Escape);
             var grip = grips.First(g => g.hinge == rear);
             Vector3 feet = rear.car.TransformPoint(new Vector3(.18f,1.405f,7.42f));
@@ -391,13 +450,101 @@ namespace Winterbourne.Editor
             Check(rear.IsOpen, $"09 did not open at the bridge with native E: target={rear.TargetOpen}, pose={rear.Openness:F2}, aboard={route.Aboard}");
             Pose(Feet, Vector3.forward,true);
             yield return WalkToward(route.escapeLaunch.position);
+        }
+
+        static void BridgeAt(float chainage)
+        {
+            for(int i=0;i<1800 && route.Distance<chainage && !route.Terminal;i++)
+                route.Advance(Mathf.Min(.2f,Mathf.Max(.001f,(chainage-route.Distance)/6f)));
+            Check(route.EscapeReady && Mathf.Abs(route.Distance-chainage)<.2f,
+                $"Cannot start bridge fixture at {chainage}: {route.Phase} {route.Distance:F1}");
+        }
+
+        static void CollectPack(int slot)
+        {
+            var item=route.consist.GetComponentInChildren<PassPickup>();
+            Check(item,"The real parachute pack is missing from the rack");
+            var spot=item.transform.position+new Vector3(.70f,1.405f-item.transform.position.y,0);
+            Pose(spot,item.transform.position-(spot+Vector3.up*walker.eyeCamera.transform.localPosition.y),true);
+            Check(route.TryPick(item),"Could not collect the parachute at the low rack");
+            if(slot!=0){
+                route.SetInventory(true);
+                Check(route.MoveSlot(0,slot),"Failed to move pack into slot "+(slot+1));
+                route.SetInventory(false);
+            }
+        }
+
+        static IEnumerator RearEscape()
+        {
+            ClockToStation();
+            route.Advance(121);
+            BridgeAt(1830f);
+            yield return OpenRearAndWalkThrough();
+            // Walk off the real footplate and across the edge of the actual deck. There
+            // is deliberately no jump key and no assisted outward kick in this case.
+            route.ManualClock=false;
+            Keys(Key.W,Key.LeftShift); yield return Frames(34);
+            Keys(Key.D,Key.LeftShift);
+            for(int i=0;i<240 && !route.Terminal;i++)yield return null;
+            Keys(); route.ManualClock=true;
+            // The shallow step from footplate to deck can take a point before the
+            // final fall. Damage shown to the player is capped at the remaining HP.
+            Check(route.Phase==JourneyPhase.Fell && route.LastImpactDamage>0 && route.Health==0 &&
+                !route.AtLanding && !route.returnGate.gameObject.activeSelf,
+                $"Walking off 09 bypassed death: feet={Feet:F1}, phase={route.Phase}, HP={route.Health}, impact={route.LastImpactDamage}");
+            Debug.Log("TRAVERSAL IMPACT: walked clear of the 09 rear plate and the deck without Space; fatal valley impact");
+
+            // The reported screenshot showed an intact pack and 2.120km. Let the
+            // locomotive reach the break while a passenger holds the original jump.
+            route.Retry();CollectPack(7);
+            yield return Capture();
+            BridgeAt(2117f);
+            yield return OpenRearAndWalkThrough();
+            route.ManualClock=false;
             Keys(Key.W,Key.Space);
-            yield return Frames(3);
-            Keys();
-            Check(route.Phase == JourneyPhase.Jumping && !route.Aboard, "Native Space did not leap from 09");
-            for (int i = 0; i < 90 && !route.Terminal; i++) route.Advance(.25f);
-            Check(route.Phase == JourneyPhase.Fell,"Unprotected rear leap survived the drop");
-            Debug.Log("TRAVERSAL INPUT: separate 09 bridge door opened with E, crossed to jump platform, Space launched into canyon");
+            for(int frame=0;frame<480 && !route.Terminal;frame++){
+                Check(!route.canopy.activeSelf,"Holding Space automatically deployed the packed parachute");
+                yield return null;
+            }
+            Keys();route.ManualClock=true;
+            Check(route.Distance>=PassJourney.Break-.03f && route.Phase==JourneyPhase.Fell &&
+                route.Health==0 && route.LastImpactDamage>=100 && !route.AtLanding,
+                $"Reached bridge end alive with unopened pack: {route.Distance:F2}, {route.Phase}, HP={route.Health}");
+            Debug.Log("TRAVERSAL IMPACT: locomotive reached 2.120km during packed but unopened fall; impact at zero HP");
+
+            Vector3 leftDisplacement=Vector3.zero;
+            foreach(int slot in new[]{0,7}){
+                route.Retry();
+                Check(route.Health==100 && route.Aboard && !route.HasParachute,"Bridge retry did not reset fall state");
+                CollectPack(slot);
+                yield return Capture();
+                BridgeAt(1830f);
+                yield return OpenRearAndWalkThrough();
+                route.ManualClock=false;
+                Keys(Key.W,Key.Space);yield return Frames(31);
+                Check(route.Phase==JourneyPhase.Jumping && !route.canopy.activeSelf && !route.Aboard,
+                    "Holding the original Space through freefall deployed the canopy or suppressed the launch");
+                Keys();yield return Frames(3);
+                yield return Tap(Key.Space);
+                Check(route.Phase==JourneyPhase.UnderCanopy && route.canopy.activeSelf && route.Slot(slot)=="parachute",
+                    $"Second native Space failed with pack in slot {slot+1}: {route.Phase}");
+                var start=Feet;
+                var observerRight=Vector3.ProjectOnPlane(walker.eyeCamera.transform.right,Vector3.up).normalized;
+                Keys(slot==0 ? Key.A : Key.D);yield return Frames(38);
+                Vector3 displacement=Feet-start;
+                if(slot==0)leftDisplacement=displacement;
+                else {
+                    float response=Vector3.Dot(displacement-leftDisplacement,observerRight);
+                    Check(response>1f,$"WASD did not steer the canopy: left={leftDisplacement:F2}, right={displacement:F2}, delta={response:F2}");
+                    Debug.Log($"TRAVERSAL GLIDE: native A/D separation after 1.27s was {response:F2} m");
+                }
+                Keys();
+                for(int f=0;f<1800 && !route.AtLanding && !route.Terminal;f++) yield return null;
+                route.ManualClock=true;
+                Check(route.AtLanding && route.Health>0 && body.enabled && !route.canopy.activeSelf,
+                    $"Controlled glide from slot {slot+1} did not land alive: {route.Phase}, HP={route.Health}, feet={Feet:F1}");
+            }
+            Debug.Log("TRAVERSAL INPUT: 09 opened with E, held Space stayed in freefall, fresh Space and WASD glided safely from slots 1 and 8");
         }
     }
 }

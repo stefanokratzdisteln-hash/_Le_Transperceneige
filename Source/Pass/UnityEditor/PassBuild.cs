@@ -118,6 +118,8 @@ namespace Winterbourne.Editor
                 "Passenger must start in the bridge keeper's room");
             Check(route.stationGate.transform.position.y < 2.5f && route.stationSpawn.position.y < 2.5f,
                 "Fellbridge gate and arrival must be on the ground floor");
+            Check(route.CottageDoor && route.CottageDoor.kind==PassDoorKind.Cottage &&
+                !route.CottageDoor.transform.IsChildOf(route.consist), "Missing the exterior door of the bridge keeper's cottage");
             var document = Object.FindFirstObjectByType<UIDocument>();
             Check(document && document.visualTreeAsset && document.panelSettings &&
                 document.GetComponent<PassHUD>().journey == route, "HUD is not linked to the journey");

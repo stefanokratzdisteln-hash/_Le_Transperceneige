@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Winterbourne.Pass
 {
-    public enum PassDoorKind { Passenger, Chase, Escape, Gangway, Lavatory, Service, Cargo, Galley }
+    public enum PassDoorKind { Passenger, Chase, Escape, Gangway, Lavatory, Service, Cargo, Galley, Cottage }
 
     /// <summary>Hinged rolling-stock leaf. The fixed threshold remains in the carriage frame.</summary>
     [DisallowMultipleComponent]

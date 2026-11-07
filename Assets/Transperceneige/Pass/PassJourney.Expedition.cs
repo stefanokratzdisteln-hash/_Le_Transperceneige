@@ -9,6 +9,7 @@ namespace Winterbourne.Pass
         [SerializeField, Min(0)] int carriedValue;
         public int CarriedValue => Mathf.Max(0,carriedValue);
         public int Health { get; private set; } = 100;
+        public int LastImpactDamage { get; private set; }
         public float RunSeconds { get; private set; }
         public bool HasSettlement { get; private set; }
         public bool SettledSuccessfully { get; private set; }
@@ -20,6 +21,7 @@ namespace Winterbourne.Pass
         {
             carriedValue = 0;
             Health = 100;
+            LastImpactDamage = 0;
             HasSettlement = false;
             SettledSuccessfully = false;
             RunSeconds = RunDuration;
@@ -29,8 +31,25 @@ namespace Winterbourne.Pass
         void ResumeExpedition()
         {
             clockStopped = false;
-            Health = 100;
             clockSample = Time.realtimeSinceStartupAsDouble;
+        }
+
+        public static int GetFallDamage(float impactSpeed)
+        {
+            if(impactSpeed<=7f) return 0;
+            // Ordinary jumps land below 5 m/s. A long, unarrested fall is lethal.
+            float severity=Mathf.InverseLerp(7f,16f,impactSpeed);
+            return Mathf.CeilToInt(100f*severity*severity);
+        }
+
+        void ApplyGroundImpact(float speed)
+        {
+            if(Terminal || InStartMenu) return;
+            int damage=Mathf.Min(Health,GetFallDamage(speed));
+            if(damage<=0) return;
+            LastImpactDamage=damage;
+            Health-=damage;
+            if(Health==0) Finish(JourneyPhase.Fell);
         }
 
         void TickExpedition()

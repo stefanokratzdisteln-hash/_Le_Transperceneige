@@ -8,11 +8,16 @@
             <ui:Label name="mileage" class="mileage" />
         </ui:VisualElement>
         <ui:VisualElement name="reticle" class="reticle" picking-mode="Ignore"/>
+        <ui:VisualElement name="deployPrompt" class="deploy-prompt hidden" picking-mode="Ignore">
+            <ui:Label name="deployKey" class="deploy-key" />
+            <ui:Label name="deployAction" class="deploy-action" />
+        </ui:VisualElement>
         <ui:VisualElement class="foot-hud" picking-mode="Ignore">
             <ui:Label name="message" class="action" />
             <ui:VisualElement name="vitals" class="vitals" picking-mode="Ignore">
                 <ui:Label name="healthNumber" class="health-number" />
                 <ui:VisualElement class="health-track"><ui:VisualElement name="healthFill" class="health-fill" /></ui:VisualElement>
+                <ui:Label name="impactLoss" class="impact-loss hidden" />
             </ui:VisualElement>
             <ui:VisualElement name="kit" class="kit" picking-mode="Ignore">
                 <ui:VisualElement class="bag-column" picking-mode="Ignore">
@@ -50,6 +55,7 @@
             <ui:VisualElement class="folio end-card">
                 <ui:Label name="result" class="headline" />
                 <ui:Label name="reason" class="description" />
+                <ui:Label name="impactResult" class="impact-result hidden" />
                 <ui:Button name="retry" class="command" />
             </ui:VisualElement>
         </ui:VisualElement>

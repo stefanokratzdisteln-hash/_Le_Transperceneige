@@ -20,15 +20,11 @@ namespace Winterbourne.Pass
 
         public bool TryJump()
         {
+            if (Phase==JourneyPhase.Jumping) return TryDeployParachute();
             if (Terminal || InventoryOpen || !body.enabled || walker.externalMotion) return false;
             if (EscapeJumpReady())
             {
-                jumpStart = walker.transform.position;
-                Board(false);
-                walker.externalMotion = true;
-                body.enabled = false;
-                Phase = JourneyPhase.Jumping;
-                flightAge = 0;
+                BeginFlight(new Vector3(7.5f,4.8f,-2.4f),true);
                 return true;
             }
             if (PlatformLedge(out var ledge, out bool trapped))
@@ -76,6 +72,7 @@ namespace Winterbourne.Pass
         public void ReconcileBoarding()
         {
             if (InHub || InStartMenu || AtLanding || Terminal || boardingAge >= 0 || !body.enabled || walker.externalMotion) return;
+            if(TryGorgeFall()) return;
             Vector3 feet = walker.transform.position;
             if (!Aboard && walker.JumpAge > .025f && walker.JumpAge < .72f)
             {

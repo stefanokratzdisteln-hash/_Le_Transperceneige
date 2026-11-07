@@ -342,6 +342,25 @@ namespace Winterbourne.Editor
             PassBuild.Check(journey.TryJump() && journey.Phase==JourneyPhase.Jumping,"Space did not launch from the rear footplate");
             PassBuild.Check(!journey.Aboard,"Jump did not leave the moving train frame");
         }
+        static IEnumerator CheckDeploymentHelp()
+        {
+            bool previous=PassText.Chinese;
+            var root=hud.rootVisualElement;
+            foreach(bool chinese in new[]{true,false}){
+                PassText.SetChinese(chinese);
+                journey.Tell("已回到检查点");
+                float ready=Time.unscaledTime+.18f;
+                while(Time.unscaledTime<ready)yield return null;
+                PassBuild.Check(root.Q("deployPrompt").resolvedStyle.display!=DisplayStyle.None &&
+                    root.Q<Label>("deployKey").text==(chinese?"空格":"SPACE") &&
+                    root.Q<Label>("deployAction").text==(chinese?"开伞":"Open parachute"),
+                    "Freefall deployment help was hidden by a notification or missing in this language");
+            }
+            // Clear the unrelated test notification before photographing the key.
+            journey.Tell("");
+            var falling=WithInterface("FreefallPrompt");while(falling.MoveNext())yield return null;
+            PassText.SetChinese(previous);
+        }
         internal static void EnterFromRoom(PassJourney route)
         {
             CheckRoom(route);
@@ -495,7 +514,9 @@ namespace Winterbourne.Editor
             RideTo(1555); eye.transform.position=cars[6].TransformPoint(new Vector3(.99f,2.98f,3.75f)); Look(eye.transform.position+new Vector3(3.90f,-1.05f,-2.23f)); Photo("Gorge");
             RideTo(1740); Lighting(0); eye.transform.position=cars[6].TransformPoint(new Vector3(-1.18f,3.03f,-5.13f)); Look(eye.transform.position+new Vector3(-2.40f,-1.51f,-3.33f)); Photo("Viaduct");WindowMatrix("Viaduct");HomeEye();
             var jump=JumpFromRear();while(jump.MoveNext())yield return null;
+            PassBuild.Check(!journey.TryDeployParachute(),"Opened a canopy without collecting the pack in van 09");
             AdvanceTo(JourneyPhase.Fell);
+            PassBuild.Check(journey.Health==0 && journey.LastImpactDamage>=100,"A bare high impact must exhaust all 100 HP");
             journey.Retry(); PassBuild.Check(!journey.HasParachute && bag.gameObject.activeSelf && Mathf.Abs(journey.Distance-1370)<2 && !rear.TargetOpen && !journey.canopy.activeSelf,"Empty-pack bridge checkpoint failed");
             RideTo(2112);
             // The structured route also gets an exterior engineering view of the actual break.
@@ -514,6 +535,33 @@ namespace Winterbourne.Editor
             }
             PassBuild.Check(!journey.TryPick(bag) && bag.gameObject.activeSelf && !journey.HasParachute,"Full inventory consumed the real rescue pack");
             journey.Retry();
+            // A pack in the inventory provides no protection until the ripcord is pulled.
+            PickBag(7);
+            RideTo(1830);
+            jump=JumpFromRear();while(jump.MoveNext())yield return null;
+            journey.Advance(1.35f);
+            PassBuild.Check(journey.Phase==JourneyPhase.Jumping && !journey.canopy.activeSelf,
+                "Inventory silently deployed a parachute after the jump");
+            AdvanceTo(JourneyPhase.Fell);
+            PassBuild.Check(journey.Health==0 && journey.LastImpactDamage>=100 && !journey.AtLanding,
+                "Undeployed pack prevented fatal impact");
+            journey.Retry();
+            PickBag(0);
+            RideTo(1830);
+            jump=JumpFromRear();while(jump.MoveNext())yield return null;
+            journey.Advance(1.1f);
+            for(int i=0;i<1200 && journey.Phase==JourneyPhase.Jumping;i++){
+                if(Physics.Raycast(body.transform.position+Vector3.up*.10f,Vector3.down,out var ground,
+                    350f,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore) && ground.distance<1.40f) break;
+                journey.Advance(.01f);
+            }
+            PassBuild.Check(journey.Phase==JourneyPhase.Jumping && journey.TryDeployParachute(),
+                "Could not exercise a late ripcord pull immediately above the bank");
+            AdvanceTo(JourneyPhase.Fell);
+            PassBuild.Check(journey.Health==0 && journey.LastImpactDamage>=100 && !journey.AtLanding,
+                "Late canopy deployment erased accumulated downward speed");
+            Debug.Log("PASS IMPACT: empty pack, carried-but-unopened pack and late deployment all caused lethal landing damage");
+            journey.Retry();
             foreach(var slot in new[]{0,7}){
                 PickBag(slot);
                 if(slot==7){
@@ -529,8 +577,14 @@ namespace Winterbourne.Editor
                 }
                 RideTo(slot==0?1720:2075);
                 jump=JumpFromRear();while(jump.MoveNext())yield return null;
-                journey.Advance(1.4f);
-                PassBuild.Check(journey.Phase==JourneyPhase.UnderCanopy && journey.canopy.activeSelf && journey.Slot(slot)=="parachute","Automatic canopy failed for slot "+slot);
+                journey.Advance(1.2f);
+                PassBuild.Check(journey.Phase==JourneyPhase.Jumping && !journey.canopy.activeSelf,
+                    "Carrying a parachute must not automatically pull the ripcord");
+                if(slot==0){
+                    var falling=CheckDeploymentHelp();while(falling.MoveNext())yield return null;
+                }
+                PassBuild.Check(journey.TryDeployParachute() && journey.Phase==JourneyPhase.UnderCanopy &&
+                    journey.canopy.activeSelf && journey.Slot(slot)=="parachute","Manual canopy failed for slot "+slot);
                 if(slot==7){
                     journey.Advance(2.6f); HomeEye();
                     Look(eye.transform.position+new Vector3(-19,5,-45));Photo("Parachute");
@@ -565,7 +619,7 @@ namespace Winterbourne.Editor
             RideTo(PassJourney.Break);journey.Retry();
             PassBuild.Check(journey.Slot(7)=="parachute" && journey.Slot(2)==null && !bag.gameObject.activeSelf && Mathf.Abs(journey.Distance-1370)<2,"Populated bridge checkpoint failed to undo later inventory edits");
             Debug.Log("PASS PACKED CHECKPOINTS: 09 pickup remained consumed and slot eight survived station/bridge rollback; real UI slot click handlers passed");
-            Debug.Log("PASS BRIDGE: late tail unlock, unprotected fall, train wreck, automatic canopy and actual ground arrival from slots 1 and 8; checkpoints restored");
+            Debug.Log("PASS BRIDGE: late tail unlock, unprotected fall, train wreck, manual canopy and actual ground arrival from slots 1 and 8; checkpoints restored");
         }
     }
 }

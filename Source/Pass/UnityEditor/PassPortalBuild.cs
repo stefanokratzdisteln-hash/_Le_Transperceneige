@@ -48,7 +48,7 @@ namespace Winterbourne.Editor
                 highest=Mathf.Max(highest,y);
             }
             hut.position=new Vector3(0,highest+.17f,-1820f);
-            MakeRoom(hut,colours);
+            route.CottageDoor=MakeRoom(hut,colours);
             route.hubSpawn=Child(hut,"Keeper's room arrival",new Vector3(.71f,.055f,-1.38f)).transform;
             var hubArch=Child(hut,"Coach portal location",new Vector3(.05f,.015f,2.04f)).transform;
             route.hubSpawn.rotation=Quaternion.LookRotation(Vector3.ProjectOnPlane(hubArch.position-Vector3.right*.67f-route.hubSpawn.position,Vector3.up));
@@ -127,7 +127,7 @@ namespace Winterbourne.Editor
             return result;
         }
 
-        static void MakeRoom(Transform hut,Palette m)
+        static PassDoor MakeRoom(Transform hut,Palette m)
         {
             var b=new StationFabrication();
             var ceiling=new Vector3(8.35f,.16f,6.75f);
@@ -147,16 +147,32 @@ namespace Winterbourne.Editor
 
                 float x=side*4.12f;
                 // Leaded sash looking out across the gorge, surrounded by a real opening.
-                foreach (var wall in new[]{new Vector2(-2.25f,2.08f),new Vector2(2.25f,2.08f)})
-                    b.Box(m.cream,new Vector3(x,1.64f,wall.x),new Vector3(.23f,3.28f,wall.y));
-                b.Box(m.green,new Vector3(x,.57f,0),new Vector3(.23f,1.14f,6.61f));
+                // On the east facade the front door replaces the solid panel beside the sash.
+                if(side<0)
+                {
+                    b.Box(m.cream,new Vector3(x,1.64f,-2.25f),new Vector3(.23f,3.28f,2.08f));
+                    b.Box(m.green,new Vector3(x,.57f,0),new Vector3(.23f,1.14f,6.61f));
+                    Solid(hut,"West sash wall",new Vector3(x,1.64f,0),new Vector3(.25f,3.28f,6.6f));
+                }
+                else
+                {
+                    FrontWallSegment(hut,b,m,-3.30f,DoorNearEdge);
+                    FrontWallSegment(hut,b,m,DoorFarEdge,-1.21f);
+                    b.Box(m.green,new Vector3(x,.57f,1.045f),new Vector3(.23f,1.14f,4.51f));
+                    Solid(hut,"East sash wall",new Vector3(x,1.64f,1.045f),new Vector3(.25f,3.28f,4.51f));
+                    float top=(DoorHeight+3.28f)/2;
+                    var lintel=new Vector3(.25f,3.28f-DoorHeight,DoorFarEdge-DoorNearEdge);
+                    var centre=new Vector3(x,top,(DoorNearEdge+DoorFarEdge)/2);
+                    b.Box(m.cream,centre,lintel);
+                    Solid(hut,"Front door lintel",centre,lintel);
+                }
+                b.Box(m.cream,new Vector3(x,1.64f,2.25f),new Vector3(.23f,3.28f,2.08f));
                 b.Box(m.stone,new Vector3(x,2.98f,0),new Vector3(.24f,.68f,6.61f));
                 b.Box(m.oak,new Vector3(x-side*.031f,1.145f,0),new Vector3(.38f,.071f,2.62f));
                 b.Box(m.glass,new Vector3(x,1.906f,0),new Vector3(.021f,1.45f,2.44f));
                 foreach(float zbar in new[]{-1.23f,-.40f,.40f,1.23f})
                     b.Box(m.green,new Vector3(x,1.91f,zbar),new Vector3(.12f,1.53f,.054f));
                 b.Box(m.green,new Vector3(x,2.01f,0),new Vector3(.10f,.047f,2.46f));
-                Solid(hut,"Sash and window wall",new Vector3(x,1.64f,0),new Vector3(.25f,3.28f,6.6f));
             }
             b.Box(m.cream,new Vector3(0,3.26f,0),ceiling);
             Solid(hut,"Room ceiling",new Vector3(0,3.27f,0),ceiling);
@@ -238,6 +254,7 @@ namespace Winterbourne.Editor
             box.isTrigger=true;
             box.size=new Vector3(8.18f,3.25f,6.59f);
             shelter.AddComponent<PassShelterVolume>();
+            return MakeCottageEntry(hut,m);
         }
     }
 }

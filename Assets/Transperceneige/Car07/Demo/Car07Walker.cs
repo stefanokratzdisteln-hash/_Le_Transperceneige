@@ -27,12 +27,15 @@ namespace Winterbourne.Demo
         public System.Func<bool> useOverride;
         public System.Func<bool> pointerOverControl;
         public System.Func<bool> jumpOverride;
+        public System.Action<Vector2,bool> externalInput;
+        public System.Action<float> groundImpact;
         public bool automaticRespawn = true;
         public bool externalMotion;
         public float runningSpeed;
         public float JumpAge { get; private set; } = float.PositiveInfinity;
         public Vector3 MoveIntent { get; private set; }
         public Vector3 PlanarVelocity => planarVelocity + inheritedVelocity;
+        public float VerticalSpeed => fallSpeed;
         public bool HasMouse => ownsCursor;
         public float ViewPitch => pitch;
         bool overlayOpen;
@@ -111,7 +114,9 @@ namespace Winterbourne.Demo
         // Both input backends and the fixed-step route walkthrough drive the same capsule.
         public void MoveCharacter(Vector2 axes, bool sprint, float dt, bool jump = false)
         {
-            if (externalMotion || !controller.enabled || dt <= 0) return;
+            if (dt <= 0) return;
+            if (externalMotion) { externalInput?.Invoke(axes,jump); return; }
+            if (!controller.enabled) return;
             MoveIntent = Vector3.ClampMagnitude(transform.right * axes.x + transform.forward * axes.y, 1f);
             bool grounded = controller.isGrounded && fallSpeed <= 0;
             if (grounded) groundGrace = .10f;
@@ -133,14 +138,20 @@ namespace Winterbourne.Demo
             if (grounded)
                 inheritedVelocity = Vector3.MoveTowards(inheritedVelocity, Vector3.zero, 20f * dt);
             float next = grounded && fallSpeed <= 0 ? -1.2f : Mathf.Max(fallSpeed - Gravity * dt, -30f);
+            float priorSpeed=fallSpeed, priorHeight=transform.position.y;
             float vertical = (next + fallSpeed) * .5f;
             fallSpeed = next;
             var collision = controller.Move((PlanarVelocity + Vector3.up * vertical) * dt);
             if ((collision & CollisionFlags.Above) != 0) fallSpeed = Mathf.Min(fallSpeed, 0f);
             if ((collision & CollisionFlags.Below) != 0 && fallSpeed <= 0)
             {
+                // The floor may stop us part way through this step. Base damage on
+                // the speed at that height rather than after the rest of the frame.
+                float drop=Mathf.Max(0,priorHeight-transform.position.y);
+                float impactSpeed=Mathf.Min(-fallSpeed,Mathf.Sqrt(priorSpeed*priorSpeed+2*Gravity*drop));
                 fallSpeed = -1.2f;
                 if (JumpAge > .1f) JumpAge = float.PositiveInfinity;
+                if(!grounded) groundImpact?.Invoke(impactSpeed);
             }
             JumpAge += dt;
         }

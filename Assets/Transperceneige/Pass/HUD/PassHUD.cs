@@ -18,6 +18,10 @@ namespace Winterbourne.Pass
         static readonly string[] Skies={"dusk","day","night"};
         VisualElement root,roomActions,titleScreen,kit,vitals,healthFill,runBoard;
         Label shortcuts,healthNumber,bagValue,runClock,runTarget,settlement,settledValue;
+        VisualElement deployPrompt;
+        Label deployKey,deployAction,impactLoss,impactResult;
+        int previousHealth=-1;
+        float showLossUntil;
         float nextPaint,frostAmount;
         int selected=-1;
 
@@ -62,6 +66,9 @@ namespace Winterbourne.Pass
             root.Q<Button>("quitGame").clicked+=Quit;
             roomActions=root.Q("roomActions"); titleScreen=root.Q("titleScreen"); kit=root.Q("kit");
             vitals=root.Q("vitals"); healthFill=root.Q("healthFill"); runBoard=root.Q("runBoard");
+            deployPrompt=root.Q("deployPrompt"); deployKey=root.Q<Label>("deployKey");
+            deployAction=root.Q<Label>("deployAction"); impactLoss=root.Q<Label>("impactLoss");
+            impactResult=root.Q<Label>("impactResult");
             healthNumber=root.Q<Label>("healthNumber"); bagValue=root.Q<Label>("bagValue");
             runClock=root.Q<Label>("runClock"); runTarget=root.Q<Label>("runTarget");
             settlement=root.Q<Label>("settlement"); settledValue=root.Q<Label>("settledValue");
@@ -214,7 +221,7 @@ namespace Winterbourne.Pass
             nextPaint=Time.unscaledTime+.065f;
             bool bag=journey.InventoryOpen, end=journey.Terminal, menu=journey.InStartMenu;
             bool hub=journey.InHub;
-            Show(titleScreen,menu); Show(roomActions,hub&&!bag&&!menu&&!end);
+            Show(titleScreen,menu); Show(roomActions,hub&&journey.InsideCottage&&!bag&&!menu&&!end);
             Show(inventory,bag&&!menu); Show(ending,end&&!menu);
             Show(waybill,!menu&&!bag&&!end);
             Show(reticle,!menu&&!bag&&!end&&journey.walker.HasMouse);
@@ -227,6 +234,13 @@ namespace Winterbourne.Pass
             runClock.EnableInClassList("last-minute",journey.RunSeconds<=60);
             healthNumber.text=journey.Health.ToString();vitals.tooltip=Get("run.health");
             healthFill.style.width=Length.Percent(journey.Health);
+            if(previousHealth>journey.Health && journey.LastImpactDamage>0){
+                showLossUntil=Time.unscaledTime+2.6f;
+                impactLoss.text="-"+journey.LastImpactDamage;
+            }
+            if(journey.Health>previousHealth) showLossUntil=0;
+            previousHealth=journey.Health;
+            Show(impactLoss,Time.unscaledTime<showLossUntil);
             Show(settlement,menu&&journey.HasSettlement); Show(settledValue,menu&&journey.HasSettlement);
             if(menu&&journey.HasSettlement){
                 settlement.text=Get(journey.SettledSuccessfully?"run.success":"run.shortfall");
@@ -264,14 +278,32 @@ namespace Winterbourne.Pass
             string line=RouteInstruction();
             task.text=line;Show(task,line.Length>0&&!end);
             waybill.EnableInClassList("urgent",!hub&&!journey.AtLanding&&(journey.Distance>=1400 || journey.Phase==JourneyPhase.Freezing));
+            bool freefall=journey.Phase==JourneyPhase.Jumping;
+            Show(deployPrompt,freefall&&!menu&&!end);
+            if(freefall){
+                Show(deployKey,journey.HasParachute);
+                deployKey.text=Get("flight.space");
+                deployAction.text=Get(journey.HasParachute?"flight.pull":"flight.noPack");
+            }
             string hint=string.IsNullOrEmpty(journey.Notice)?journey.ActionPrompt():journey.Notice;
-            message.text=hint;Show(message,!menu&&!bag&&!end&&!string.IsNullOrEmpty(hint));
+            message.text=hint;Show(message,!freefall&&!menu&&!bag&&!end&&!string.IsNullOrEmpty(hint));
             if(end){
                 result.text=Get("ending.failed");
                 root.Q<Button>("retry").text=Get(journey.RunExpired?"menu.new":"controls.retry");
-                reason.text=Get(journey.RunExpired?"run.timeout":journey.Phase==JourneyPhase.Frozen?"ending.frozen":
-                    journey.Phase==JourneyPhase.Crashed?"ending.crashed":"ending.fell");
+                reason.text=Get(FailureReason());
+                bool fatalImpact=journey.Phase==JourneyPhase.Fell && journey.LastImpactDamage>0;
+                Show(impactResult,fatalImpact);
+                if(fatalImpact) impactResult.text=string.Format(Get("flight.impact"),journey.LastImpactDamage,journey.Health);
             }
+        }
+
+        string FailureReason()
+        {
+            if(journey.RunExpired) return "run.timeout";
+            if(journey.Phase==JourneyPhase.Frozen) return "ending.frozen";
+            if(journey.Phase==JourneyPhase.Crashed) return "ending.crashed";
+            if(journey.CanopyWasDeployed) return "ending.lateCanopy";
+            return journey.HasParachute?"ending.packedImpact":"ending.fell";
         }
 
         string RouteInstruction()
@@ -280,6 +312,7 @@ namespace Winterbourne.Pass
                 if(journey.MissedTrainInHub) return Get("hub.done");
                 if(journey.VisitingStation) return journey.Phase==JourneyPhase.Dwell
                     ? string.Format(Get("hub.wait"),Clock(journey.StationSeconds)) : Get("hub.chase");
+                if(!journey.InsideCottage) return Get("cottage.outside");
                 return Get("hub.ready");
             }
             if(journey.AtLanding) return Get("landing.safe");

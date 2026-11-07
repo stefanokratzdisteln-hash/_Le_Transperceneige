@@ -375,6 +375,42 @@ MonoBehaviour:
     m_Key: run.value
     m_Metadata:
       m_Items: []
+  - m_Id: 15208885125120
+    m_Key: cottage.outside
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15208948039680
+    m_Key: flight.deploy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15208948039681
+    m_Key: flight.impact
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15208948039682
+    m_Key: flight.noPack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15208948039683
+    m_Key: flight.pull
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15208948039684
+    m_Key: flight.space
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15208948039685
+    m_Key: flight.steer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15604575764480
+    m_Key: ending.lateCanopy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15604655456256
+    m_Key: ending.packedImpact
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

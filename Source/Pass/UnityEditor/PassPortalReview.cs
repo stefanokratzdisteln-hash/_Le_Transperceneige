@@ -149,6 +149,9 @@ namespace Winterbourne.Editor
             route.walker.Place(route.consist,route.consist.InverseTransformPoint(route.escapeLaunch.position),
                 Quaternion.identity,0);
             Check(route.EscapeReady && route.TryJump(),"failed to leap at "+distance);
+            route.Advance(.95f);
+            Check(!route.canopy.activeSelf && route.Phase==JourneyPhase.Jumping && route.TryDeployParachute(),
+                "manual deployment failed after release at "+distance);
             for(int n=0;n<550 && !route.AtLanding && !route.Terminal;n++) route.Advance(.1f);
             Check(route.AtLanding && !route.Terminal && capsule.enabled && !route.walker.externalMotion &&
                   !route.canopy.activeSelf && route.returnGate.gameObject.activeInHierarchy,"successful landing must permit walking");

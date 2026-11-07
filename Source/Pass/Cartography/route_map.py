@@ -309,8 +309,8 @@ def bridge_detail(d,x,y,w):
     d.ellipse((xx-3,yy+27,xx+3,yy+33),fill=RED)
     for yy2 in (hy(-65),hy(-75)):
         d.line((sx(1600),yy2,sx(1614),yy2),fill=WATER,width=3)
-    label(d,(x+27,y+352),'桥上约 120 秒；断口之前必须离车。','cnb',25)
-    label(d,(x+27,y+397),'安全着陆后，走进落点旁的传送门返回桥下小屋。高度为示意。','cn',23,MUTED)
+    label(d,(x+27,y+352),'09 号尾台按空格跳出，离车后再按一次空格开伞。','cnb',25)
+    label(d,(x+27,y+397),'WASD 滑翔。着陆后可从雪地按 E 进小屋，或走进回程书柜。','cn',23,MUTED)
 
 
 def main():
