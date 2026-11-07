@@ -37,7 +37,7 @@ namespace Winterbourne.Pass
         public static int GetFallDamage(float impactSpeed)
         {
             if(impactSpeed<=7f) return 0;
-            // Ordinary jumps land below 5 m/s. A long, unarrested fall is lethal.
+            // A level-ground jump stays below the damage threshold.
             float severity=Mathf.InverseLerp(7f,16f,impactSpeed);
             return Mathf.CeilToInt(100f*severity*severity);
         }
@@ -72,7 +72,7 @@ namespace Winterbourne.Pass
         void LockExpedition(JourneyPhase end)
         {
             clockStopped = true;
-            if (end==JourneyPhase.TimedOut || end==JourneyPhase.Fell ||
+            if (end==JourneyPhase.TimedOut || end==JourneyPhase.Fell || end==JourneyPhase.TunnelImpact ||
                 end==JourneyPhase.Frozen || end==JourneyPhase.Crashed) Health=0;
         }
 

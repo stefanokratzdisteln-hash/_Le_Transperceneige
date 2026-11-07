@@ -3,6 +3,18 @@
 from math import cos, pi, sin
 
 
+WINDOW_DESK_BAYS = (1, 3)
+WINDOW_DESK_SIZE = (.728, .389, .060)
+
+
+def window_station(wing, i):
+    return wing * (2.37 + i * 1.38)
+
+
+def window_desk_center(station):
+    return (station, 1.245, 2.560)
+
+
 def _rounded(x, z, width, height, radius):
     """Counterclockwise outline in the XZ plane, beginning at the right edge."""
     points = []
@@ -124,7 +136,7 @@ def _curtain(g, group, side, x, handed, fullness):
 
 
 def _cabin(g, group, side, wing, i, window_desks, curtains):
-    x = wing * (2.37 + i * 1.38)
+    x = window_station(wing, i)
     z = 2.98
     tile = _rounded(x,z,1.38,1.12,.004)
     outer = _rounded(x,z,1.185,.891,.112)
@@ -167,11 +179,11 @@ def _cabin(g, group, side, wing, i, window_desks, curtains):
                 eye_x = x+handed*(.492-.252*fullness*finger)
                 g.cyl(interior_group,'gilt',(eye_x,side*1.385,3.343),(eye_x,side*1.385,3.377),.006,8)
 
-    if window_desks and side > 0 and i in (1,3):
+    if window_desks and side > 0 and i in WINDOW_DESK_BAYS:
         furniture = 'Interior_Window_desks'
         # The shallow writing shelf projects into the actual compartment.
         # Its two turned, wall-mounted brackets leave the floor unobstructed.
-        g.box(furniture,'wood',(x,1.245,2.560),(.728,.389,.060),.018)
+        g.box(furniture,'wood',window_desk_center(x),WINDOW_DESK_SIZE,.018)
         g.box(furniture,'gilt',(x,1.053,2.556),(.679,.010,.010),.003)
         for dx in (-.258,.258):
             g.box(furniture,'wood',(x+dx,1.411,2.34),(.086,.048,.370),.009)

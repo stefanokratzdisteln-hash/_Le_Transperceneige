@@ -111,7 +111,47 @@ namespace Winterbourne.Editor
                 }
             }
             Portal(b,480,-1);Portal(b,780,1);
+            SmokeHood(b);
             b.Save("Black Rigg tunnel");
+        }
+
+        // A sheet-steel smoke hood suspended under the old masonry crown gives the
+        // low clearance a visible leading edge. The collision volumes start and end
+        // at the sheet edges, including the lower side returns above the roof shoulders.
+        static void SmokeHood(Batch b)
+        {
+            void Sheet(string name,float left,float right,float underside)
+            {
+                var centre=W((left+right)/2,underside+.0475f,630);
+                var size=new Vector3(right-left,.095f,300f);
+                var go=new GameObject("Smoke hood - "+name);
+                go.transform.SetParent(landscape,false);
+                go.transform.position=centre;
+                var box=go.AddComponent<BoxCollider>();
+                box.size=size;
+                go.AddComponent<Winterbourne.Pass.PassTunnelClearance>().soffit=box;
+                b.Block(Paint.Iron,centre,size);
+                foreach(float end in new[]{480f,780f})
+                {
+                    b.Block(Paint.Ivory,W((left+right)/2,underside+.076f,end),
+                        new Vector3(right-left,.15f,.055f));
+                    for(float x=left+.12f;x<right-.09f;x+=.32f)
+                        b.Block(Paint.Iron,W(x,underside+.076f,end+(end<630 ? -.032f : .032f)),
+                            new Vector3(.14f,.148f,.012f));
+                }
+            }
+            Sheet("central soffit",-1.29f,1.29f,5.65f);
+            for(int hand=-1;hand<=1;hand+=2)
+            {
+                float inner=hand*1.29f,outer=hand*2.06f;
+                Sheet(hand<0?"left shoulder":"right shoulder",Mathf.Min(inner,outer),Mathf.Max(inner,outer),5.40f);
+                b.Block(Paint.Iron,W(inner,5.57f,630),new Vector3(.039f,.29f,300));
+                for(int s=480;s<=780;s+=6)
+                {
+                    b.Bar(Paint.Steel,W(outer,5.52f,s),W(hand*2.78f,5.70f,s),.072f,.073f);
+                    b.Bar(Paint.Iron,W(hand*.98f,5.76f,s),W(hand*1.10f,6.64f,s),.042f,.048f);
+                }
+            }
         }
 
         static void Pier(Batch b,float s,float depth,bool broken=false)

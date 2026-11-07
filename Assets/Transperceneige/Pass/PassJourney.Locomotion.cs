@@ -16,6 +16,7 @@ namespace Winterbourne.Pass
             boardingAge = -1;
             climbingPlatform = false;
             boardingDoor = null;
+            activeLadder = null;
         }
 
         public bool TryJump()

@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import cabins
+import carbody
 import interior
 
 
@@ -17,6 +18,10 @@ def write(folder):
                              size=[size[1],size[2],size[0]]))
     for name,center,size in interior.collision_boxes()+list(cabins.collision_boxes()):
         box(name,center,size)
+    for wing in (-1, 1):
+        for bay in carbody.WINDOW_DESK_BAYS:
+            station = carbody.window_station(wing, bay)
+            box(f"Window writing shelf {station:.2f}", carbody.window_desk_center(station), carbody.WINDOW_DESK_SIZE)
     for sign,tag in ((-1,'A'),(1,'B')):
         for hand in (-1,1):
             box(f'End {tag} wing {hand}',(sign*8.994,hand*1.055,2.47),(.11,.76,2.16))

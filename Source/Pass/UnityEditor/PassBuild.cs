@@ -142,6 +142,14 @@ namespace Winterbourne.Editor
                 "Missing movable parachute bag");
             var cars=Enumerable.Range(1,9).Select(n => route.consist.Cast<Transform>().Single(t =>
                 PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(t.gameObject) == FleetImport.PrefabPath(n))).ToArray();
+            foreach (int number in new[]{3,9}) {
+                var ladder=cars[number-1].GetComponentInChildren<PassRoofLadder>();
+                Check(ladder && ladder.IsReady && ladder.roofLanding.position.y > ladder.lowerLanding.position.y+2,
+                    "Missing usable roof ladder on van "+number);
+            }
+            var tunnel=Object.FindFirstObjectByType<PassTunnelClearance>();
+            Check(tunnel && tunnel.soffit && !tunnel.soffit.isTrigger &&
+                !tunnel.transform.IsChildOf(route.consist), "Tunnel clearance must be a solid part of the landscape");
             for (int i=0; i<8; i++) {
                 var rear=Anchor(cars[i],"Socket_B");
                 var front=Anchor(cars[i+1],"Socket_A");

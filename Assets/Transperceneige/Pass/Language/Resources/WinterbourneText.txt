@@ -46,7 +46,15 @@ bridge.pack	Collect the parachute in van 09	去 09 号行李架取伞包
 bridge.ready	Van 09: E at the rear door. Space to jump, then press Space again to open the parachute.	09 号尾门：按 E 开门。空格跳出，离车后再按一次空格开伞。
 bridge.wait	Get to the rear of van 09. In the air, press Space again to deploy.	到 09 号车尾准备。跳出后，再按一次空格开伞。
 station.approach	Approaching Fellbridge	即将停靠费尔桥站
-controls.walk	WASD  Move   ·   Shift  Sprint\nSpace  Jump   ·   E  Doors	WASD 移动   ·   Shift 加速\n空格 跳跃   ·   E 开关门
+controls.walk	WASD  Move   ·   Shift  Sprint\nSpace  Jump   ·   Ctrl  Crouch / stand\nE  Doors and ladders	WASD 移动   ·   Shift 加速\n空格 跳跃   ·   Ctrl 蹲下 / 站起\nE 开关门、爬梯子
+roof.up	E   Climb to the roof	E   沿梯子爬上车顶
+roof.down	E   Climb down into the van	E   沿梯子返回车内
+roof.climbing	On the ladder	正在爬梯子
+roof.controls	Ctrl  Crouch / stand    ·    E at a hatch to climb down	Ctrl  蹲下 / 站起    ·    舱口按 E 下梯
+roof.warning	Low tunnel ahead. Press Ctrl to crouch before the roof enters.	前方隧道净空低。车顶进洞前按 Ctrl 蹲下。
+roof.inside	Stay crouched until your carriage clears the tunnel.	保持蹲姿，直到你所在的车厢驶出隧道。
+roof.blocked	Too low to stand here	上方空间不足，无法站起
+roof.impact	You struck the tunnel roof. Press Ctrl to crouch before your carriage enters.	你撞上了隧道顶部。下次请在所在车厢进洞前按 Ctrl 蹲下。
 ending.failed	Game Over	游戏结束
 ending.frozen	You missed the last coach and succumbed to the cold at Fellbridge.	您错过了最后一节车，在站台上失温。
 ending.crashed	The train reached the broken span. Escape from the rear of van 09 before impact.	列车驶入断桥。下次请从 09 号尾门及时撤离。

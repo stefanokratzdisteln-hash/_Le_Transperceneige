@@ -21,12 +21,21 @@ namespace Winterbourne.Demo
         float yaw, pitch, targetYaw, targetPitch, fallSpeed;
         Vector3 planarVelocity, inheritedVelocity;
         float groundGrace, jumpBuffer;
-        const float Gravity = 16f, JumpHeight = .68f;
+        const float Gravity = 16f, JumpHeight = 1.08f, CrouchingHeight = 1f;
+        readonly Collider[] overheadHits = new Collider[16];
+        Vector3 standingCenter;
+        float standingEyeHeight;
+        bool tuckedForJump, eyeChangingHeight;
+        public float StandingHeight { get; private set; }
+        public bool IsCrouched { get; private set; }
+        public bool CrouchSelected { get; private set; }
         bool ownsCursor;
         // Optional hooks for a journey scene; the standalone carriage keeps its original controls.
         public System.Func<bool> useOverride;
         public System.Func<bool> pointerOverControl;
         public System.Func<bool> jumpOverride;
+        public System.Func<bool> canStandOverride;
+        public System.Func<bool> canCrouchDuringExternalMotion;
         public System.Action<Vector2,bool> externalInput;
         public System.Action<float> groundImpact;
         public bool automaticRespawn = true;
@@ -65,6 +74,9 @@ namespace Winterbourne.Demo
             controller = GetComponent<CharacterController>();
             if (!eyeCamera)
                 eyeCamera = GetComponentInChildren<Camera>(true);
+            StandingHeight = controller.height;
+            standingCenter = controller.center;
+            if (eyeCamera) standingEyeHeight = eyeCamera.transform.localPosition.y;
             spawnLocal = transform.localPosition;
             spawnRotation = transform.localRotation;
             yaw = targetYaw = transform.localEulerAngles.y;
@@ -73,7 +85,7 @@ namespace Winterbourne.Demo
         void Update()
         {
             ReadInput(out Vector2 walk, out Vector2 look, out bool click, out bool escape, out bool useDoor,
-                      out bool sprint, out bool jump);
+                      out bool sprint, out bool jump, out bool crouch);
 
             if (escape || !Application.isFocused || overlayOpen)
                 ReleaseCursor();
@@ -105,20 +117,27 @@ namespace Winterbourne.Demo
             else
                 walk = Vector2.zero;
 
-            MoveCharacter(walk, ownsCursor && sprint, dt, ownsCursor && jump);
+            MoveCharacter(walk, ownsCursor && sprint, dt, ownsCursor && jump, ownsCursor && crouch);
             float spawnHeight = transform.parent ? transform.parent.TransformPoint(spawnLocal).y : spawnLocal.y;
             if (automaticRespawn && transform.position.y < spawnHeight - 3.5f)
                 Respawn();
         }
 
         // Both input backends and the fixed-step route walkthrough drive the same capsule.
-        public void MoveCharacter(Vector2 axes, bool sprint, float dt, bool jump = false)
+        public void MoveCharacter(Vector2 axes, bool sprint, float dt, bool jump = false, bool toggleCrouch = false)
         {
             if (dt <= 0) return;
-            if (externalMotion) { externalInput?.Invoke(axes,jump); return; }
+            if (externalMotion)
+            {
+                if (toggleCrouch && !overlayOpen && (canCrouchDuringExternalMotion?.Invoke() ?? false)) ToggleCrouch();
+                UpdateEyeHeight(dt);
+                externalInput?.Invoke(axes,jump);
+                return;
+            }
             if (!controller.enabled) return;
             MoveIntent = Vector3.ClampMagnitude(transform.right * axes.x + transform.forward * axes.y, 1f);
             bool grounded = controller.isGrounded && fallSpeed <= 0;
+            if (toggleCrouch && !overlayOpen) ToggleCrouch();
             if (grounded) groundGrace = .10f;
             else groundGrace = Mathf.Max(0, groundGrace - dt);
             if (jump)
@@ -131,6 +150,7 @@ namespace Winterbourne.Demo
             if (jumpBuffer > 0 && grounded && fallSpeed <= 0) Launch();
             jumpBuffer = Mathf.Max(0, jumpBuffer - dt);
             float speed = sprint ? Mathf.Max(walkingSpeed, runningSpeed) : walkingSpeed;
+            if (CrouchSelected) speed = walkingSpeed * .7f;
             bool buildingSprint = sprint && speed > walkingSpeed && planarVelocity.magnitude >= walkingSpeed * .95f &&
                                   Vector3.Dot(planarVelocity.normalized, MoveIntent) > .86f;
             float acceleration = grounded ? (buildingSprint ? 6.67f : 16f) : 6f;
@@ -153,6 +173,12 @@ namespace Winterbourne.Demo
                 if (JumpAge > .1f) JumpAge = float.PositiveInfinity;
                 if(!grounded) groundImpact?.Invoke(impactSpeed);
             }
+            if (tuckedForJump && fallSpeed <= 0 && CanStand())
+            {
+                tuckedForJump = false;
+                ApplyStance(false);
+            }
+            UpdateEyeHeight(dt);
             JumpAge += dt;
         }
 
@@ -170,9 +196,63 @@ namespace Winterbourne.Demo
 
         void Launch()
         {
+            // Inside the saloon there is room for the jumper's knees, but not a
+            // full standing capsule between a dining table and the roof lining.
+            if (!IsCrouched && OverheadBlocked(JumpHeight))
+            {
+                tuckedForJump = true;
+                ApplyStance(true);
+            }
             fallSpeed = Mathf.Sqrt(2f * Gravity * JumpHeight);
             JumpAge = 0;
             groundGrace = jumpBuffer = 0;
+        }
+
+        public bool ToggleCrouch() => SetCrouched(!IsCrouched);
+
+        public bool SetCrouched(bool crouched)
+        {
+            if (!crouched && IsCrouched && !CanStand()) return false;
+            tuckedForJump = false;
+            CrouchSelected = crouched;
+            ApplyStance(crouched);
+            return true;
+        }
+
+        bool CanStand() => !OverheadBlocked(StandingHeight - controller.height) && (canStandOverride?.Invoke() ?? true);
+
+        bool OverheadBlocked(float additionalHeight)
+        {
+            if (additionalHeight <= 0) return false;
+            Vector3 scale = transform.lossyScale;
+            float radius = controller.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.z));
+            Vector3 top = transform.TransformPoint(controller.center + Vector3.up * (controller.height * .5f));
+            Vector3 start = top - transform.up * radius;
+            int count = Physics.OverlapCapsuleNonAlloc(start, start + transform.up * (additionalHeight * Mathf.Abs(scale.y)),
+                Mathf.Max(.01f, radius - .012f), overheadHits, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < count; i++)
+                if (overheadHits[i] != controller && !overheadHits[i].transform.IsChildOf(transform)) return true;
+            return count == overheadHits.Length;
+        }
+
+        void ApplyStance(bool crouched)
+        {
+            if (IsCrouched == crouched) return;
+            float height = crouched ? Mathf.Clamp(CrouchingHeight, 2f * controller.radius, StandingHeight) : StandingHeight;
+            controller.height = height;
+            controller.center = standingCenter - Vector3.up * ((StandingHeight - height) * .5f);
+            IsCrouched = crouched;
+            eyeChangingHeight = true;
+        }
+
+        void UpdateEyeHeight(float dt)
+        {
+            if (!eyeChangingHeight || !eyeCamera) return;
+            Vector3 eye = eyeCamera.transform.localPosition;
+            float target = standingEyeHeight - (StandingHeight - controller.height);
+            eye.y = Mathf.MoveTowards(eye.y, target, 5f * dt);
+            eyeCamera.transform.localPosition = eye;
+            eyeChangingHeight = eye.y != target;
         }
 
         public void LeaveMovingSupport(Vector3 velocity) => inheritedVelocity = velocity;
@@ -208,6 +288,7 @@ namespace Winterbourne.Demo
             yaw = targetYaw = spawnRotation.eulerAngles.y;
             pitch = targetPitch = fallSpeed = 0f;
             ClearMovement();
+            SetCrouched(false);
             if (eyeCamera)
                 eyeCamera.transform.localRotation = Quaternion.identity;
         }
@@ -230,10 +311,10 @@ namespace Winterbourne.Demo
         void OnDisable() => ReleaseCursor();
 
         static void ReadInput(out Vector2 walk, out Vector2 look, out bool click, out bool escape, out bool useDoor,
-                              out bool sprint, out bool jump)
+                              out bool sprint, out bool jump, out bool crouch)
         {
             walk = look = Vector2.zero;
-            click = escape = useDoor = sprint = jump = false;
+            click = escape = useDoor = sprint = jump = crouch = false;
 #if ENABLE_INPUT_SYSTEM
             var keys = Keyboard.current;
             if (keys != null)
@@ -246,6 +327,7 @@ namespace Winterbourne.Demo
                 useDoor = keys.eKey.wasPressedThisFrame;
                 sprint = keys.shiftKey.isPressed;
                 jump = keys.spaceKey.wasPressedThisFrame;
+                crouch = keys.leftCtrlKey.wasPressedThisFrame || keys.rightCtrlKey.wasPressedThisFrame;
             }
             var mouse = Mouse.current;
             if (mouse != null)
@@ -262,6 +344,7 @@ namespace Winterbourne.Demo
             useDoor = Input.GetKeyDown(KeyCode.E);
             sprint = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
             jump = Input.GetKeyDown(KeyCode.Space);
+            crouch = Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl);
             click = Input.GetMouseButtonDown(0);
             look = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 10f;
 #endif

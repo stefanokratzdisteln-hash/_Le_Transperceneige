@@ -72,12 +72,12 @@ namespace Winterbourne.Editor
             if(!condition) throw new InvalidOperationException("KEEPER: "+reason);
         }
 
-        internal static void Photo(string name)
+        internal static void Photo(string name,Camera camera=null)
         {
             string path=FleetImport.Argument("-portalImages");
             if(string.IsNullOrEmpty(path)) return;
             Directory.CreateDirectory(path);
-            var eye=route.walker.eyeCamera;
+            var eye=camera ? camera : route.walker.eyeCamera;
             var old=RenderTexture.active;
             var target=RenderTexture.GetTemporary(1440,900,24,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB);
             var texture=new Texture2D(1440,900,TextureFormat.RGB24,false);

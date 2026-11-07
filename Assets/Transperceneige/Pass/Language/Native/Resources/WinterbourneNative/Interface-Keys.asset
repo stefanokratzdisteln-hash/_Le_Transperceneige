@@ -411,6 +411,38 @@ MonoBehaviour:
     m_Key: ending.packedImpact
     m_Metadata:
       m_Items: []
+  - m_Id: 20641175699456
+    m_Key: roof.blocked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20641230225408
+    m_Key: roof.climbing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20641230225409
+    m_Key: roof.controls
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20641230225410
+    m_Key: roof.down
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20641230225411
+    m_Key: roof.impact
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20641230225412
+    m_Key: roof.inside
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20641230225413
+    m_Key: roof.up
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20641230225414
+    m_Key: roof.warning
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

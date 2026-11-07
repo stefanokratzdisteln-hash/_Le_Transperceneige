@@ -247,7 +247,7 @@ namespace Winterbourne.Pass
                 settledValue.text=string.Format(Get("run.settled"),value,target);
             }
             Show(shortcuts,!menu&&!bag&&!end);
-            shortcuts.text=Get(hub?"hub.controls":"controls.shortcuts");
+            shortcuts.text=Get(hub?"hub.controls":journey.OnRoof?"roof.controls":"controls.shortcuts");
             if(!bag) selected=-1;
             int count=0;
             for(int i=0;i<12;i++){
@@ -277,7 +277,8 @@ namespace Winterbourne.Pass
             if(!Mathf.Approximately(cold,frostAmount)){frostAmount=cold;frost.MarkDirtyRepaint();}
             string line=RouteInstruction();
             task.text=line;Show(task,line.Length>0&&!end);
-            waybill.EnableInClassList("urgent",!hub&&!journey.AtLanding&&(journey.Distance>=1400 || journey.Phase==JourneyPhase.Freezing));
+            waybill.EnableInClassList("urgent",!hub&&!journey.AtLanding&&
+                (journey.TunnelAhead || journey.InRoofTunnel || journey.Distance>=1400 || journey.Phase==JourneyPhase.Freezing));
             bool freefall=journey.Phase==JourneyPhase.Jumping;
             Show(deployPrompt,freefall&&!menu&&!end);
             if(freefall){
@@ -302,6 +303,7 @@ namespace Winterbourne.Pass
             if(journey.RunExpired) return "run.timeout";
             if(journey.Phase==JourneyPhase.Frozen) return "ending.frozen";
             if(journey.Phase==JourneyPhase.Crashed) return "ending.crashed";
+            if(journey.Phase==JourneyPhase.TunnelImpact) return "roof.impact";
             if(journey.CanopyWasDeployed) return "ending.lateCanopy";
             return journey.HasParachute?"ending.packedImpact":"ending.fell";
         }
@@ -316,6 +318,8 @@ namespace Winterbourne.Pass
                 return Get("hub.ready");
             }
             if(journey.AtLanding) return Get("landing.safe");
+            if(journey.InRoofTunnel) return Get("roof.inside");
+            if(journey.TunnelAhead) return Get(journey.walker.IsCrouched?"roof.inside":"roof.warning");
             float d=journey.Distance;
             switch(journey.Phase){
                 case JourneyPhase.Dwell: return string.Format(Get("dwell"),Clock(journey.StationSeconds));

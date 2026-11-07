@@ -216,7 +216,41 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951560
-    m_Localized: "WASD  Move   \xB7   Shift  Sprint\nSpace  Jump   \xB7   E  Doors"
+    m_Localized: "WASD  Move   \xB7   Shift  Sprint\nSpace  Jump   \xB7   Ctrl  Crouch
+      / stand\nE  Doors and ladders"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20641230225413
+    m_Localized: E   Climb to the roof
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20641230225410
+    m_Localized: E   Climb down into the van
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20641230225408
+    m_Localized: On the ladder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20641230225409
+    m_Localized: "Ctrl  Crouch / stand    \xB7    E at a hatch to climb down"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20641230225414
+    m_Localized: Low tunnel ahead. Press Ctrl to crouch before the roof enters.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20641230225412
+    m_Localized: Stay crouched until your carriage clears the tunnel.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20641175699456
+    m_Localized: Too low to stand here
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20641230225411
+    m_Localized: You struck the tunnel roof. Press Ctrl to crouch before your carriage
+      enters.
     m_Metadata:
       m_Items: []
   - m_Id: 1420951566

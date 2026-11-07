@@ -81,6 +81,7 @@ namespace Winterbourne.Editor
             {
                 var car=cars[n-1].transform;
                 var hardware=Child(car,"Pass entrance fittings",Vector3.zero).transform;
+                BuildRoofWalk(car,n,mat);
                 bool loading=n==3 || n==9;
                 for(int side=-1;side<=1;side+=2)
                 {

@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 
 namespace Winterbourne.Pass
 {
-    public enum JourneyPhase { Running, Dwell, Chase, Freezing, Jumping, UnderCanopy, Won, Frozen, Fell, Crashed, TimedOut }
+    public enum JourneyPhase { Running, Dwell, Chase, Freezing, Jumping, UnderCanopy, Won, Frozen, Fell, Crashed, TimedOut, TunnelImpact }
 
     [DefaultExecutionOrder(-90)]
     public sealed partial class PassJourney : MonoBehaviour
@@ -30,7 +30,7 @@ namespace Winterbourne.Pass
         public bool ManualClock { get; set; }
         public bool HasParachute => Array.IndexOf(slots,"parachute") >= 0;
         public bool Terminal => Phase==JourneyPhase.TimedOut || Phase==JourneyPhase.Frozen ||
-            Phase==JourneyPhase.Crashed || Phase==JourneyPhase.Fell;
+            Phase==JourneyPhase.Crashed || Phase==JourneyPhase.Fell || Phase==JourneyPhase.TunnelImpact;
         public bool EscapeReady => Distance>=Bridge+TrainLength+4 && Distance<Break &&
             PassAtmosphere.GroundHeight(7,Distance-TrainLength)<-12;
         public float SecondsToBreak => Mathf.Max(0,(Break-Distance)/6);
@@ -71,11 +71,18 @@ namespace Winterbourne.Pass
             public float[] amount, slideAmount;
             public float[] coverAmount;
             public bool[] coverTarget;
+            public bool crouched;
+            public PassRoofLadder ladder;
+            public int ladderTarget, ladderDirection;
         }
 
         void Start()
         {
             body=walker.GetComponent<CharacterController>();
+            ladders=consist.GetComponentsInChildren<PassRoofLadder>();
+            tunnelZones=FindObjectsByType<PassTunnelClearance>(FindObjectsSortMode.None);
+            walker.canStandOverride=RoomToStand;
+            walker.canCrouchDuringExternalMotion=() => ClimbingRoofLadder && !Terminal;
             doors=consist.GetComponentsInChildren<PassDoor>(true);
             sliders=consist.GetComponentsInChildren<Car07SlidingDoor>(true);
             items=consist.GetComponentsInChildren<PassPickup>(true);
@@ -119,7 +126,8 @@ namespace Winterbourne.Pass
 
         void OnDestroy()
         {
-            if(walker){ walker.useOverride=null; walker.jumpOverride=null; walker.externalInput=null; walker.groundImpact=null; }
+            if(walker){ walker.useOverride=null; walker.jumpOverride=null; walker.externalInput=null; walker.groundImpact=null;
+                walker.canStandOverride=null; walker.canCrouchDuringExternalMotion=null; }
             if(whistle) Destroy(whistle);
             if(bell) Destroy(bell);
         }
@@ -148,6 +156,7 @@ namespace Winterbourne.Pass
             if(!body || InStartMenu) return;
             PollPortals();
             ReconcileBoarding();
+            CheckTunnelImpact();
             if(gripLamp) gripLamp.enabled=Phase==JourneyPhase.Chase;
             if(air) air.Apply(Lighting,-walker.transform.position.z);
         }
@@ -195,6 +204,11 @@ namespace Winterbourne.Pass
 
         bool UseLookedAtDoor()
         {
+            if (TryTargetLadder(out var ladder,out bool descend))
+            {
+                StartLadder(ladder,descend);
+                return true;
+            }
             if (!Terminal && !InventoryOpen && !InStartMenu && TryLookAtCover(out var cover))
             {
                 cover.Toggle();
@@ -250,6 +264,9 @@ namespace Winterbourne.Pass
         public string ActionPrompt()
         {
             if (Terminal || InventoryOpen || InStartMenu || !walker || !walker.eyeCamera) return "";
+            if (ClimbingRoofLadder) return PassText.Get("roof.climbing");
+            if (walker.HasMouse && TryTargetLadder(out _,out bool descend))
+                return PassText.Get(descend ? "roof.down" : "roof.up");
             if(walker.HasMouse && TryLookAtCover(out var cover))
                 return PassText.Get(cover.TargetClosed ? "E   开门" : "E   关门");
             if (TryCottageDoorPrompt(out string entryPrompt)) return entryPrompt;
@@ -287,6 +304,8 @@ namespace Winterbourne.Pass
                     else break;
                 }else{
                     Drive(dt);
+                    if (ClimbingRoofLadder && !Terminal) StepLadder(dt);
+                    CheckTunnelImpact();
                     if(boardingAge>=0) StepAboard(dt);
                     if(Phase==JourneyPhase.Freezing && (ColdSeconds-=dt)<=0) Finish(JourneyPhase.Frozen);
                     else if(Phase==JourneyPhase.Jumping || Phase==JourneyPhase.UnderCanopy) Fly(dt);
@@ -390,6 +409,7 @@ namespace Winterbourne.Pass
         void SaveCheckpoint()
         {
             saved=new Checkpoint{
+                crouched=walker.CrouchSelected,ladder=activeLadder,ladderTarget=ladderTarget,ladderDirection=ladderDirection,
                 distance=Distance,speed=Speed,dwell=StationSeconds,cold=ColdSeconds,phase=Phase,health=Health,
                 first=beforeStation,second=beforeBridge,sounded=sounded,aboard=Aboard,
                 position=Aboard ? walker.transform.localPosition : walker.transform.position,
@@ -431,7 +451,11 @@ namespace Winterbourne.Pass
             if(canopy) canopy.SetActive(false);
             walker.Place(Aboard ? consist : null,c.position,c.rotation,c.pitch);
             ResetLocomotion();
-            walker.externalMotion=false; SetInventory(false);
+            walker.externalMotion=false;
+            walker.SetCrouched(c.crouched);
+            activeLadder=c.ladder; ladderTarget=c.ladderTarget; ladderDirection=c.ladderDirection;
+            walker.externalMotion=ClimbingRoofLadder;
+            SetInventory(false);
             Physics.SyncTransforms();
         }
 
