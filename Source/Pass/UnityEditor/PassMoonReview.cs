@@ -124,7 +124,7 @@ namespace Winterbourne.Editor
             {
                 if(view=="DutyWindow")
                 {
-                    route.consist.position=new Vector3(0,0,PassJourney.NoseDatum-PassJourney.Stop);
+                    route.consist.position=new Vector3(0,0,route.NoseDatum-PassJourney.Stop);
                     eye.transform.position=station.TransformPoint(new Vector3(-1.25f,5.03f,-7.45f));
                     eye.transform.LookAt(station.TransformPoint(new Vector3(8.23f,3.18f,-9.23f)));
                     Physics.SyncTransforms();

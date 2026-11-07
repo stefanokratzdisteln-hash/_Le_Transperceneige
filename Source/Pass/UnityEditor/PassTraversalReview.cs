@@ -293,11 +293,12 @@ namespace Winterbourne.Editor
             ClockToStation();
             var car = cars[number-1];
             int end = number == 7 ? -1 : 1;
-            var gate = doors.Single(d => d.car == car && d.ExteriorSide == -1 &&
-                Mathf.Abs(car.InverseTransformPoint(d.threshold.position).z - end * 8.04f) < .1f);
-            var waypoints = number == 5 ? new[] {new Vector2(-.60f,5.42f),new Vector2(0,5.42f),new Vector2(0,8.04f)} :
-                number == 7 ? new[] {new Vector2(-.13f,-5.21f),new Vector2(.90f,-5.21f),new Vector2(.90f,-7.65f),new Vector2(0,-7.65f),new Vector2(0,-8.04f)} :
-                new[] {new Vector2(0,5.37f),new Vector2(0,8.04f)};
+            var gate = doors.Where(d => d.car == car && d.ExteriorSide == -1)
+                .OrderByDescending(d=>end*car.InverseTransformPoint(d.threshold.position).z).First();
+            float endZ=car.InverseTransformPoint(gate.threshold.position).z;
+            var waypoints = number == 5 ? new[] {new Vector2(-.60f,5.42f),new Vector2(0,5.42f),new Vector2(0,endZ)} :
+                number == 7 ? new[] {new Vector2(-.13f,-5.21f),new Vector2(.90f,-5.21f),new Vector2(.90f,-7.65f),new Vector2(0,-7.65f),new Vector2(0,endZ)} :
+                new[] {new Vector2(0,5.37f),new Vector2(0,endZ)};
             Vector3 Spot(Vector2 v) => car.TransformPoint(new Vector3(v.x,1.405f,v.y));
             Pose(Spot(waypoints[0]), Vector3.back, true);
             yield return Frames(3);
@@ -366,7 +367,7 @@ namespace Winterbourne.Editor
             foreach (bool trapped in new[] { false, true })
             {
                 // The fixture recreates a prior fall. Only a keypress can return it to the platform.
-                Vector3 p = new Vector3(trapped ? -.83f : -1.40f, .20f, trapped ? joint.position.z : -1107f);
+                Vector3 p = new Vector3(trapped ? -.83f : PassJourney.PlatformEdge+.39f, .20f, trapped ? joint.position.z : -1107f);
                 Pose(p, Vector3.left, false);
                 route.ReconcileBoarding();
                 Check(!route.Aboard, "Feet below a carriage still marked aboard");
@@ -374,7 +375,7 @@ namespace Winterbourne.Editor
                 Keys(Key.W, Key.Space); yield return Frames(2);
                 Keys(); yield return Frames(30);
                 rolling = false;
-                Check(Feet.y >= 1.34f && Feet.x < -1.97f && Mathf.Abs(Feet.z-p.z)<.15f && !route.Aboard,
+                Check(Feet.y >= 1.34f && Feet.x < PassJourney.PlatformEdge-.20f && Mathf.Abs(Feet.z-p.z)<.15f && !route.Aboard,
                     $"Space could not recover {(trapped?"under the coupling":"at the platform face")}: {Feet:F3}");
             }
             Debug.Log("TRAVERSAL INPUT: ordinary platform mantle and screenshot-style coupling trap both recovered with Space");
@@ -440,7 +441,8 @@ namespace Winterbourne.Editor
         {
             var rear = doors.Single(d => d.kind == PassDoorKind.Escape);
             var grip = grips.First(g => g.hinge == rear);
-            Vector3 feet = rear.car.TransformPoint(new Vector3(.18f,1.405f,7.42f));
+            var launch = rear.car.InverseTransformPoint(route.escapeLaunch.position);
+            Vector3 feet = rear.car.TransformPoint(new Vector3(.18f,1.405f,launch.z-2.11f));
             Vector3 aim = grip.GetComponent<Collider>().bounds.center;
             Pose(feet,aim - (feet+Vector3.up*walker.eyeCamera.transform.localPosition.y),true);
             Check(route.DoorAvailable(rear) && PassDoorTarget.Resolve(walker.eyeCamera, walker.interactionDistance,
@@ -462,7 +464,7 @@ namespace Winterbourne.Editor
 
         static void CollectPack(int slot)
         {
-            var item=route.consist.GetComponentInChildren<PassPickup>();
+            var item=Array.Find(route.consist.GetComponentsInChildren<PassPickup>(),p=>p.itemId=="parachute");
             Check(item,"The real parachute pack is missing from the rack");
             var spot=item.transform.position+new Vector3(.70f,1.405f-item.transform.position.y,0);
             Pose(spot,item.transform.position-(spot+Vector3.up*walker.eyeCamera.transform.localPosition.y),true);

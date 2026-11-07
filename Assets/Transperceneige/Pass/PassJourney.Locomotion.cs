@@ -95,7 +95,7 @@ namespace Winterbourne.Pass
                     Board(false);
                     walker.LeaveMovingSupport(-consist.forward * Speed);
                 }
-                else if (Mathf.Abs(consist.InverseTransformPoint(feet).x) > 1.82f ||
+                else if (Mathf.Abs(consist.InverseTransformPoint(feet).x) > -PlatformEdge+.13f ||
                          (feet.y < 1.05f && InStation(feet)))
                 {
                     Board(false);
@@ -103,7 +103,7 @@ namespace Winterbourne.Pass
                 }
             }
             else if (support && support.transform.IsChildOf(consist) && feet.y >= 1.31f &&
-                     Mathf.Abs(consist.InverseTransformPoint(feet).x) < 1.66f)
+                     Mathf.Abs(consist.InverseTransformPoint(feet).x) < -PlatformEdge+.06f)
             {
                 // The roof, bogies and underside are not a boarding surface.
                 if (feet.y <= 1.59f && NearOpenThreshold(feet)) Board(true);
@@ -132,7 +132,9 @@ namespace Winterbourne.Pass
             {
                 if (d.ExteriorSide == 0 || d.Openness < .72f) continue;
                 Vector3 q = d.car.InverseTransformVector(feet - d.threshold.position);
-                if (Mathf.Abs(q.z) < .64f && Mathf.Abs(q.x) < .68f) return true;
+                float outside = q.x * d.ExteriorSide;
+                float footboardReach = d.ExteriorSide < 0 ? Mathf.Abs(PlatformEdge - d.threshold.position.x) + .07f : .68f;
+                if (Mathf.Abs(q.z) < .64f && outside > -.68f && outside < footboardReach) return true;
             }
             return false;
         }
@@ -246,7 +248,7 @@ namespace Winterbourne.Pass
             Bounds b = platformFloor.bounds;
             float rise = b.max.y - feet.y;
             float gap = feet.x - b.max.x;
-            if (rise < .31f || rise > 2.05f || gap < -.32f || gap > 2.45f ||
+            if (rise < .31f || rise > 2.05f || gap < -.32f || gap > -PlatformEdge+1.46f ||
                 feet.z < b.min.z + .62f || feet.z > b.max.z - .62f) return false;
             landing = new Vector3(b.max.x - .56f, b.max.y + .035f, feet.z);
             if (!ClearStanding(landing)) return false;

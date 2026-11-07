@@ -48,6 +48,16 @@ namespace Winterbourne.Demo
         public bool HasMouse => ownsCursor;
         public float ViewPitch => pitch;
         bool overlayOpen;
+        int resumeFrame = -1;
+
+        public void ResumeLook()
+        {
+            if (!Application.isFocused || overlayOpen) return;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            ownsCursor = true;
+            resumeFrame = Time.frameCount;
+        }
 
         public void Overlay(bool open)
         {
@@ -87,7 +97,7 @@ namespace Winterbourne.Demo
             ReadInput(out Vector2 walk, out Vector2 look, out bool click, out bool escape, out bool useDoor,
                       out bool sprint, out bool jump, out bool crouch);
 
-            if (escape || !Application.isFocused || overlayOpen)
+            if ((escape && Time.frameCount != resumeFrame) || !Application.isFocused || overlayOpen)
                 ReleaseCursor();
             else if (click && !ownsCursor && !(pointerOverControl?.Invoke() ?? false))
             {

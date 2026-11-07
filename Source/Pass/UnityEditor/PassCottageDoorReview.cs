@@ -98,9 +98,10 @@ namespace Winterbourne.Editor
         static void FlyFromVan()
         {
             PassReview.EnterFromRoom(journey);
-            var bag=journey.consist.GetComponentInChildren<PassPickup>();
+            var bag=Array.Find(journey.consist.GetComponentsInChildren<PassPickup>(),p=>p.itemId=="parachute");
             Vector3 pos=bag.transform.position+new Vector3(.70f,1.405f-bag.transform.position.y,0);
             journey.walker.Place(journey.consist,journey.consist.InverseTransformPoint(pos),Quaternion.identity,0);
+            journey.walker.eyeCamera.transform.LookAt(bag.transform.position);
             Expect(journey.TryPick(bag),"could not collect the actual parachute");
             for(int i=0;i<800 && journey.Phase!=JourneyPhase.Dwell;i++)journey.Advance(.4f);
             Expect(journey.Phase==JourneyPhase.Dwell,"station not reached");

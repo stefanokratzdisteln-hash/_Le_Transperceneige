@@ -65,6 +65,7 @@ def tank_and_bunker(g):
             for zz in (1.423,2.733):
                 g.cyl(kside,"steel",(xx,s*1.423,zz),(xx,s*1.443,zz),.016,8)
     # External filler on the tank plinth behind the coal pile.
+    k="Tender_fill_and_hatch"
     g.box(k,"ink",(2.982,-.837,2.071),(.578,.837,1.343),.035)
     turned(g,k,"brass","Z",(2.979,-.840,0),[(2.738,.224),(2.767,.251),
           (2.791,.242),(2.809,.193)],24)
@@ -72,6 +73,7 @@ def tank_and_bunker(g):
     pipe(g,k,"brass",[(2.91,-.84,2.865),(2.91,-.84,2.918),
                       (3.05,-.84,2.918),(3.05,-.84,2.865)],.014)
     # Fall plate on the footplate end and actual coal door, beside the route.
+    k="Tender_Water_Tank"
     g.box(k,"dark",(-2.662,-.627,1.920),(.060,.787,.839),.019)
     g.box(k,"rubber",(-2.704,-.627,1.898),(.028,.603,.588),.012)
     for zz in (1.699,1.914,2.129):

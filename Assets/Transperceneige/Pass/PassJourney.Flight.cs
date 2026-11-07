@@ -43,7 +43,7 @@ namespace Winterbourne.Pass
             if(chainage<Bridge || chainage>Break+40 || walker.VerticalSpeed>-.25f) return false;
             // A gap beside/beyond the formation is a real jump too. Keep the ordinary
             // motor for a drop onto the intact deck (and for platform/room jumps).
-            if(Aboard && Mathf.Abs(feet.x)<1.83f && feet.y>.5f &&
+            if(Aboard && Mathf.Abs(feet.x)<-PlatformEdge+.13f && feet.y>.5f &&
                chainage>=Distance-TrainLength-.25f && chainage<=Distance+.25f) return false;
             if(PassAtmosphere.GroundHeight(feet.x,chainage)>feet.y-4.5f ||
                 Physics.Raycast(feet+Vector3.up*.06f,Vector3.down,4.35f,

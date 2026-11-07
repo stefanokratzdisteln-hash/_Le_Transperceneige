@@ -35,7 +35,7 @@ namespace Winterbourne.Pass
             float coarse=Noise(x*.016f+73.23f,s*.009f+62.7f);
             float texture=Noise(x*.078f+311.3f,s*.057f+24.8f);
             float formation=-.29f+ClampRamp(2.0f,7.0f,d)*(.12f+coarse*.40f+texture*.22f);
-            float station=1-ClampRamp(0,34,Mathf.Max(920-s,s-1110));
+            float station=1-ClampRamp(0,34,Mathf.Max(PassJourney.PlatformStart-s,s-PassJourney.PlatformEnd));
             float shelf=ClampRamp(9,55,d);
             float headland=(x<0 ? -13f : 2.8f)+4*(2*coarse-1)+1.7f*texture;
             float h=formation+shelf*headland*(1-station*(1-ClampRamp(13,48,d)));

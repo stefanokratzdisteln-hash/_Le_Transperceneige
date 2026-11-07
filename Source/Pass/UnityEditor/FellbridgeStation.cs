@@ -6,7 +6,9 @@ namespace Winterbourne.Editor
     public static partial class PassFittings
     {
         const float StationOrigin=(PlatformFirst+PlatformLast)/2;
-        const float Edge=-1.76f, Back=-8.82f;
+        const float Edge=Winterbourne.Pass.PassJourney.PlatformEdge, Back=-8.82f;
+        public const float StationHouseChainage=943f;
+        const float SleeperWindowSign=938f;
         static Vector3 PlatformPoint(float x,float height,float chainage)
             => new Vector3(x,PlatformTop+height,StationOrigin-chainage);
 
@@ -35,7 +37,7 @@ namespace Winterbourne.Editor
                              new Vector3(.049f,.294f,b-a));
                 }
             }
-            for(int j=0;j<190;j++)
+            for(int j=0;j<length;j++)
             {
                 float s=PlatformFirst+j+.5f;
                 body.Box(m.cream,PlatformPoint(Edge-.197f,-.036f,s),new Vector3(.391f,.080f,.990f));
@@ -46,7 +48,7 @@ namespace Winterbourne.Editor
             // The strip from the edge to the buildings has been cleared. Low drifts
             // accumulate unevenly against the back fence.
             Vector3 lastInner=default,lastOuter=default;
-            for(int j=0;j<=190;j++)
+            for(int j=0;j<=length;j++)
             {
                 float s=PlatformFirst+j;
                 float noise=Mathf.PerlinNoise(s*.134f,12.7f);
@@ -70,7 +72,7 @@ namespace Winterbourne.Editor
                         fittings.Box(m.pine,PlatformPoint(Back+.11f,h,s+1.25f),new Vector3(.061f,.064f,2.5f));
                 }
             }
-            foreach (var span in new[]{ new Vector2(PlatformFirst,995f),new Vector2(1015f,PlatformLast) })
+            foreach (var span in new[]{ new Vector2(PlatformFirst,StationHouseChainage-10f),new Vector2(StationHouseChainage+10f,PlatformLast) })
                 Box(furniture,"Rear fence",PlatformPoint(Back+.11f,.62f,(span.x+span.y)/2),
                     new Vector3(.115f,1.24f,span.y-span.x));
             foreach(float end in new[]{PlatformFirst+.06f,PlatformLast-.06f})
@@ -81,17 +83,16 @@ namespace Winterbourne.Editor
                 Box(furniture,"Platform end railing",PlatformPoint(midX,.50f,end),
                     new Vector3(depth,1f,.08f));
             }
-            // At a 1,095 m head stop, the cabin 01 window in coach 07 lies at
-            // 989.46 m. The enamel board stands in front of the shelter, in that sightline.
-            foreach(float s in new[]{939f,990f,1030f,1082.5f})
+            // The bedside window of 07 looks onto this illuminated enamel sign.
+            foreach(float s in new[]{866f,900f,SleeperWindowSign,985f,1030f,1082.5f})
                 Nameboard(fittings,furniture,m,-4.61f,s);
-            foreach(float s in new[]{931f,950f,969f,993f,1011f,1038f,1059f,1091f,1103f})
-                Lantern(fittings,furniture,m,-4.18f,s,s==950f || s==993f || s==1038f || s==1059f);
-            foreach(float s in new[]{946f,961f,987f,1007f,1034f,1076f})
+            foreach(float s in new[]{857f,879f,907f,931f,951f,971f,993f,1011f,1038f,1059f,1091f,1103f})
+                Lantern(fittings,furniture,m,-4.18f,s,s==879f || s==931f || s==951f || s==993f || s==1038f || s==1059f);
+            foreach(float s in new[]{870f,906f,928f,958f,987f,1007f,1034f,1076f})
                 Bench(fittings,furniture,m,-5.73f,s);
             fittings.Finish(furniture,"Fellbridge wayside fittings");
 
-            Shelter(concourse,m,"Fellbridge waiting room",985f,13f,1);
+            Shelter(concourse,m,"Fellbridge waiting room",921f,13f,1);
             Shelter(concourse,m,"Fellbridge parcels office",1053f,8.8f,3);
             MakeStationHouse(station,m);
         }
@@ -109,7 +110,7 @@ namespace Winterbourne.Editor
             f.Box(m.pine,PlatformPoint(x+.022f,1.894f,s),new Vector3(.196f,.076f,3.30f));
             f.Box(m.snow,PlatformPoint(x+.013f,1.949f,s),new Vector3(.18f,.036f,3.24f));
             f.Sign(m.screen,PlatformPoint(x+.076f,1.58f,s),3.08f,.522f,0);
-            if(Mathf.Abs(s-990f)<1)
+            if(Mathf.Abs(s-SleeperWindowSign)<1)
             {
                 // A hooded reading light washes the painted sign after dark.
                 f.Beam(m.pine,PlatformPoint(x,1.91f,s),PlatformPoint(x+.34f,2.07f,s),.035f,.035f);

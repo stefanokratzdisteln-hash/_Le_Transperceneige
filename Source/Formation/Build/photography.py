@@ -4,11 +4,12 @@ import tempfile
 
 import bpy
 from mathutils import Vector
+from extension import cutaway_wings
 
 import track
 
 
-def photograph(number,root,draft=False):
+def photograph(number,root,draft=False,cutaway_only=False):
     scene=bpy.context.scene
     output=root/'Previews/Formation'
     output.mkdir(parents=True,exist_ok=True)
@@ -66,14 +67,18 @@ def photograph(number,root,draft=False):
     preview.location=(-2.1,14,22) if number>2 else (-3,16,11)
     preview.rotation_euler=(Vector((0,0,1.72))-preview.location).to_track_quat('-Z','Y').to_euler()
     preview.data.type='ORTHO'
-    preview.data.ortho_scale={1:15.5,2:10.1}.get(number,21.8)
+    preview.data.ortho_scale={1:20.2,2:13.6}.get(number,32.3)
+    restore=cutaway_wings(scene)
     snap(f'Car{number:02}_Cutaway.png',preview,1760,980 if number<3 else 800,output if not draft else review)
+    restore()
     for obj in hidden:
         obj.hide_render=False
+    if cutaway_only:
+        return
     if number==1:
         preview.location=(-9,18,7.5)
         preview.rotation_euler=(Vector((0,0,2.05))-preview.location).to_track_quat('-Z','Y').to_euler()
-        preview.data.ortho_scale=15.1
+        preview.data.ortho_scale=20.2
         snap('Car01_Pacific.png',preview,1760,900,output if not draft else review)
     # Actual night exterior visible through the open windows and footplate.
     import halt

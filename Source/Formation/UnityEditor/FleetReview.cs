@@ -69,7 +69,18 @@ namespace Winterbourne.Editor
                 {
                     if(carNumber<=9)
                     {
-                        Capture(eye,layouts[carNumber-1],offsets[carNumber-1]);
+                        var layout=layouts[carNumber-1];
+                        var interior=layout.view;
+                        switch(carNumber)
+                        {
+                            case 1: interior=View( .65f,2.89f,7.69f, -.33f,2.43f,4.05f,21);break;
+                            case 2: interior=View(-.87f,2.90f,4.38f,  .64f,2.50f,2.65f,18);break;
+                            case 3: interior=View( .89f,2.88f,-11.70f,-1.55f,2.39f,-9.04f,20);break;
+                            case 4: interior=View(1.35f,2.88f, 7.72f,-.86f,2.46f,10.17f,20);break;
+                            case 7: interior=View(1.18f,2.88f,-11.66f,-1.03f,2.46f,-9.21f,20);break;
+                            case 9: interior=View( .90f,2.90f,-11.65f,-1.78f,2.41f,-9.37f,21);break;
+                        }
+                        Capture(eye,new FleetImport.Layout{number=carNumber,view=interior},offsets[carNumber-1]);
                         if(carNumber==6)
                         {
                             var galley=new FleetImport.Layout {number=6,view=new FleetImport.View {
@@ -147,7 +158,7 @@ namespace Winterbourne.Editor
                     if(value>8 && value<247) varied++;
                 }
                 FleetImport.Require(maximum-minimum>35 && varied>samples.Length/309/10,"Empty or clipped camera "+layout.number);
-                string folder=Path.Combine(FleetImport.Checkout,"Previews","Formation");
+                string folder=FleetImport.Argument("-reviewFolder")??Path.Combine(FleetImport.Checkout,"Previews","Formation");
                 Directory.CreateDirectory(folder);
                 File.WriteAllBytes(Path.Combine(folder,FleetImport.Id(layout.number)+"_"+shot+".png"),pixels.EncodeToPNG());
                 Debug.Log("FLEET CAMERA "+layout.number+" on "+SystemInfo.graphicsDeviceName+" from "+from.ToString("F2"));
@@ -160,6 +171,9 @@ namespace Winterbourne.Editor
                 Object.DestroyImmediate(pixels);
             }
         }
+
+        static FleetImport.View View(float x,float y,float z,float tx,float ty,float tz,float lens)
+            =>new FleetImport.View{position=new[]{x,y,z},target=new[]{tx,ty,tz},lens=lens};
         static void VerifyDoorWindows()
         {
             var car=GameObject.Find("Car04");
@@ -252,7 +266,7 @@ namespace Winterbourne.Editor
                 "Restaurant guests can cross the kitchen partition");
             Debug.Log("FLEET CONTROLLER: kitchen partition physically separates the service and passenger routes");
             var path=new List<Vector3>{FleetImport.Bedside,new Vector3(.9f,1.395f,-5.21f),new Vector3(.9f,1.395f,-7.55f),
-                new Vector3(0,1.395f,-7.55f),new Vector3(0,1.395f,-9.83f)};
+                new Vector3(0,1.395f,-7.55f),new Vector3(0,1.395f,layouts[6].socketA)};
             var restaurant=layouts[5].routes.First(r=>r.name.IndexOf("passenger",StringComparison.OrdinalIgnoreCase)>=0);
 
             // Preserve authored bends and sequence, reversing only when necessary.

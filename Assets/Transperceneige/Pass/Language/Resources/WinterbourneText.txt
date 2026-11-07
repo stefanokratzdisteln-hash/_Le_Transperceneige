@@ -24,7 +24,7 @@ inventory.choose	Select an item, then its destination slot.	选中物品，再�
 inventory.move	{0} · Choose a destination slot	{0} · 请选择目标格
 inventory.close	Tab   Close inventory	Tab   收起背包
 inventory.empty	Empty slot	空格位
-controls.shortcuts	Tab  Inventory	Tab  背包
+controls.shortcuts	F  Search / use    ·    Tab  Inventory	F  搜查与交互    ·    Tab  背包
 controls.retry	R   Retry checkpoint	R   从检查点重试
 mountain	Fell mountains	雪岭山地
 tunnel	Mountain tunnel	山腰隧道
@@ -32,22 +32,22 @@ fellbridge	Fellbridge Station	费尔桥站
 gorge	Gorge approach	峡谷入口
 viaduct	Greywater Viaduct	北峡高架桥
 landing.name	Gorge floor	峡谷谷底
-dwell	Departure  {0}    ·    E at a door	发车倒计时  {0}    ·    对准车门按 E
+dwell	Departure  {0}    ·    F / E at a door	发车倒计时  {0}    ·    对准车门按 F / E
 chase.on	Departing Fellbridge	列车正在离站
-chase.off	E to open a passing door\nHold Shift to catch up, then Space to jump aboard	对准身边的车门按 E\n按住 Shift 追平，空格跳进门
+chase.off	F / E to open a passing door\nHold Shift to catch up, then Space to jump aboard	对准身边的车门按 F / E\n按住 Shift 追平，空格跳进门
 freezing	Train gone · Exposure  {0}	列车已离开 · 失温  {0}
 falling	Freefall	自由落体
 descending	Canopy open · WASD to steer the glide	降落伞已展开 · 用 WASD 控制滑翔方向
 bridge.time	Broken span ahead  {0}	前方断桥  {0}
 bridge.pack	Collect the parachute in van 09	去 09 号行李架取伞包
-bridge.ready	Van 09: E at the rear door. Space to jump, then press Space again to open the parachute.	09 号尾门：按 E 开门。空格跳出，离车后再按一次空格开伞。
+bridge.ready	Van 09: F / E at the rear door. Space to jump, then press Space again to open the parachute.	09 号尾门：按 F / E 开门。空格跳出，离车后再按一次空格开伞。
 bridge.wait	Get to the rear of van 09. In the air, press Space again to deploy.	到 09 号车尾准备。跳出后，再按一次空格开伞。
 station.approach	Approaching Fellbridge	即将停靠费尔桥站
-controls.walk	WASD  Move   ·   Shift  Sprint\nSpace  Jump   ·   Ctrl  Crouch / stand\nE  Doors and ladders	WASD 移动   ·   Shift 加速\n空格 跳跃   ·   Ctrl 蹲下 / 站起\nE 开关门、爬梯子
-roof.up	E   Climb to the roof	E   沿梯子爬上车顶
-roof.down	E   Climb down into the van	E   沿梯子返回车内
+controls.walk	WASD  Move   ·   Shift  Sprint\nSpace  Jump   ·   Ctrl  Crouch / stand\nF  Search / use   ·   Tab  Inventory	WASD 移动   ·   Shift 加速\n空格 跳跃   ·   Ctrl 蹲下 / 站起\nF 搜查与交互   ·   Tab 背包
+roof.up	F / E   Climb to the roof	F / E   沿梯子爬上车顶
+roof.down	F / E   Climb down into the van	F / E   沿梯子返回车内
 roof.climbing	On the ladder	正在爬梯子
-roof.controls	Ctrl  Crouch / stand    ·    E at a hatch to climb down	Ctrl  蹲下 / 站起    ·    舱口按 E 下梯
+roof.controls	Ctrl  Crouch / stand    ·    F / E at a hatch to climb down	Ctrl  蹲下 / 站起    ·    舱口按 F / E 下梯
 roof.warning	Low tunnel ahead. Press Ctrl to crouch before the roof enters.	前方隧道净空低。车顶进洞前按 Ctrl 蹲下。
 roof.inside	Stay crouched until your carriage clears the tunnel.	保持蹲姿，直到你所在的车厢驶出隧道。
 roof.blocked	Too low to stand here	上方空间不足，无法站起
@@ -65,9 +65,9 @@ F   拾取	F   Pick up 	F   拾取
 请先离开门槛	Stand clear of the doorway	请先离开门槛
 单击画面继续	Click to resume	单击画面继续
 单击开始行程	Click to begin	单击开始行程
-E   开门	E   Open door	E   开门
-E   关门	E   Close door	E   关门
-E 关门	E  Close door	E 关门
+E   开门	F / E   Open door	F / E   开门
+E   关门	F / E   Close door	F / E   关门
+E 关门	F / E  Close door	F / E 关门
 伞已展开	Canopy deployed	伞已展开
 已回到检查点	Checkpoint restored	已回到检查点
 已回到站台	Back on the platform	已回到站台
@@ -96,6 +96,39 @@ flight.steer	WASD   Steer the parachute	WASD   控制滑翔方向
 flight.space	SPACE	空格
 flight.pull	Open parachute	开伞
 flight.impact	Impact: -{0} HP     Health: {1} / 100	撞击损失 {0} 点生命值     剩余 {1} / 100
-cottage.outside	E at the lit cottage door to go inside.	对准小屋亮灯的外门按 E，即可进屋。
+cottage.outside	F / E at the lit cottage door to go inside.	对准小屋亮灯的外门按 F / E，即可进屋。
 ending.lateCanopy	The canopy opened too late to slow your fall. Deploy while you still have height.	开伞过晚，落地前没能减速。下次在离地较高时按空格开伞。
 ending.packedImpact	Your parachute was still packed at impact. Press Space again as soon as you leave the train.	落地时伞包仍未打开。下次离车后，立即再按一次空格开伞。
+item.pocket_watch	Celestial enamel gold watch	星月珐琅金怀表
+item.crystal_cup	Dragon-handled crystal cup	龙耳金镶水晶盖杯
+item.singing_bird_box	Enamel singing-bird box	珐琅鸣鸟音乐盒
+item.portrait_snuffbox	Gold portrait snuffbox	微绘肖像金鼻烟盒
+item.emerald_tiara	Emerald waterfall tiara	祖母绿钻石冠冕
+item.intaglio_seal	Amethyst serpent seal	缠蛇金柄紫晶印玺
+item.cameo	Sardonyx cameo	缟玛瑙浮雕胸章
+item.astrolabe	Pierced gilt astrolabe	镂空鎏金星盘
+item.astronomical_globe	Clockwork celestial globe	发条天球仪
+item.pearl_aigrette	Ruby and pearl aigrette	红宝石珍珠羽饰
+item.rose_egg	Winter Rose enamel egg	冬蔷薇珐琅彩蛋
+item.jewelled_fan	Jewelled court fan	描金珠宝折扇
+item.diptych_dial	Boxwood diptych sundial	黄杨木折叠日晷
+item.cloisonne_vase	Cloisonné lotus vase	缠枝莲掐丝珐琅瓶
+item.silver_nef	Silver-gilt nef	鎏金三桅银船
+item.scent_flacon	Gold-caged scent flacon	金笼红晶香水瓶
+search.case	Luggage case	行李箱
+search.drawer	Drawer	抽屉
+search.cabinet	Cabinet	储物柜
+search.offer	At your feet	眼前物品
+search.open	F   Search {0}	F   搜查{0}
+search.unlock	F   Pick lock · {0}	F   开锁 · {0}
+search.pick	F   Pick up {0}   ·   {1}	F   拾取{0}   ·   {1}
+search.lockMiss	Lock held · Try again	锁未打开 · 可再试一次
+search.targetMet	Target reached · Return to the cottage to settle	价值已达标，请返回小屋结算
+search.timing	Press F when the pin crosses the green band.	指针进入绿色区间时按 F。
+search.turn	F   Turn lock	F   拨动锁芯
+search.one	F   Take selected	F   拿选中物
+search.all	H   Take all	H   全部拿取
+search.close	Esc   Close	Esc   收起
+search.exchange	Bag full · Click the bag slot to leave here in exchange.	背包已满，点选一格，将原物留在此处交换。
+search.select	Click a row or use ↑ / ↓ to select.	点击物品或按 ↑ / ↓ 选择。
+search.empty	Empty	已搜空

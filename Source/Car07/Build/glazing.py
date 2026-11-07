@@ -57,7 +57,8 @@ def make_material(folder):
     return mat
 
 
-def build(collection,folder,mat=None):
+def build(collection,folder,mat=None,number=7):
+    from extension import CUT, INSERT, OUTER
     if mat is None:
         mat = make_material(folder)
     result = []
@@ -90,6 +91,29 @@ def build(collection,folder,mat=None):
                 pane(cx,2.980,1.060,.770,.079,1.505,(i+side)%2)
         batch('Window_glass_'+suffix)
         for wing in (-1,1):
-            pane(wing*8.04,2.994,.605,.720,.092,1.477,wing==side)
+            centre=wing*(CUT+INSERT/2)
+            for i in range(4):
+                pane(centre+(i-1.5)*INSERT/4,2.951,INSERT/4-.059,.91,.012,OUTER-.06,(i%2)==0)
+        batch('Gallery_glass_'+suffix)
+        if number in (3,9) and side==-1:
+            length=CUT-2.82+.03
+            for wing in (-1,1):
+                centre=wing*(CUT+2.82)/2
+                for i in range(4):
+                    pane(centre+(i-1.5)*length/4,2.893,length/4-.055,1.03,.012,OUTER-.06,i%2)
+            batch('Dispatch_aisle_glass')
+        for wing in (-1,1):
+            pane(wing*(8.04+INSERT),2.994,.605,.720,.092,1.477,wing==side)
             batch('Glass_Door_'+suffix+('_A' if wing<0 else '_B'))
+    if number==4:
+        x=CUT+INSERT/2+1.62
+        verts=[(x,hand*1.64+y,z) for hand in (-1,1) for y,z in
+               ((-.277,2.21),(.277,2.21),(.277,2.88),(-.277,2.88))]
+        mesh=bpy.data.meshes.new('Drawing room glazed screens')
+        mesh.from_pydata(verts,[],[(0,1,2,3),(4,5,6,7)])
+        uv=mesh.uv_layers.new(name='Glazing')
+        for p in mesh.polygons:
+            for k,j in enumerate(p.loop_indices):uv.data[j].uv=((.04,.04),(.96,.04),(.96,.96),(.04,.96))[k]
+        mesh.materials.append(mat)
+        obj=bpy.data.objects.new(mesh.name,mesh);collection.objects.link(obj);result.append(obj)
     return result

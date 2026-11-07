@@ -123,7 +123,7 @@ namespace Winterbourne.Editor
                 int side=(i%2==0?-1:1);
                 float s=start+Between(rng,0,100);
                 float distance=i<13 ? Between(rng,8.8f,31) : Between(rng,27,272);
-                if(s>888 && s<1135 && distance<23) continue;
+                if(s>PassFittings.PlatformFirst-32 && s<PassFittings.PlatformLast+25 && distance<23) continue;
                 if(s>1370 && s<2225 && distance<55)continue;
                 if(s>473 && s<786 && distance<11)continue;
                 float x=side*distance;
@@ -144,20 +144,20 @@ namespace Winterbourne.Editor
             for(int i=0;i<17;i++){
                 float s=start+Between(rng,0,100);
                 float x=(i%2==0?-1:1)*Between(rng,9.5f,i<5?30:115);
-                if((s>905&&s<1126&&Mathf.Abs(x)<18)||InStationHousePlot(x,s)||(s>1395&&s<2220&&Mathf.Abs(x)<42))continue;
+                if((s>PassFittings.PlatformFirst-15&&s<PassFittings.PlatformLast+16&&Mathf.Abs(x)<18)||InStationHousePlot(x,s)||(s>1395&&s<2220&&Mathf.Abs(x)<42))continue;
                 Boulder(b,W(x,PassAtmosphere.GroundHeight(x,s)-.5f,s),Between(rng,.63f,2.95f),rng);
             }
             for(int k=Mathf.CeilToInt(start/34f);k*34<start+100;k++)
             {
                 float s=k*34;
                 if(s>465 && s<790 || s>1384 && s<2220)continue;
-                float x=(s>859&&s<1160)?8.5f:-5.4f;
+                float x=(s>PassFittings.PlatformFirst-40&&s<1160)?8.5f:-5.4f;
                 float y=PassAtmosphere.GroundHeight(x,s);
                 b.Taper(Paint.Timber,W(x,y,s),W(x+.09f,y+5.75f,s),.109f,.075f,7);
                 b.Block(Paint.Timber,W(x,y+5.21f,s),new Vector3(2.07f,.123f,.13f));
                 for(int h=-1;h<=1;h+=2) {
                     b.Taper(Paint.Ivory,W(x+.78f*h,y+5.24f,s),W(x+.78f*h,y+5.48f,s),.07f,.052f,7);
-                    float ns=s+34,nx=(ns>859&&ns<1160)?8.5f:-5.4f;
+                    float ns=s+34,nx=(ns>PassFittings.PlatformFirst-40&&ns<1160)?8.5f:-5.4f;
                     if(ns>465&&ns<790||ns>1384&&ns<2220||Mathf.Abs(nx-x)>1)continue;
                     float ny=PassAtmosphere.GroundHeight(nx,ns)+5.47f;
                     Vector3 a=W(x+.78f*h,y+5.47f,s),c=W(nx+.78f*h,ny,ns),mid=(a+c)/2+Vector3.down*.54f;
@@ -175,7 +175,7 @@ namespace Winterbourne.Editor
             }
         }
 
-        static bool InStationHousePlot(float x,float s) => x < -7 && x > -23 && s > 991 && s < 1019;
+        static bool InStationHousePlot(float x,float s) => x < -7 && x > -23 && Mathf.Abs(s-PassFittings.StationHouseChainage)<14;
 
         static void Boulder(Batch b,Vector3 o,float r,System.Random rng)
         {

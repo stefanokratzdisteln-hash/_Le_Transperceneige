@@ -93,3 +93,25 @@
 .deploy-action { font-size:20px; color:#fff0cc; padding:6px 13px; background-color:rgba(25,31,34,.93); white-space:normal; }
 .impact-loss { font-size:14px; -unity-font-style:bold; color:#ffb499; margin-left:4px; background-color:rgba(43,25,24,.90); }
 .impact-result { font-size:16px; color:#edb190; margin-top:7px; white-space:normal; }
+.inventory-layout { flex-direction:row; justify-content:center; align-items:center; }
+.search-leaf { max-width:40%; width:370px; margin-right:8px; }
+.inventory-value { margin-bottom:6px; font-size:16px; color:#443723; }
+.search-rows { max-height:245px; margin:5px 0; }
+.search-row { -unity-text-align:middle-left; background-color:#d5c5a1; border-color:#88765a;
+    color:#342b25; padding:6px; margin:2px 0; white-space:normal; }
+.search-row.selected { background-color:#ad9466; color:#171610; }
+.search-row { flex-direction:row; align-items:center; min-height:48px; }
+.search-icon { width:44px; height:40px; margin-right:6px; flex-shrink:0; -unity-background-scale-mode:scale-to-fit; }
+.search-name { flex-grow:1; flex-shrink:1; white-space:normal; font-size:14px; color:#29271f; }
+.search-price { margin-left:6px; flex-shrink:0; font-size:14px; color:#302919; }
+.lock-track { height:18px; margin:9px 2px; background-color:#403b32; }
+.lock-zone { position:absolute; height:100%; left:53%; width:24%; background-color:#729570; }
+.lock-pin { position:absolute; width:4px; height:100%; background-color:#ffe0a2; }
+.slot-price { position:absolute; left:2px; bottom:0; right:2px; font-size:11px; -unity-text-align:middle-center; color:#433626; }
+.bag-leaf { width:640px; max-width:57%; }
+.bag-leaf .bag-slot { width:23%; height:125px; flex-shrink:0; }
+.bag-slot .glyph { top:4px; bottom:50px; left:15px; right:12px; }
+.slot-caption { position:absolute; left:3px; right:3px; bottom:20px; height:30px;
+    font-size:12px; white-space:normal; -unity-text-align:middle-center; color:#33291b; }
+.bag-slot .slot-price { bottom:3px; font-size:13px; }
+.glyph { -unity-background-scale-mode:scale-to-fit; }

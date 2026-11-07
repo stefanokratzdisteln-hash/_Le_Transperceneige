@@ -11,12 +11,13 @@ namespace Winterbourne.Editor
 {
     public static partial class PassFittings
     {
-        const float DoorZ=8.04f;
+        const float GalleryStart=7.26f, GalleryLength=4.87f;
+        const float DoorZ=8.04f+GalleryLength, ShellEnd=9f+GalleryLength;
         const float ThresholdY=2.42f;
         // An open side leaf parks along the coach flank, clear of a runner coming
         // alongside it. The approach remains blocked while the leaf sweeps through it.
         const float SideOpeningAngle=166f;
-        public const float PlatformFirst=920f,PlatformLast=1110f,PlatformTop=1.375f;
+        public const float PlatformFirst=PassJourney.PlatformStart,PlatformLast=PassJourney.PlatformEnd,PlatformTop=1.375f;
 
         sealed class Finishes
         {
@@ -123,13 +124,21 @@ namespace Winterbourne.Editor
             float x=side*1.473f;
             void Segment(float a,float b) => Box(parent,flank+" wall",new Vector3(x,2.48f,(a+b)/2),
                 new Vector3(.082f,2.21f,b-a));
-            Segment(-9f,-DoorZ-.502f);
+            foreach(int end in new[]{-1,1})
+            {
+                var vestibule=Find(car,"Vestibule side "+flank+end).GetComponent<BoxCollider>();
+                vestibule.enabled=false;
+                Recorded(vestibule);
+            }
+            Segment(-ShellEnd,-DoorZ-.502f);
+            Segment(-DoorZ+.502f,-GalleryStart-GalleryLength);
+            Segment(GalleryStart+GalleryLength,DoorZ-.502f);
             if(loading) {
-                Segment(-DoorZ+.502f,-1.47f);
-                Segment(1.47f,DoorZ-.502f);
+                Segment(-GalleryStart,-1.47f);
+                Segment(1.47f,GalleryStart);
                 Box(parent,"Loading lintel "+flank,new Vector3(x,3.55f,0),new Vector3(.12f,.072f,2.94f));
-            } else Segment(-DoorZ+.502f,DoorZ-.502f);
-            Segment(DoorZ+.502f,9f);
+            } else Segment(-GalleryStart,GalleryStart);
+            Segment(DoorZ+.502f,ShellEnd);
             for(int end=-1;end<=1;end+=2)
                 Box(parent,"Door header "+flank+end,new Vector3(x,3.569f,end*DoorZ),new Vector3(.082f,.035f,1.004f));
         }
@@ -167,13 +176,18 @@ namespace Winterbourne.Editor
 
         static void BoardingPlate(Transform parent,float x,float z,float length,Finishes mat)
         {
-            var landing=Child(parent,"Level boarding plate",new Vector3(x,1.355f,z)).transform;
+            bool platform=x<0;
+            float width=platform?1.14f:.43f;
+            var landing=Child(parent,"Level boarding plate",new Vector3(platform?-2.01f:x,1.355f,z)).transform;
             var step=new StationFabrication();
-            step.Box(mat.soot,Vector3.zero,new Vector3(.43f,.045f,length));
+            step.Box(mat.soot,Vector3.zero,new Vector3(width,.045f,length));
             for(int i=-4;i<=4;i++)
-                step.Box(mat.bronze,new Vector3(0,.024f,length*.098f*i),new Vector3(.40f,.004f,.009f));
-            step.Finish(landing,length>1?"Loading threshold":"Brass boarding threshold");
-            AddBox(landing,new Vector3(.43f,.045f,length));
+                step.Box(mat.bronze,new Vector3(0,.024f,length*.098f*i),new Vector3(width-.03f,.004f,.009f));
+            if(platform)
+                foreach(int hand in new[]{-1,1})
+                    step.Beam(mat.soot,new Vector3(.46f,-.28f,hand*length*.32f),new Vector3(-.41f,-.025f,hand*length*.32f),.047f,.064f);
+            step.Finish(landing,(platform?"Platform ":"Offside ")+(length>1?"loading threshold":"boarding threshold"));
+            AddBox(landing,new Vector3(width,.045f,length));
         }
 
         static void SideDoor(Transform car,Transform hardware,int side,int end,PassDoorKind kind,Finishes mat)
@@ -220,15 +234,15 @@ namespace Winterbourne.Editor
             leaf.position=car.TransformPoint(hinge);
             var open=Turn(car,leaf,180);
             var closed=Turn(car,leaf,-90);
-            var jamb=Child(hardware,"End threshold "+tag,new Vector3(-end*.10f,2.425f,end*8.91f)).transform;
+            var jamb=Child(hardware,"End threshold "+tag,new Vector3(-end*.10f,2.425f,end*(8.91f+GalleryLength))).transform;
             jamb.localRotation=Quaternion.Euler(0,90,0);
             var door=leaf.gameObject.AddComponent<PassDoor>();
             door.Configure(escape?PassDoorKind.Escape:PassDoorKind.Gangway,car,jamb,closed,open,solid);
             door.SetOpen(!escape,true);
             Recorded(leaf);
-            Grip(car,hardware,new Vector3(end*.524f,2.43f,end*8.91f),jamb.localRotation,door,null,mat);
+            Grip(car,hardware,new Vector3(end*.524f,2.43f,end*(8.91f+GalleryLength)),jamb.localRotation,door,null,mat);
             if(escape) return;
-            var stile=Child(hardware,"End strike "+tag,new Vector3(end*.577f,2.435f,end*8.913f)).transform;
+            var stile=Child(hardware,"End strike "+tag,new Vector3(end*.577f,2.435f,end*(8.913f+GalleryLength))).transform;
             var trim=new StationFabrication();
             trim.Box(mat.wood,Vector3.zero,new Vector3(.214f,2.06f,.083f));
             trim.Finish(stile,"Gangway strike stile");
@@ -287,26 +301,27 @@ namespace Winterbourne.Editor
 
         static void Rescue(Transform car,Transform hardware,Finishes mat)
         {
-            Child(hardware,"EscapeLaunch",new Vector3(0,1.40f,9.53f));
-            var grip=Child(hardware,"ChaseGrip",new Vector3(-1.90f,2.13f,8.04f)).transform;
-            Child(hardware,"ChaseArrival",new Vector3(-.98f,1.40f,8.04f));
+            Child(hardware,"EscapeLaunch",new Vector3(0,1.40f,9.53f+GalleryLength));
+            var grip=Child(hardware,"ChaseGrip",new Vector3(-2.36f,2.13f,DoorZ)).transform;
+            Child(hardware,"ChaseArrival",new Vector3(-.98f,1.40f,DoorZ));
+            var emergency=Child(hardware,"Rear vestibule",Vector3.forward*GalleryLength).transform;
             var kit=new StationFabrication();
             // The historic open leaf is 1.15 m across, while the bellows clear
             // opening is wider. A fixed strike stile finishes the closed escape door.
             kit.Box(mat.wood,new Vector3(.577f,2.435f,8.913f),new Vector3(.214f,2.06f,.083f));
             kit.Box(mat.bronze,new Vector3(.474f,2.365f,8.908f),new Vector3(.024f,.256f,.085f));
-            Box(hardware,"Escape door strike stile",new Vector3(.577f,2.435f,8.913f),
+            Box(emergency,"Escape door strike stile",new Vector3(.577f,2.435f,8.913f),
                 new Vector3(.214f,2.06f,.083f));
             for(int s=-1;s<=1;s+=2)
                 kit.Ring(mat.bronze,new Vector3(-1.56f,2.15f+s*.225f,8.58f),
-                    new Vector3(-1.86f,2.15f+s*.225f,8.58f),.021f,.021f);
-            kit.Ring(mat.bronze,new Vector3(-1.86f,1.926f,8.58f),new Vector3(-1.86f,2.375f,8.58f),.026f,.026f);
+                    new Vector3(-2.36f,2.15f+s*.225f,8.58f),.021f,.021f);
+            kit.Ring(mat.bronze,new Vector3(-2.36f,1.926f,8.58f),new Vector3(-2.36f,2.375f,8.58f),.026f,.026f);
             kit.Box(mat.pine,new Vector3(-1.582f,2.91f,8.72f),new Vector3(.108f,.210f,.160f));
             kit.Ring(mat.lamp,new Vector3(-1.638f,2.91f,8.72f),new Vector3(-1.680f,2.91f,8.72f),.079f,.061f);
             // Enamel evacuation board on the right flank, facing inwards.
             kit.Box(mat.bronze,new Vector3(1.397f,3.073f,8.54f),new Vector3(.021f,.164f,.951f));
             kit.Sign(mat.screen,new Vector3(1.383f,3.073f,8.54f),.936f,.15f,6,false);
-            kit.Finish(hardware,"Brake van emergency fittings");
+            kit.Finish(emergency,"Brake van emergency fittings");
             var glow=Child(grip,"ChaseLamp",new Vector3(.11f,.78f,.68f)).AddComponent<Light>();
             glow.type=LightType.Point;glow.color=new Color(1f,.65f,.19f);
             glow.intensity=1.6f;glow.range=3;glow.shadows=LightShadows.None;glow.enabled=false;

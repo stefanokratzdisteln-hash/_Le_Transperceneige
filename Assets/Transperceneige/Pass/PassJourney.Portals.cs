@@ -31,8 +31,11 @@ namespace Winterbourne.Pass
         void PlaceAt(Transform anchor, Transform support)
         {
             var feet = support ? support.InverseTransformPoint(anchor.position) : anchor.position;
-            var facing = support ? Quaternion.Inverse(support.rotation) * anchor.rotation : anchor.rotation;
-            walker.Place(support, feet, facing, 0);
+            Quaternion heading=anchor.rotation;
+            float pitch=0;
+            if(anchor==sleeperSpawn && openingWatch && openingWatch.currentSite>=0) BedsideView(out heading,out pitch);
+            var facing = support ? Quaternion.Inverse(support.rotation) * heading : heading;
+            walker.Place(support, feet, facing, pitch);
             Physics.SyncTransforms();
         }
 
@@ -56,6 +59,8 @@ namespace Winterbourne.Pass
             completedRideInHub=false;
             saved = initialRide;
             RestoreRide(initialRide);
+            StartLootRoll();
+            initialRide.loot=SaveLoot();
             if (signal) signal.Stop();
             Started = false;
             notice = ""; noticeItem = null; noticeUntil = -1;
@@ -117,7 +122,10 @@ namespace Winterbourne.Pass
                     if(completedRideInHub)
                     {
                         saved=initialRide;
+                        var previousLoot=SaveLoot();
                         RestoreRide(initialRide);
+                        RestoreLoot(previousLoot);
+                        SaveCheckpoint();
                         completedRideInHub=false;
                     }
                     else

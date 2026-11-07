@@ -2,12 +2,16 @@
 import bpy
 from mathutils import Vector
 from interior import light_positions
+from extension import CUT, INSERT, point
 
 
 def cameras_and_lights(scene):
     coll=bpy.data.collections.new('Photography | practical lights and cameras')
     scene.collection.children.link(coll)
-    for name,center,color,_,_,watts in light_positions():
+    lamps=[(name,point(center,7),color,watts) for name,center,color,_,_,watts in light_positions()]
+    for sign,label in ((-1,'Morning room'),(1,'Steward linen')):
+        lamps.append((label+' ceiling lamp',(sign*(CUT+INSERT/2),0,3.18),(1,.79,.50),32))
+    for name,center,color,watts in lamps:
         data=bpy.data.lights.new(name,'POINT')
         data.energy=watts
         data.color=color

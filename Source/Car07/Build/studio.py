@@ -9,6 +9,7 @@ HERE = Path(__file__).resolve().parent
 sys.dont_write_bytecode = True
 sys.path.insert(0,str(HERE))
 import track
+from extension import cutaway_wings
 
 
 def render(root):
@@ -80,9 +81,13 @@ def render(root):
                 or 'Starboard' in obj.name or obj.name=='Interior_Cabin_lining'):
             obj.hide_render=True
             hidden.append(obj)
-    frame('Car07_Cutaway', (-1.8,13,22),(0,0,1.70),22.0,(2000,880),True)
+    restore=cutaway_wings(scene)
+    frame('Car07_Cutaway', (-1.8,13,22),(0,0,1.70),32.3,(2000,880),True)
+    restore()
     for obj in hidden:
         obj.hide_render=False
+    if '--cutaway-only' in sys.argv:
+        return
     # Blue hour on a remote halt. The two scenes photograph the same master.
     import halt
     halt.build()
@@ -95,7 +100,7 @@ def render(root):
         camera.dof.use_dof = True
         camera.dof.focus_distance = 37.0
         camera.dof.aperture_fstop = 1.4
-        frame('Car07', (17,-33,8.0),(.63,0,2.05),57,(2000,1000),False)
+        frame('Car07', (20,-43,9.0),(.63,0,2.05),55,(2000,1000),False)
     camera.dof.use_dof=False
     # Trees on the opposite bank are seen through the passage windows.
     from mathutils import Matrix

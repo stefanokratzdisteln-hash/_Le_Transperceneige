@@ -94,7 +94,7 @@ def _lamp(g, group, x, y, z):
     turned('gilt', [(.358,.085), (.366,.085)], True)
 
 
-def _curtain(g, group, side, x, handed, fullness):
+def _curtain(g, group, side, x, handed, fullness, recess=0):
     # A gathered drop starts wide at the pelmet, then narrows at the tieback.
     # Each strip has continuous folds across the fabric, including the hem.
     levels = ((2.641,.149,.035), (2.741,.113,.025), (2.830,.089,.011),
@@ -105,7 +105,7 @@ def _curtain(g, group, side, x, handed, fullness):
         for j in range(n):
             f = j/(n-1)
             local_x = .492 - width*fullness*f
-            distance = 1.372 + amplitude*(.5 + .5*cos(f*6*pi)) + .015*f
+            distance = recess + 1.372 + amplitude*(.5 + .5*cos(f*6*pi)) + .015*f
             lift = .015 * cos(4*pi*f) if z == levels[0][0] else 0
             vertices.append((x+handed*local_x, side*distance, z+lift))
     faces = []
@@ -129,10 +129,10 @@ def _curtain(g, group, side, x, handed, fullness):
     cloth_faces.extend((b,a,a+count,b+count) for a,b in boundary)
     g.mesh(group, 'velvet', vertices, cloth_faces)
     center = x + handed * (.492-.045*fullness)
-    g.box(group, 'gilt', (center, side*1.418, 2.834), (.098*fullness,.014,.016), .005)
-    g.box(group, 'gilt', (center, side*1.365, 2.834), (.097*fullness,.012,.016), .005)
-    g.cyl(group,'gilt', (center-handed*.036, side*1.416, 2.835),
-          (center-handed*.051, side*1.410, 2.778), .004, 6)
+    g.box(group, 'gilt', (center, side*(1.418+recess), 2.834), (.098*fullness,.014,.016), .005)
+    g.box(group, 'gilt', (center, side*(1.365+recess), 2.834), (.097*fullness,.012,.016), .005)
+    g.cyl(group,'gilt', (center-handed*.036, side*(1.416+recess), 2.835),
+          (center-handed*.051, side*(1.410+recess), 2.778), .004, 6)
 
 
 def _cabin(g, group, side, wing, i, window_desks, curtains):

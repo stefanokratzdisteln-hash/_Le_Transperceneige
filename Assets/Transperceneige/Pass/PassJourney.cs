@@ -16,8 +16,11 @@ namespace Winterbourne.Pass
         public Transform consist, chaseGrip, chaseArrival, escapeLaunch;
         public Car07Walker walker;
         public GameObject canopy;
-        public const float NoseDatum = 110.67f, TrainLength = 159.82f, Stop = 1095f;
-        public const float PlatformStart = 920f, PlatformEnd = 1110f, Bridge = 1400f, Break = 2120f;
+        public float NoseDatum { get; private set; }
+        public float TrainLength { get; private set; }
+        public const float Stop = 1095f;
+        public const float PlatformStart = 850f, PlatformEnd = 1110f, Bridge = 1400f, Break = 2120f;
+        public const float PlatformEdge = -2.53f;
         public float Distance { get; private set; }
         public float Speed { get; private set; }
         public float StationSeconds { get; private set; }
@@ -27,20 +30,14 @@ namespace Winterbourne.Pass
         public bool Started { get; private set; }
         public bool InventoryOpen { get; private set; }
         public bool ManualClock { get; set; }
-        public bool HasParachute => Array.IndexOf(slots,"parachute") >= 0;
         public bool Terminal => Phase==JourneyPhase.TimedOut || Phase==JourneyPhase.Frozen ||
             Phase==JourneyPhase.Crashed || Phase==JourneyPhase.Fell || Phase==JourneyPhase.TunnelImpact;
         public bool EscapeReady => Distance>=Bridge+TrainLength+4 && Distance<Break &&
             PassAtmosphere.GroundHeight(7,Distance-TrainLength)<-12;
         public float SecondsToBreak => Mathf.Max(0,(Break-Distance)/6);
         public string Notice => Time.unscaledTime<=noticeUntil ? PassText.Get(notice)+(noticeItem==null ? "" : ItemName(noticeItem)) : "";
-        public string Slot(int index) => slots[index];
-        public string ItemName(string id) => id!=null && labels.TryGetValue(id,out string name) ? PassText.Get(name) : id;
-        readonly string[] slots=new string[8];
-        readonly Dictionary<string,string> labels=new Dictionary<string,string>();
         PassDoor[] doors;
         PassDoor rear, chase;
-        PassPickup[] items;
         Car07SlidingDoor[] sliders;
         CharacterController body;
         public CharacterController PlayerBody => body;
@@ -50,6 +47,7 @@ namespace Winterbourne.Pass
         Light gripLamp;
         Vector3[] restPosition;
         Quaternion[] restRotation;
+        float[] frontBehindNose;
         Checkpoint saved;
         bool beforeStation, beforeBridge, sounded, wreck;
         string notice="", noticeItem;
@@ -64,8 +62,8 @@ namespace Winterbourne.Pass
             public bool aboard, first, second, sounded;
             public Vector3 position;
             public Quaternion rotation;
-            public string[] inventory;
-            public bool[] present, target, slideTarget;
+            public LootSnapshot loot;
+            public bool[] target, slideTarget;
             public float[] amount, slideAmount;
             public float[] coverAmount;
             public bool[] coverTarget;
@@ -83,8 +81,7 @@ namespace Winterbourne.Pass
             walker.canCrouchDuringExternalMotion=() => ClimbingRoofLadder && !Terminal;
             doors=consist.GetComponentsInChildren<PassDoor>(true);
             sliders=consist.GetComponentsInChildren<Car07SlidingDoor>(true);
-            items=consist.GetComponentsInChildren<PassPickup>(true);
-            foreach(var i in items) labels[i.itemId]=i.label;
+            RegisterLoot();
             foreach(var door in doors)
                 if(door.kind==PassDoorKind.Escape) rear=door;
                 else if(door.kind==PassDoorKind.Chase) chase=door;
@@ -94,12 +91,21 @@ namespace Winterbourne.Pass
             var vehicles=new List<Transform>();
             foreach(Transform t in consist) if(t!=walker.transform && t.name.StartsWith("Car",StringComparison.Ordinal)) vehicles.Add(t);
             rollingStock=vehicles.ToArray();
+            frontBehindNose=new float[rollingStock.Length];
             restPosition=new Vector3[rollingStock.Length];
             restRotation=new Quaternion[rollingStock.Length];
+            float frontmost=float.PositiveInfinity, rearmost=float.NegativeInfinity;
             for(int i=0;i<rollingStock.Length;i++){
                 var t=rollingStock[i];
                 restPosition[i]=t.localPosition; restRotation[i]=t.localRotation;
+                float front=CouplerZ(t,"Socket_A"), rearEnd=CouplerZ(t,"Socket_B");
+                frontBehindNose[i]=front;
+                frontmost=Mathf.Min(frontmost,front);
+                rearmost=Mathf.Max(rearmost,rearEnd);
             }
+            NoseDatum=-frontmost;
+            TrainLength=rearmost-frontmost;
+            for(int i=0;i<frontBehindNose.Length;i++) frontBehindNose[i]-=frontmost;
             walker.automaticRespawn=false;
             walker.interactionDistance=2.25f;
             walker.runningSpeed=5.8f;
@@ -122,6 +128,13 @@ namespace Winterbourne.Pass
             if(hubSpawn) NewGame();
         }
 
+        float CouplerZ(Transform car,string name)
+        {
+            foreach(var part in car.GetComponentsInChildren<Transform>(true))
+                if(part.name==name) return consist.InverseTransformPoint(part.position).z;
+            throw new InvalidOperationException("Missing "+name+" on "+car.name);
+        }
+
         void OnDestroy()
         {
             if(walker){ walker.useOverride=null; walker.jumpOverride=null; walker.externalInput=null; walker.groundImpact=null;
@@ -134,23 +147,34 @@ namespace Winterbourne.Pass
         {
             if(body==null) return;
             TickExpedition();
-            if(!Application.isFocused || ManualClock) return;
+            if(!Application.isFocused) return;
             if(InStartMenu) return;
             if(Terminal){ if(Key('R')) Retry(); }
             else {
-                if(Key('B') && Phase!=JourneyPhase.Jumping && Phase!=JourneyPhase.UnderCanopy)
-                    SetInventory(!InventoryOpen);
-                if(!InHub && !AtLanding) Started |= walker.HasMouse || InventoryOpen;
-                if(walker.HasMouse && !InventoryOpen){
-                    if(Key('F')) TryPick(LookedAt<PassPickup>());
+                if(InventoryOpen && Key((char)27)) SetInventory(false);
+                else if(Key('B') && !Airborne) SetInventory(!InventoryOpen);
+                else if(SearchOpen)
+                {
+                    if(!ContactValid()) CloseSearch();
+                    else if(Key('F')) UseFocused();
+                    else if(Key('H')) TakeAllFocused();
+                    else if(Key(']')) SelectSearchItem(SelectedSearchIndex+1);
+                    else if(Key('[')) SelectSearchItem(SelectedSearchIndex-1);
                 }
+                else if(walker.HasMouse && !InventoryOpen && Key('F')) UseFocused();
+                if(!InHub && !AtLanding) Started |= walker.HasMouse || InventoryOpen;
+                if(!InventoryOpen && walker.HasMouse)
+                    for(int i=0;i<4;i++) if(Key((char)('1'+i))) ChooseQuickSlot(i);
             }
-            if(Started) Advance(Time.deltaTime);
+            if(Started && !ManualClock) Advance(Time.deltaTime);
         }
 
         void LateUpdate()
         {
             if(!body || InStartMenu) return;
+            // Test F against the pin shown on the previous frame. A slow frame
+            // can then neither skip the green band nor move the pin mid-press.
+            if(PickingLock) lockTravel+=.78f*Mathf.Min(Time.unscaledDeltaTime,.065f);
             PollPortals();
             ReconcileBoarding();
             CheckTunnelImpact();
@@ -159,39 +183,25 @@ namespace Winterbourne.Pass
 
         public void SetInventory(bool visible)
         {
-            InventoryOpen=visible && !Terminal && !InStartMenu;
-            walker.Overlay(InventoryOpen || Terminal || InStartMenu);
-        }
-
-        public bool MoveSlot(int from,int to)
-        {
-            if(!InventoryOpen || from<0 || from>=8 || to<0 || to>=8 || slots[from]==null) return false;
-            (slots[from],slots[to])=(slots[to],slots[from]);
-            return true;
-        }
-
-        public bool TryPick(PassPickup item)
-        {
-            if(!item || !item.gameObject.activeInHierarchy || Terminal || !Aboard ||
-                Vector3.Distance(walker.eyeCamera.transform.position,item.transform.position)>2.35f) return false;
-            int index=Array.IndexOf(slots,null);
-            if(index<0){ Tell("背包已满"); return false; }
-            slots[index]=item.itemId;
-            labels[item.itemId]=item.label;
-            item.gameObject.SetActive(false);
-            Tell("已收好 · ");
-            noticeItem=item.itemId;
-            return true;
-        }
-
-        T LookedAt<T>() where T: Component
-        {
-            var eye=walker.eyeCamera.transform;
-            return Physics.Raycast(eye.position,eye.forward,out var hit,2.25f,Physics.DefaultRaycastLayers,
-                QueryTriggerInteraction.Collide) ? hit.collider.GetComponentInParent<T>() : null;
+            bool display=visible && !Terminal && !InStartMenu;
+            bool wasOpen=InventoryOpen;
+            if(display && !wasOpen) restoreLook=walker.HasMouse;
+            if(!display) CancelSearch();
+            InventoryOpen=display;
+            walker.Overlay(display || Terminal || InStartMenu);
+            if(wasOpen && !display && restoreLook && !Terminal && !InStartMenu) walker.ResumeLook();
+            if(!display) restoreLook=false;
+            LootRevision++;
         }
 
         bool UseLookedAtDoor()
+        {
+            TryUsePassage();
+            // The journey owns E, including an empty or obstructed aim.
+            return true;
+        }
+
+        bool TryUsePassage()
         {
             if (TryTargetLadder(out var ladder,out bool descend))
             {
@@ -205,11 +215,11 @@ namespace Winterbourne.Pass
             }
             if (!Terminal && !InventoryOpen && TryLookAtDoor(out var door, out var slider))
             {
-                if (door) TryDoor(door);
-                else slider.Toggle(body);
+                if (door) return TryDoor(door);
+                slider.Toggle(body);
+                return true;
             }
-            // The journey owns both types of door, including an empty or obstructed aim.
-            return true;
+            return false;
         }
 
         bool TryLookAtDoor(out PassDoor door, out Car07SlidingDoor slider)
@@ -254,6 +264,7 @@ namespace Winterbourne.Pass
         {
             if (Terminal || InventoryOpen || InStartMenu || !walker || !walker.eyeCamera) return "";
             if (ClimbingRoofLadder) return PassText.Get("roof.climbing");
+            if (walker.HasMouse && LootPrompt(out string loot)) return loot;
             if (walker.HasMouse && TryTargetLadder(out _,out bool descend))
                 return PassText.Get(descend ? "roof.down" : "roof.up");
             if(walker.HasMouse && TryLookAtCover(out var cover))
@@ -269,8 +280,6 @@ namespace Winterbourne.Pass
             if (!Aboard && CanReturnToStation && stationGate &&
                 (stationGate.transform.position-walker.transform.position).sqrMagnitude<13f)
                 return PassText.Get("station.hub");
-            var item = LookedAt<PassPickup>();
-            if (item) return PassText.Get("F   拾取") + PassText.Get(item.label);
             if (TryLookAtDoor(out var door, out var slider))
             {
                 if (slider) return PassText.Get(slider.TargetClosed ? "E   开门" : "E   关门");
@@ -314,7 +323,8 @@ namespace Winterbourne.Pass
                 return;
             }
             if(Distance<Stop){
-                Speed=Mathf.Min(13f,Mathf.Sqrt(Mathf.Max(.64f,2*.72f*(Stop-Distance))));
+                float cruise=Distance<480f ? 6.5f : Distance<780f ? 4f : 5f;
+                Speed=Mathf.Min(cruise,Mathf.Sqrt(Mathf.Max(.64f,2*.72f*(Stop-Distance))));
                 Distance=Mathf.Min(Stop,Distance+Speed*dt);
                 if(Distance>=880 && !beforeStation){ beforeStation=true; SaveCheckpoint(); }
                 if(Distance>=Stop){ Speed=0; StationSeconds=120; Phase=JourneyPhase.Dwell; }
@@ -363,9 +373,7 @@ namespace Winterbourne.Pass
             wreckAge=Mathf.Min(31,wreckAge+dt);
             // Each unit pitches when its forward end reaches the missing bridge span.
             for(int i=0;i<rollingStock.Length;i++){
-                float behind=NoseDatum+restPosition[i].z;
-                float half=behind<8 ? 6.9f : behind<21 ? 4.2f : 9.83f;
-                float t=Mathf.Max(0,wreckAge-Mathf.Max(0,behind-half)/6);
+                float t=Mathf.Max(0,wreckAge-frontBehindNose[i]/6);
                 float sink=Mathf.Min(80,3.8f*t*t);
                 rollingStock[i].localPosition=restPosition[i]+Vector3.down*sink;
                 rollingStock[i].localRotation=Quaternion.Euler(-Mathf.Min(63,t*17),0,Mathf.Min(12,t*3))*restRotation[i];
@@ -380,6 +388,7 @@ namespace Winterbourne.Pass
 
         void Finish(JourneyPhase end)
         {
+            CancelSearch();
             LockExpedition(end);
             Phase=end; Speed=0; InventoryOpen=false;
             walker.externalMotion=true; walker.Overlay(true);
@@ -403,7 +412,7 @@ namespace Winterbourne.Pass
                 first=beforeStation,second=beforeBridge,sounded=sounded,aboard=Aboard,
                 position=Aboard ? walker.transform.localPosition : walker.transform.position,
                 rotation=walker.transform.localRotation,pitch=walker.ViewPitch,
-                inventory=(string[])slots.Clone(),present=Array.ConvertAll(items,p=>p.gameObject.activeSelf),
+                loot=SaveLoot(),
                 target=Array.ConvertAll(doors,d=>d.TargetOpen),amount=Array.ConvertAll(doors,d=>d.Openness),
                 slideTarget=Array.ConvertAll(sliders,d=>d.TargetClosed),slideAmount=Array.ConvertAll(sliders,d=>d.ClosedFraction),
                 coverTarget=Array.ConvertAll(bookcases,d=>d && d.TargetClosed),
@@ -435,8 +444,7 @@ namespace Winterbourne.Pass
             for(int i=0;i<doors.Length;i++) doors[i].Restore(c.amount[i],c.target[i]);
             for(int i=0;i<sliders.Length;i++) sliders[i].RestorePose(c.slideAmount[i],c.slideTarget[i]);
             for(int i=0;i<bookcases.Length;i++) if(bookcases[i]) bookcases[i].Restore(c.coverAmount[i],c.coverTarget[i]);
-            for(int i=0;i<items.Length;i++) items[i].gameObject.SetActive(c.present[i]);
-            Array.Copy(c.inventory,slots,8);
+            RestoreLoot(c.loot);
             if(canopy) canopy.SetActive(false);
             walker.Place(Aboard ? consist : null,c.position,c.rotation,c.pitch);
             ResetLocomotion();
@@ -460,9 +468,21 @@ namespace Winterbourne.Pass
                 case 'B':return k.bKey.wasPressedThisFrame || k.tabKey.wasPressedThisFrame;
                 case 'F':return k.fKey.wasPressedThisFrame;
                 case 'R':return k.rKey.wasPressedThisFrame;
+                case 'H':return k.hKey.wasPressedThisFrame;
+                case (char)27:return k.escapeKey.wasPressedThisFrame;
+                case '[':return k.upArrowKey.wasPressedThisFrame;
+                case ']':return k.downArrowKey.wasPressedThisFrame;
+                case '1':return k.digit1Key.wasPressedThisFrame;
+                case '2':return k.digit2Key.wasPressedThisFrame;
+                case '3':return k.digit3Key.wasPressedThisFrame;
+                case '4':return k.digit4Key.wasPressedThisFrame;
                 default:return false;
             }
 #elif ENABLE_LEGACY_INPUT_MANAGER
+            if(key==(char)27) return Input.GetKeyDown(KeyCode.Escape);
+            if(key=='[') return Input.GetKeyDown(KeyCode.UpArrow);
+            if(key==']') return Input.GetKeyDown(KeyCode.DownArrow);
+            if(key>='1' && key<='4') return Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha1+key-'1'));
             return Input.GetKeyDown((KeyCode)((int)KeyCode.A+key-'A')) || (key=='B' && Input.GetKeyDown(KeyCode.Tab));
 #else
             return false;

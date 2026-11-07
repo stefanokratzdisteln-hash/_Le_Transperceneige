@@ -35,10 +35,24 @@
             <ui:Button name="roomLanguage" class="command compact" text="English / 中文" />
             <ui:Button name="endGame" class="command compact" />
         </ui:VisualElement>
-        <ui:VisualElement name="inventory" class="shade hidden">
-            <ui:VisualElement class="folio inventory-leaf">
+        <ui:VisualElement name="inventory" class="shade inventory-layout hidden">
+            <ui:VisualElement name="searchSheet" class="folio inventory-leaf search-leaf hidden">
+                <ui:Label name="searchTitle" class="headline" />
+                <ui:Label name="searchHelp" class="hint" />
+                <ui:VisualElement name="lockTrack" class="lock-track hidden">
+                    <ui:VisualElement class="lock-zone" />
+                    <ui:VisualElement name="lockPin" class="lock-pin" />
+                </ui:VisualElement>
+                <ui:ScrollView name="searchRows" class="search-rows" />
+                <ui:VisualElement class="commands">
+                    <ui:Button name="takeOne" class="command" />
+                    <ui:Button name="takeAll" class="command" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="folio inventory-leaf bag-leaf">
                 <ui:Label name="inventoryTitle" class="headline" />
                 <ui:Label name="capacity" class="caption"/>
+                <ui:Label name="inventoryValue" class="inventory-value" />
                 <ui:VisualElement name="allSlots" class="all-slots" />
                 <ui:Label name="slotHelp" class="hint" />
                 <ui:VisualElement class="commands">

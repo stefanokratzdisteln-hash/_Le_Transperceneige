@@ -120,7 +120,7 @@ def rack(f, x, y, length, height=3.256):
 
 def saloon(g,l):
     for i in range(8):
-        x = -6.40 + i*1.83
+        x = (-6.52+1.56*i) if i<4 else (1.84+1.56*(i-4))
         f = Fixture(g,l,f'Saloon_Row_{i+1:02}')
         facing = 1 if i%2==0 else -1
         for side in (-1,1):
@@ -137,7 +137,15 @@ def saloon(g,l):
         if i%2==0:
             pendant(f,x+.60,0,3.462,'SaloonLight_'+str(i),48,4.0)
     l.route('Saloon central aisle',[(-8.71,0),(-6.62,0),(6.62,0),(8.71,0)])
-    for i,x in enumerate((-5.56,-1.90,1.76,5.42)):
+    reading=Fixture(g,l,'Saloon newspaper recess')
+    reading.solid('writing top','wood',(0,1.02,2.135),(.98,.57,.074),.026)
+    for side in (-1,1):
+        for end in (-1,1):
+            reading.box('wood',(side*.40,1.02+end*.22,1.75),(.065,.065,.73),.007)
+    for j in range(3):
+        reading.box('paper',(-.15+.011*j,1.03,2.176+.007*j),(.43,.264,.008),.001)
+    reading.text('EVENING POST',(0,1.412,2.75),'-y',.085)
+    for i,x in enumerate((-5.74,-2.62,2.62,5.74)):
         l.route('Paired seating bay '+str(i+1),[(x,0),(x,.84)])
     l.view((-6.99,-.15,2.982),(.15,.27,2.51),22)
 

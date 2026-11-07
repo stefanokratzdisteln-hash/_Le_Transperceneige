@@ -3,6 +3,7 @@
 blender -b --factory-startup -P Source/Car07/Build/build.py [-- --render]
 """
 import math
+import json
 import sys
 from pathlib import Path
 
@@ -21,10 +22,13 @@ import interior
 import markings
 import roofends
 import runninggear
+import extension
+import integration
 from geometry import Geometry
 
 ROOT = HERE.parents[2]
 ASSET = ROOT / 'Assets' / 'Transperceneige' / 'Car07'
+sys.path.insert(1,str(ROOT/'Source/Formation/Build'))
 
 
 def empty(name, collection, parent=None, location=(0,0,0)):
@@ -48,6 +52,10 @@ def build():
     g = Geometry()
     for module in (carbody, roofends, runninggear, markings, interior, cabins):
         module.build(g)
+    layout=integration.layout()
+    extension.insert_frame(g,7)
+    extension.expand_layout(layout)
+    extension.coach(g,layout)
     textures = ASSET / 'Textures'
     textures.mkdir(parents=True, exist_ok=True)
     material = finishes.material(finishes.make_atlas(textures))
@@ -58,15 +66,15 @@ def build():
     door_pivots={name:Vector(start) for name,start,_,_ in cabins.door_poses()}
     door_pivots['LavatoryDoor']=Vector((1.55,-.302,1.385))
     for sign,tag in [(-1,'A'),(1,'B')]:
-        door_pivots['EndDoor_'+tag]=Vector((sign*8.91,.68,1.39))
+        door_pivots['EndDoor_'+tag]=Vector((sign*(8.91+extension.INSERT),.68,1.39))
         for side,flank in [(-1,'Port'),(1,'Starboard')]:
-            door_pivots['Door_'+flank+'_'+tag]=Vector((sign*(8.04-.492),side*1.475,1.38))
+            door_pivots['Door_'+flank+'_'+tag]=Vector((sign*(8.04+extension.INSERT-.492),side*1.475,1.38))
     for obj in objects:
         name = obj.name
         obj.parent = root
         if name.startswith(('Bogie_','Wheelset_')):
             end = name.split('_')[1][0]
-            pivot = Vector((-5.9 if end=='A' else 5.9,0,1.1))
+            pivot = Vector(((-1 if end=='A' else 1)*(5.9+extension.INSERT),0,1.1))
             absolute = pivot.copy()
             if name.startswith('Wheelset_'):
                 absolute.x += -1.03 if name.endswith('1') else 1.03
@@ -84,7 +92,7 @@ def build():
             obj.data.transform(Matrix.Translation(-door_pivots[leaf]))
             obj.parent=bpy.data.objects[leaf]
     for name, sign in [('A',-1),('B',1)]:
-        empty('Socket_'+name, collection, root, (sign*9.83,0,.97))
+        empty('Socket_'+name, collection, root, (sign*(9.83+extension.INSERT),0,.97))
     bpy.context.view_layer.objects.active = root
     root.select_set(True)
     inspection.organise(collection,objects)
@@ -131,15 +139,18 @@ def build():
     bpy.ops.wm.save_as_mainfile(filepath=str(HERE.parent/'Car07.blend'), compress=True, relative_remap=False)
     for obj in objects:
         obj.data.calc_loop_triangles()
-    print('CAR07:', len(objects),'meshes,',sum(len(o.data.loop_triangles) for o in objects),'triangles.')
-    return scene
+    manifest=layout.serialize()
+    manifest['meshes']=len(objects)
+    manifest['triangles']=sum(len(o.data.loop_triangles) for o in objects)
+    (ROOT/'Source/Formation/Layouts/Car07.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
+    print('CAR07:',len(objects),'meshes,',manifest['triangles'],'triangles.')
+    return scene,manifest
 
 
 if __name__ == '__main__':
-    scene = build()
+    scene,manifest = build()
     if '--unity-data' in sys.argv:
-        import integration
-        integration.write(sys.argv[sys.argv.index('--unity-data')+1])
+        integration.write(sys.argv[sys.argv.index('--unity-data')+1],manifest)
     if '--render' in sys.argv:
         from studio import render
         render(ROOT)

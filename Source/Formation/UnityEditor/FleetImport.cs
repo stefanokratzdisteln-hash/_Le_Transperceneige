@@ -59,10 +59,6 @@ namespace Winterbourne.Editor
         }
         public static Layout Read(int n)
         {
-            if (n == 7) return new Layout {
-                number=7, title="Winterbourne", socketA=-9.83f, socketB=9.83f,
-                view=new View {position=new[]{.455f,2.865f,-4.83f},target=new[]{-.89f,2.341f,-6.09f},lens=15.5f}
-            };
             string path = Path.Combine(Checkout, "Source", "Formation", "Layouts", Id(n)+".json");
             var layout = JsonUtility.FromJson<Layout>(File.ReadAllText(path));
             Require(layout.number == n && layout.socketB > layout.socketA && layout.boxes?.Length > 0 &&
@@ -94,7 +90,7 @@ namespace Winterbourne.Editor
         }
         static GameObject ImportModel(int number)
         {
-            string path=$"{Base}/Models/{Id(number)}.fbx";
+            string path=number==7 ? Original+"/Car07.fbx" : $"{Base}/Models/{Id(number)}.fbx";
             var importer=AssetImporter.GetAtPath(path) as ModelImporter;
             Require(importer, "Missing model import " + path);
             importer.bakeAxisConversion=true;
@@ -144,6 +140,7 @@ namespace Winterbourne.Editor
             try
             {
                 var visual=(GameObject)PrefabUtility.InstantiatePrefab(source,root.transform);
+                if(spec.number==7) visual.name="RollingStock";
                 var boxes=Child(root.transform,"Interior collision");
                 foreach (var def in spec.boxes)
                 {
@@ -276,11 +273,11 @@ namespace Winterbourne.Editor
             EnsureFolder(Base,"Prefabs");
             EnsureFolder(Base,"Demo");
             string selection=Argument("-formationCars");
-            int[] numbers=selection==null?Enumerable.Range(1,9).Where(n=>n!=7).ToArray():
+            int[] numbers=selection==null?Enumerable.Range(1,9).ToArray():
                 selection.Split(',').Select(int.Parse).ToArray();
             foreach(int n in numbers)
             {
-                Require(n>=1 && n<=9 && n!=7,"Car 07 is the existing sleeping car");
+                Require(n>=1 && n<=9,"Unknown formation vehicle");
                 var layout=Read(n);
                 BuildCar(layout);
                 EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
@@ -322,20 +319,24 @@ namespace Winterbourne.Editor
             VerifyFormation();
         }
 
-        static void Export()
+        static void Export() => WritePackage("Assets/Transperceneige","Winterbourne");
+
+        public static void ExportSleeper() => WritePackage(Original,"Car07");
+
+        static void WritePackage(string assetFolder,string packageName)
         {
             string releaseFolder=Path.Combine(Checkout,"Releases");
             Directory.CreateDirectory(releaseFolder);
-            var target=Path.Combine(releaseFolder,"Winterbourne.unitypackage");
-            var staging=Path.Combine(releaseFolder,"Winterbourne."+Guid.NewGuid().ToString("N")+".unitypackage");
+            var target=Path.Combine(releaseFolder,packageName+".unitypackage");
+            var staging=Path.Combine(releaseFolder,packageName+"."+Guid.NewGuid().ToString("N")+".unitypackage");
             try
             {
-                AssetDatabase.ExportPackage("Assets/Transperceneige",staging,ExportPackageOptions.Recurse);
+                AssetDatabase.ExportPackage(assetFolder,staging,ExportPackageOptions.Recurse);
                 Require(File.Exists(staging) && new FileInfo(staging).Length>0,"Unity did not generate an archive");
                 if(File.Exists(target)) File.Replace(staging,target,null); else File.Move(staging,target);
             }
             finally {if(File.Exists(staging)) File.Delete(staging);}
-            Debug.Log("FLEET PACKAGE WRITTEN");
+            Debug.Log("FLEET PACKAGE WRITTEN "+target);
         }
 
         public static void VerifyFormation()
@@ -356,7 +357,7 @@ namespace Winterbourne.Editor
                 {
                     var car=roots.Single(g=>PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(g)==PrefabPath(i+1));
                     Require(Mathf.Abs(car.transform.position.z-z[i])<.002f,"Formation offset "+car.name);
-                    if(i!=6) VerifyCar(layouts[i],car);
+                    VerifyCar(layouts[i],car);
                     if(i<8)
                     {
                         float joint=z[i]+layouts[i].socketB;
@@ -370,7 +371,7 @@ namespace Winterbourne.Editor
                     Passage(new Vector3(.90f,1.395f,doorZ),new Vector3(-.13f,1.395f,doorZ),"original cabin");
                 Require(Physics.CheckSphere(new Vector3(-1.01f,1.64f,-6.18f),.10f),"Original compartment berth lost its collision");
                 Vector3[] bedsideExit={Bedside,new Vector3(.9f,1.395f,-5.21f),new Vector3(.9f,1.395f,-7.55f),
-                    new Vector3(0,1.395f,-7.55f),new Vector3(0,1.395f,-9.83f)};
+                    new Vector3(0,1.395f,-7.55f),new Vector3(0,1.395f,layouts[6].socketA)};
                 for(int i=1;i<bedsideExit.Length;i++) Passage(bedsideExit[i-1],bedsideExit[i],"bedside to kitchen");
             }
             finally {capsule.enabled=enabled;}

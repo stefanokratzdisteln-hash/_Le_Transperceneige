@@ -7,11 +7,11 @@ namespace Winterbourne.Editor
 {
     public static partial class PassFittings
     {
-        static bool HouseFrontage(float chainage) => chainage>=995f && chainage<1015f;
+        static bool HouseFrontage(float chainage) => chainage>=StationHouseChainage-10f && chainage<StationHouseChainage+10f;
 
         static void MakeStationHouse(Transform station,Finishes finishes)
         {
-            var house=Child(station,"Fellbridge station house",PlatformPoint(-9f,0,1005f)).transform;
+            var house=Child(station,"Fellbridge station house",PlatformPoint(-9f,0,StationHouseChainage)).transform;
             new StationHouse(house,finishes).Build();
         }
 

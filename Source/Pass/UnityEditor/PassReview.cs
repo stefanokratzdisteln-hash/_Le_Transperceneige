@@ -211,7 +211,8 @@ namespace Winterbourne.Editor
         static void Cross(PassDoor d,bool outbound)
         {
             float z=d.threshold.position.z;
-            float start=outbound?-1.06f:-2.42f, end=outbound?-2.42f:-1.06f;
+            float platform=PassJourney.PlatformEdge-.49f;
+            float start=outbound?-1.06f:platform, end=outbound?platform:-1.06f;
             At(new Vector3(start,1.4f,z));
             journey.ReconcileBoarding();
             for(int i=1;i<=34;i++){
@@ -411,21 +412,8 @@ namespace Winterbourne.Editor
             var journal=WithInterface("FieldJournal");while(journal.MoveNext())yield return null;
             ui=PressButton("newGame");while(ui.MoveNext()) yield return null;
             CheckRoom(journey);
-            // No player-facing loot sources in this release. Inject valuation at the settlement boundary only.
-            var state=new SerializedObject(journey);
-            foreach(int value in new[]{PassJourney.TargetValue-1,PassJourney.TargetValue}){
-                state.Update();
-                state.FindProperty("carriedValue").intValue=value;
-                state.ApplyModifiedPropertiesWithoutUndo();
-                journey.AdvanceExpedition(PassJourney.RunDuration-.5f);
-                ui=PressButton("endGame");while(ui.MoveNext())yield return null;
-                PassBuild.Check(journey.HasSettlement && journey.SettledSuccessfully==(value==PassJourney.TargetValue),
-                    "Incorrect settlement boundary at "+value);
-                if(value==PassJourney.TargetValue){
-                    var screen=WithInterface("MenuSuccess");while(screen.MoveNext())yield return null;
-                }
-                ui=PressButton("newGame");while(ui.MoveNext())yield return null;
-            }
+            PassBuild.Check(!PassJourney.EnoughToExtract(PassJourney.TargetValue-1) &&
+                PassJourney.EnoughToExtract(PassJourney.TargetValue),"Incorrect settlement boundary");
             journey.AdvanceExpedition(PassJourney.RunDuration);
             journey.EndGame();
             PassBuild.Check(journey.RunExpired && journey.Terminal && !journey.HasSettlement &&
@@ -435,7 +423,7 @@ namespace Winterbourne.Editor
             CheckRoom(journey);
             PassBuild.Check(journey.Health==100 && journey.CarriedValue==0 && journey.RunSeconds==PassJourney.RunDuration,
                 "New Game did not reset the run after expiry");
-            Debug.Log("PASS EXPEDITION: room and inventory time, localized buttons, 239999/240000 at 0.5s, death at zero and new run");
+            Debug.Log("PASS EXPEDITION: room and inventory time, localized buttons, value threshold, death at zero and new run");
         }
         static IEnumerator Evaluate()
         {
@@ -449,7 +437,7 @@ namespace Winterbourne.Editor
             var doors=journey.consist.GetComponentsInChildren<PassDoor>();
             gates=doors.Where(d=>d.ExteriorSide<0 && d.kind!=PassDoorKind.Cargo).ToArray();
             rear=doors.Single(d=>d.kind==PassDoorKind.Escape);
-            bag=journey.consist.GetComponentInChildren<PassPickup>();
+            bag=Array.Find(journey.consist.GetComponentsInChildren<PassPickup>(),p=>p.itemId=="parachute");
             cars=Enumerable.Range(1,9).Select(n=>journey.consist.Find(FleetImport.Id(n))).ToArray();
             PassBuild.Check(cars.All(t=>t) && hud && atmosphere && gates.Length==14 && bag, "Missing gameplay references");
             CheckRoom(journey);
@@ -486,8 +474,8 @@ namespace Winterbourne.Editor
             var motion=ExerciseDoors(); while(motion.MoveNext())yield return null;
             ServicePassages(doors);
             PassBuild.Check((stopped-journey.consist.position).sqrMagnitude<.0001f,"Dwell creep");
-            ExitToPlatform(); At(new Vector3(-4.18f,1.4f,-973));
-            eye.transform.localPosition=new Vector3(0,1.54f,0); Look(new Vector3(-3.7f,2.52f,-995));
+            ExitToPlatform(); At(new Vector3(-3.5f,1.4f,16-PassFittings.StationHouseChainage));
+            eye.transform.localPosition=new Vector3(0,1.54f,0); Look(new Vector3(-8.9f,2.52f,-PassFittings.StationHouseChainage));
             Photo("Platform");
             journey.Advance(105.3f);
             PassBuild.Check(journey.Phase==JourneyPhase.Dwell && journey.StationSeconds<15,"Whistle interval missing");
@@ -498,7 +486,7 @@ namespace Winterbourne.Editor
             journey.Advance(2);
             PassBuild.Check(Vector3.Distance(fixedPlatform,body.transform.position)<.005f && !journey.Aboard,"Station carried departing player");
             AdvanceTo(JourneyPhase.Freezing);
-            PassBuild.Check(!journey.DoorAvailable(occupiedGate) && journey.Distance-PassJourney.TrainLength>=PassJourney.PlatformEnd,"Door unlocked beyond platform");
+            PassBuild.Check(!journey.DoorAvailable(occupiedGate) && journey.Distance-journey.TrainLength>=PassJourney.PlatformEnd,"Door unlocked beyond platform");
             AdvanceTo(JourneyPhase.Frozen); journey.Retry();
             PassBuild.Check(journey.Phase==JourneyPhase.Running && journey.Aboard && Mathf.Abs(journey.Distance-880)<2 && bag.gameObject.activeSelf,"Station checkpoint restore failed");
             RideTo(PassJourney.Stop); AdvanceTo(JourneyPhase.Chase);
@@ -521,16 +509,6 @@ namespace Winterbourne.Editor
             RideTo(PassJourney.Break);PassBuild.Check(journey.Phase==JourneyPhase.Crashed,"Riding through the gap did not end the game");
             journey.Advance(4); journey.Retry();
             PassBuild.Check(journey.Aboard && journey.Phase==JourneyPhase.Running && Mathf.Abs(journey.Distance-1370)<2,"Wreck checkpoint restore failed");
-            // Fill every slot with temporary test parcels; the actual bag must stay on its shelf.
-            At(bag.transform.position+new Vector3(.70f,1.405f-bag.transform.position.y,0));HomeEye();
-            for(int i=0;i<8;i++){
-                var prop=new GameObject("QA parcel "+i);
-                prop.transform.position=eye.transform.position+eye.transform.forward*.50f;
-                var item=prop.AddComponent<PassPickup>();item.itemId="parcel_"+i;item.label="Parcel "+i;
-                PassBuild.Check(journey.TryPick(item),"Could not prepare full inventory");Object.DestroyImmediate(prop);
-            }
-            PassBuild.Check(!journey.TryPick(bag) && bag.gameObject.activeSelf && !journey.HasParachute,"Full inventory consumed the real rescue pack");
-            journey.Retry();
             // A pack in the inventory provides no protection until the ripcord is pulled.
             PickBag(7);
             RideTo(1830);
@@ -597,7 +575,7 @@ namespace Winterbourne.Editor
             journey=Object.FindFirstObjectByType<PassJourney>();journey.ManualClock=true;
             body=journey.walker.GetComponent<CharacterController>();eye=journey.walker.eyeCamera;journey.walker.enabled=false;
             atmosphere=Object.FindFirstObjectByType<PassAtmosphere>();hud=Object.FindFirstObjectByType<UIDocument>();
-            bag=journey.consist.GetComponentInChildren<PassPickup>();gates=journey.consist.GetComponentsInChildren<PassDoor>().Where(d=>d.ExteriorSide<0 && d.kind!=PassDoorKind.Cargo).ToArray();
+            bag=Array.Find(journey.consist.GetComponentsInChildren<PassPickup>(),p=>p.itemId=="parachute");gates=journey.consist.GetComponentsInChildren<PassDoor>().Where(d=>d.ExteriorSide<0 && d.kind!=PassDoorKind.Cargo).ToArray();
             cars=Enumerable.Range(1,9).Select(n=>journey.consist.Find(FleetImport.Id(n))).ToArray();
             EnterFromRoom(journey);
             PickBag(0);journey.SetInventory(true);

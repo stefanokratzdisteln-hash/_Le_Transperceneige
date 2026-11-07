@@ -22,6 +22,7 @@ from geometry import Geometry
 import glazing
 from layout import Layout, TITLES
 import stock
+import extension
 
 
 def empty(name,collection,parent=None,point=(0,0,0)):
@@ -79,7 +80,7 @@ def assign_origins(objects,l,root):
             o.data.transform(Matrix.Translation(-o.location))
         elif l.number>2 and name.startswith(('Bogie_','Wheelset_')):
             end=name.split('_')[1][0]
-            pivot=Vector((-5.9 if end=='A' else 5.9,0,1.1))
+            pivot=Vector(((-1 if end=='A' else 1)*(5.9+extension.INSERT),0,1.1))
             absolute=pivot.copy()
             if name.startswith('Wheelset_'):
                 absolute.x+=-1.03 if name.endswith('1') else 1.03
@@ -131,6 +132,12 @@ def build(n):
         stock.build(g,l)
     module='traction' if n<3 else 'service' if n in (3,9) else 'passenger'
     importlib.import_module(module).build(n,g,l)
+    extension.insert_frame(g,n)
+    extension.expand_layout(l)
+    if n>2:
+        extension.coach(g,l)
+    else:
+        extension.machine_room(g,l)
     manifest=l.serialize()
     source=ROOT/'Source/Car07/Car07.blend'
     with bpy.data.libraries.load(str(source),link=False) as (_,loaded):
@@ -141,7 +148,7 @@ def build(n):
             image.filepath=str(textures/image.name)
     objects=g.finish(loaded.materials[0],collection)
     if n>2:
-        objects+=glazing.build(collection,None,loaded.materials[1])
+        objects+=glazing.build(collection,None,loaded.materials[1],n)
     if n==4:
         for name,(cx,y,_) in l.pivots.items():
             if not name.startswith('DrawingRoomDoor_'):
@@ -201,15 +208,16 @@ if __name__=='__main__':
     parser.add_argument('--cars',default='6,5,8,9,4,3,1,2')
     parser.add_argument('--photos',action='store_true')
     parser.add_argument('--photos-only',action='store_true')
+    parser.add_argument('--cutaways-only',action='store_true')
     parser.add_argument('--draft',action='store_true')
     args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
     for number in map(int,args.cars.split(',')):
         if number==7 or number not in TITLES:
             raise ValueError('Formation builder accepts new units 01–06, 08 and 09.')
-        if args.photos_only:
+        if args.photos_only or args.cutaways_only:
             bpy.ops.wm.open_mainfile(filepath=str(HERE.parent/f'Car{number:02}.blend'))
         else:
             build(number)
-        if args.photos_only or args.photos:
+        if args.photos_only or args.photos or args.cutaways_only:
             from photography import photograph
-            photograph(number,ROOT,args.draft)
+            photograph(number,ROOT,args.draft,args.cutaways_only)

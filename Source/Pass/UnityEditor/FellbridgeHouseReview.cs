@@ -84,7 +84,7 @@ namespace Winterbourne.Editor
             controller.enabled=false;
             controller.externalMotion=false;
             var air=Object.FindAnyObjectByType<PassAtmosphere>();
-            air.Apply(1005);
+            air.Apply(PassFittings.StationHouseChainage);
             CheckSnow(root,air);
             CheckBakedSnow(root);
             PassReview.EnterFromRoom(journey);

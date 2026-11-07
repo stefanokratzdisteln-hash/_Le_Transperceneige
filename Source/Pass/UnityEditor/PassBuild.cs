@@ -20,7 +20,6 @@ namespace Winterbourne.Editor
     {
         public const string Root = "Assets/Transperceneige/Pass";
         public const string ScenePath = Root + "/WinterbournePass.unity";
-        public const float NoseOffset = 110.67f;
         public static void Check(bool value, string message) {
             if (!value) throw new InvalidOperationException(message);
         }
@@ -83,7 +82,9 @@ namespace Winterbourne.Editor
             walker.eyeCamera.nearClipPlane = .025f;
             walker.eyeCamera.clearFlags = CameraClearFlags.Skybox;
             walker.eyeCamera.GetUniversalAdditionalCameraData();
-            consist.position = Vector3.forward * NoseOffset;
+            // Start the leading coupler at route chainage zero, independent of the
+            // reference carriage used when the walkthrough formation was assembled.
+            consist.position -= Vector3.forward * Anchor(cars[0].transform,"Socket_A").position.z;
 
             PassLandscape.Build();
             PassFittings.Build(consist, cars);
@@ -97,6 +98,7 @@ namespace Winterbourne.Editor
             route.canopy = PassFittings.MakeCanopy(player.transform);
             route.canopy.SetActive(false);
             PassPortalBuild.Build(route);
+            PassLootBuild.Build(cars,GameObject.Find("Fellbridge Station/Fellbridge station house").transform);
             SetHud(route);
             AssetDatabase.SaveAssets();
             Check(EditorSceneManager.SaveScene(scene, ScenePath, true), "Could not save WinterbournePass scene");
@@ -152,6 +154,13 @@ namespace Winterbourne.Editor
                 "Every door must have a registered fixed pull");
             Check(route.consist.GetComponentsInChildren<PassPickup>(true).Any(p => p.itemId == "parachute"),
                 "Missing movable parachute bag");
+            var valuables=scene.GetRootGameObjects().SelectMany(root=>root.GetComponentsInChildren<PassPickup>(true))
+                .Where(p=>p.itemId!="parachute").ToArray();
+            Check(valuables.Length>=36 && valuables.Select(p=>p.siteId).Distinct().Count()==valuables.Length &&
+                valuables.Select(p=>p.itemId).Distinct().Count()==16 &&
+                valuables.All(p=>p.GetComponent<Collider>() && p.GetComponentInChildren<MeshRenderer>() &&
+                    Resources.Load<Texture2D>("WinterbourneLootIcons/"+p.itemId)),
+                "An antique, interaction site or inventory portrait is missing");
             var cars=Enumerable.Range(1,9).Select(n => route.consist.Cast<Transform>().Single(t =>
                 PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(t.gameObject) == FleetImport.PrefabPath(n))).ToArray();
             foreach (int number in new[]{3,9}) {
@@ -168,6 +177,19 @@ namespace Winterbourne.Editor
                 Check(Vector3.Distance(rear.position,front.position)<.014f, "Gap after platform car "+(i+1));
             }
             Check(Mathf.Abs(Anchor(cars[0],"Socket_A").position.z) < .015f, "Route origin differs from locomotive nose");
+            float trainLength=Anchor(cars[8],"Socket_B").position.z-Anchor(cars[0],"Socket_A").position.z;
+            Check(trainLength<300 && PassJourney.Stop-trainLength>=PassJourney.PlatformStart,
+                "The whole train must fit in the tunnel and alongside the stopped platform");
+            Check(PassJourney.Bridge-(PassJourney.PlatformEnd+trainLength)>22,
+                "The departing train needs room to reach bridge speed after its tail leaves the platform");
+            var platformBounds=route.platformFloor.bounds;
+            Check(Mathf.Abs(platformBounds.size.z-(PassJourney.PlatformEnd-PassJourney.PlatformStart))<.03f &&
+                Mathf.Abs(platformBounds.max.x-PassJourney.PlatformEdge)<.03f,
+                "Platform edges must match the playable boarding and ledge coordinates");
+            foreach(var door in doors.Where(d=>d.ExteriorSide==-1)) {
+                float chainage=PassJourney.Stop-door.threshold.position.z;
+                Check(chainage>=PassJourney.PlatformStart && chainage<PassJourney.PlatformEnd,"No platform below "+door.name);
+            }
             foreach (var root in scene.GetRootGameObjects()) {
                 foreach (var tr in root.GetComponentsInChildren<Transform>(true))
                     Check(GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(tr.gameObject)==0, "Unresolved script on "+tr.name);

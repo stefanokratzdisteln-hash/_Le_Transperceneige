@@ -10,7 +10,7 @@ namespace Winterbourne.Pass
         PassTunnelClearance[] tunnelZones;
         public bool ClimbingRoofLadder => activeLadder != null;
         public bool OnRoof => Aboard && !Terminal && !ClimbingRoofLadder && ladders!=null && ladders.Length>0 &&
-            ladders[0].IsReady && walker.transform.position.y>=ladders[0].roofLanding.position.y-.32f;
+            ladders[0].IsReady && walker.transform.position.y>=ladders[0].roofLanding.position.y-.65f;
         public bool TunnelAhead => IsNearBore(false);
         public bool InRoofTunnel => IsNearBore(true);
 

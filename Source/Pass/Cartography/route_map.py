@@ -74,7 +74,7 @@ def relief(x,s):
     coarse=noise(x,s,.016,.009,73)*.5+.5
     fine=noise(x,s,.078,.057,53)*.5+.5
     shoulder=np.where(x<0,-7.4,9.3)+9*(2*coarse-1)+2.1*fine
-    station=1-smooth(0,34,np.maximum(920-s,s-1110))
+    station=1-smooth(0,34,np.maximum(850-s,s-1110))
     h=np.where(x<0,smooth(13,58,d),smooth(8,39,d))*shoulder*(1-station*(1-smooth(13,48,d)))
     h+=smooth(42,125,d)*(15+23*coarse+9*np.sin(s*.009+x*.022))
     ridge=170+28*np.sin(s*.0081+np.where(x<0,0,2.3))
@@ -179,7 +179,7 @@ def map_panel(page,d):
     d.line((px(2121),y-3,px(2124),y+5),fill=RED,width=5)
     d.line((px(2146),y-4,px(2150),y+4),fill=RED,width=5)
     d.ellipse((px(2137)-3,y+11,px(2137)+3,y+17),fill=RED)
-    d.rounded_rectangle((px(920),y-18,px(1110),y-8),radius=2,fill='#bc9659',outline='#68573b',width=2)
+    d.rounded_rectangle((px(850),y-18,px(1110),y-8),radius=2,fill='#bc9659',outline='#68573b',width=2)
     d.line((px(80),y,px(110),y),fill=RED,width=5)
     d.polygon([(px(112),y),(px(99),y-8),(px(99),y+8)],fill=RED)
     # Landmark annotation cards sit apart from the rails, never hiding a junction or gap.
@@ -245,20 +245,20 @@ def card(d,x,y,w,title,code):
 def station_detail(d,x,y,w):
     card(d,x,y,w,'Fellbridge 站  ·  停车与追车','PLATFORM PLAN')
     left,right=x+43,x+w-41
-    def sx(s):return left+(s-915)*(right-left)/(1116-915)
+    def sx(s):return left+(s-845)*(right-left)/(1116-845)
     py=y+220
-    d.rectangle((sx(920),py-59,sx(1110),py-10),fill='#d6c6a2',outline='#8f8165',width=2)
-    d.line((sx(920),py-12,sx(1110),py-12),fill='#FFF7D9',width=5)
-    for s,l in ((985,13),(1053,8.8)):
+    d.rectangle((sx(850),py-59,sx(1110),py-10),fill='#d6c6a2',outline='#8f8165',width=2)
+    d.line((sx(850),py-12,sx(1110),py-12),fill='#FFF7D9',width=5)
+    for s,l in ((921,13),(1053,8.8)):
         d.rectangle((sx(s-l/2),py-48,sx(s+l/2),py-30),fill='#738278',outline=GREEN)
-    d.rectangle((sx(995),py-54,sx(1015),py-27),fill=GOLD,outline=GREEN,width=2)
-    label(d,((sx(995)+sx(1015))/2,py-40),'站长楼','cnb',16,INK,'mm')
-    label(d,(sx(948),py-40),'190 m 站台','cn',20,GREEN,'mm')
-    for s,t in ((920,'920'),(1095,'1095'),(1110,'1110 m')):
+    d.rectangle((sx(933),py-54,sx(953),py-27),fill=GOLD,outline=GREEN,width=2)
+    label(d,(sx(943),py-40),'站长楼','cnb',16,INK,'mm')
+    label(d,(sx(880),py-40),'260 m 站台','cn',20,GREEN,'mm')
+    for s,t in ((850,'850'),(1095,'1095'),(1110,'1110 m')):
         d.line((sx(s),py-78,sx(s),py-61),fill=MUTED,width=2)
         label(d,(sx(s),py-91),t,'num',18,MUTED,'mm')
     d.line((left,py+9,right,py+9),fill=MUTED,width=3)
-    pitches=[13.8,8.4]+[19.66]*7
+    pitches=[18,12]+[29.4]*7
     p=1095; mid={}
     for i,length in enumerate(pitches,1):
         a,b=sx(p-length),sx(p);mid[i]=p-length/2
@@ -267,16 +267,16 @@ def station_detail(d,x,y,w):
         label(d,((a+b)/2,py+15),f'{i:02d}','num',16,'#fff4d6','mm')
         p-=length
     for i in range(3,10):
-        offsets = (-8.04, 0, 8.04) if i in (3,9) else (-8.04,8.04)
+        offsets = (-12.91, 0, 12.91) if i in (3,9) else (-12.91,12.91)
         for off in offsets:
             a=sx(mid[i]+off)
             d.polygon([(a,py+1),(a-5,py-8),(a+5,py-8)],fill=GREEN)
-    grip=sx(mid[9]-8.04)
+    grip=sx(mid[9]-12.91)
     d.line((grip,py-8,grip,py+64,grip+21,py+64),fill=RED,width=3)
     d.ellipse((grip-5,py-12,grip+5,py-2),fill=RED)
     label(d,(grip+29,py+65),'09 侧门：最后登车踏板','cn',20,RED)
-    label(d,(x+27,y+352),'停站 2 分钟，余 15 秒鸣哨。站长楼一楼有传送门。','cnb',25)
-    label(d,(x+27,y+397),'进屋后列车继续计时。末车驶离前可返回站台，按 E 开门、Shift 追车、空格跳上。','cn',23,MUTED)
+    label(d,(x+27,y+352),'停站 2 分钟，余 15 秒鸣哨。行包间内有寄存珍品。','cnb',25)
+    label(d,(x+27,y+397),'搜够 240,000 可经一楼书柜回屋结算。追车时按 F 或 E 开门、Shift 加速、空格跳上。','cn',23,MUTED)
 
 
 def bridge_detail(d,x,y,w):
@@ -310,7 +310,7 @@ def bridge_detail(d,x,y,w):
     for yy2 in (hy(-65),hy(-75)):
         d.line((sx(1600),yy2,sx(1614),yy2),fill=WATER,width=3)
     label(d,(x+27,y+352),'09 号尾台按空格跳出，离车后再按一次空格开伞。','cnb',25)
-    label(d,(x+27,y+397),'WASD 滑翔。着陆后可从雪地按 E 进小屋，或走进回程书柜。','cn',23,MUTED)
+    label(d,(x+27,y+397),'WASD 滑翔。着陆后走进回程书柜，在小屋内点「结束游戏」结算。','cn',23,MUTED)
 
 
 def main():

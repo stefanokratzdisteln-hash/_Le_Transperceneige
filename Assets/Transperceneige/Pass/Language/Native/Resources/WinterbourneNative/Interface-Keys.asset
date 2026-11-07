@@ -419,6 +419,138 @@ MonoBehaviour:
     m_Key: roof.warning
     m_Metadata:
       m_Items: []
+  - m_Id: 53173002829833
+    m_Key: item.pocket_watch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829838
+    m_Key: search.all
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829839
+    m_Key: search.cabinet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829840
+    m_Key: search.case
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829841
+    m_Key: search.close
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829842
+    m_Key: search.drawer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829843
+    m_Key: search.empty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829844
+    m_Key: search.exchange
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829845
+    m_Key: search.lockMiss
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829846
+    m_Key: search.offer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829847
+    m_Key: search.one
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829848
+    m_Key: search.open
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829849
+    m_Key: search.pick
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829850
+    m_Key: search.select
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829851
+    m_Key: search.targetMet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829852
+    m_Key: search.timing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829853
+    m_Key: search.turn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829854
+    m_Key: search.unlock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035322372096
+    m_Key: item.astrolabe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092352
+    m_Key: item.astronomical_globe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092353
+    m_Key: item.cameo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092354
+    m_Key: item.cloisonne_vase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092355
+    m_Key: item.crystal_cup
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092356
+    m_Key: item.diptych_dial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092357
+    m_Key: item.emerald_tiara
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092358
+    m_Key: item.intaglio_seal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092359
+    m_Key: item.jewelled_fan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092360
+    m_Key: item.pearl_aigrette
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092361
+    m_Key: item.portrait_snuffbox
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092362
+    m_Key: item.rose_egg
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092363
+    m_Key: item.scent_flacon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092364
+    m_Key: item.silver_nef
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092365
+    m_Key: item.singing_bird_box
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

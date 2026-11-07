@@ -32,6 +32,14 @@ namespace Winterbourne.Editor
                 shellCount++;
             }
             PassBuild.Check(shellCount==2,$"Car {number:D2} lacks its cambered roof or raised clerestory");
+            foreach(int side in new[]{-1,1})
+                foreach(int end in new[]{-1,1})
+                {
+                    var roof=Box(fittings,"Gallery roof shoulder",
+                        new Vector3(side*1.9275f,3.766f,end*(GalleryStart+GalleryLength*.5f)),
+                        new Vector3(1.031f,.048f,GalleryLength));
+                    roof.transform.localRotation=Quaternion.Euler(0,0,-side*10.06f);
+                }
             var deck=new StationFabrication();
             if(hasLadder)
             {
@@ -42,15 +50,15 @@ namespace Winterbourne.Editor
                 void Ceiling(float x1,float x2,float z1,float z2) =>
                     Box(fittings,"Ceiling beside roof hatch",new Vector3((x1+x2)/2,3.686f,(z1+z2)/2),
                         new Vector3(x2-x1,.10f,z2-z1));
-                Ceiling(-1.455f,1.455f,-9f,well.yMin);
-                Ceiling(-1.455f,1.455f,well.yMax,9f);
+                Ceiling(-1.455f,1.455f,-ShellEnd,well.yMin);
+                Ceiling(-1.455f,1.455f,well.yMax,ShellEnd);
                 Ceiling(-1.455f,well.xMin,well.yMin,well.yMax);
                 Ceiling(well.xMax,1.455f,well.yMin,well.yMax);
-                Board(fittings,deck,mat,-8.95f,well.yMin-.032f);
-                Board(fittings,deck,mat,well.yMax+.032f,8.95f);
+                Board(fittings,deck,mat,-ShellEnd+.05f,well.yMin-.032f);
+                Board(fittings,deck,mat,well.yMax+.032f,ShellEnd-.05f);
                 Ladder(fittings,deck,mat,well,partition);
             }
-            else Board(fittings,deck,mat,-8.95f,8.95f);
+            else Board(fittings,deck,mat,-ShellEnd+.05f,ShellEnd-.05f);
             deck.Finish(fittings,hasLadder ? $"Car {number:D2} roof hatch and ladder" : "Coach roof running board");
         }
 

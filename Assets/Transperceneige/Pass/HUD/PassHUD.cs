@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.Collections.Generic;
 using static Winterbourne.Pass.PassText;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -15,6 +16,14 @@ namespace Winterbourne.Pass
         Label place,mileage,task,message,reason,result,capacity,help;
         readonly VisualElement[] tiles=new VisualElement[12];
         readonly VisualElement[] glyphs=new VisualElement[12];
+        readonly Label[] slotPrices=new Label[8];
+        readonly Label[] slotNames=new Label[8];
+        readonly Dictionary<string,Texture2D> lootIcons=new Dictionary<string,Texture2D>();
+        VisualElement searchSheet,searchRows,lockTrack,lockPin;
+        Label inventoryValue,searchTitle,searchHelp;
+        Button takeOne,takeAll,closeBag;
+        int hoveredSlot=-1,paintedLoot=-1;
+        bool redrawText;
         VisualElement root,roomActions,titleScreen,kit,vitals,healthFill,runBoard;
         Label shortcuts,healthNumber,bagValue,runClock,runTarget,settlement,settledValue;
         VisualElement deployPrompt;
@@ -43,18 +52,34 @@ namespace Winterbourne.Pass
                 if(i>=4){
                     tile.AddToClassList("bag-slot");
                     tile.RegisterCallback<ClickEvent>(_=>Choose(index));
+                    tile.RegisterCallback<PointerEnterEvent>(_=>hoveredSlot=index);
+                    tile.RegisterCallback<PointerLeaveEvent>(_=>{ if(hoveredSlot==index) hoveredSlot=-1; });
                 }else tile.pickingMode=PickingMode.Ignore;
                 var label=new Label((index+1).ToString());
                 label.AddToClassList("slot-number");
                 tile.Add(label);
                 var glyph=new VisualElement{name="glyph",pickingMode=PickingMode.Ignore};
                 glyph.AddToClassList("glyph");
-                glyph.generateVisualContent+=ctx=>DrawSatchel(ctx,glyph.contentRect);
+                glyph.generateVisualContent+=ctx=>{
+                    if(journey && journey.Slot(index)=="parachute") DrawSatchel(ctx,glyph.contentRect);
+                };
                 tile.Add(glyph);
+                if(i>=4){
+                    var caption=new Label(){pickingMode=PickingMode.Ignore};
+                    caption.AddToClassList("slot-caption"); tile.Add(caption); slotNames[index]=caption;
+                    var price=new Label(){pickingMode=PickingMode.Ignore};
+                    price.AddToClassList("slot-price"); tile.Add(price); slotPrices[index]=price;
+                }
                 (i<4 ? quick : bag).Add(tile);
                 tiles[i]=tile;glyphs[i]=glyph;
             }
-            root.Q<Button>("closeBag").clicked+=Close;
+            closeBag=root.Q<Button>("closeBag"); closeBag.clicked+=Close;
+            searchSheet=root.Q("searchSheet"); searchRows=root.Q("searchRows");
+            searchTitle=root.Q<Label>("searchTitle"); searchHelp=root.Q<Label>("searchHelp");
+            lockTrack=root.Q("lockTrack");lockPin=root.Q("lockPin");
+            inventoryValue=root.Q<Label>("inventoryValue");
+            takeOne=root.Q<Button>("takeOne");takeAll=root.Q<Button>("takeAll");
+            takeOne.clicked+=TakeOne;takeAll.clicked+=TakeAll;
             root.Q<Button>("retry").clicked+=Retry;
             root.Q<Button>("roomLanguage").clicked+=ToggleLanguage;
             root.Q<Button>("bagBadge").clicked+=OpenBag;
@@ -86,6 +111,8 @@ namespace Winterbourne.Pass
         {
             var root=GetComponent<UIDocument>().rootVisualElement;
             if(root?.Q<Button>("closeBag") is Button close) close.clicked-=Close;
+            if(takeOne!=null) takeOne.clicked-=TakeOne;
+            if(takeAll!=null) takeAll.clicked-=TakeAll;
             if(root?.Q<Button>("retry") is Button retry) retry.clicked-=Retry;
             if(root?.Q<Button>("roomLanguage") is Button room) room.clicked-=ToggleLanguage;
             if(root?.Q<Button>("bagBadge") is Button badge) badge.clicked-=OpenBag;
@@ -126,7 +153,7 @@ namespace Winterbourne.Pass
             root.Q<Button>("quitGame").text=Get("menu.quit");
             root.Q<Label>("clockCaption").text=Get("run.clock");
             root.Q<Label>("targetCaption").text=Get("run.target");
-            nextPaint=0;
+            redrawText=true;nextPaint=0;
         }
         void ToggleLanguage()=>SetChinese(!Chinese);
         void EndGame()=>journey.EndGame();
@@ -141,10 +168,13 @@ namespace Winterbourne.Pass
         }
         void Close()=>journey.SetInventory(false);
         void OpenBag()=>journey.SetInventory(true);
+        void TakeOne()=>journey.UseFocused();
+        void TakeAll()=>journey.TakeAllFocused();
         void Retry(){ if(journey.RunExpired) journey.NewGame(); else journey.Retry(); }
         void Choose(int i)
         {
             if(!journey.InventoryOpen) return;
+            if(journey.AwaitingSwap){journey.ExchangeSlot(i);selected=-1;return;}
             if(selected<0){ if(journey.Slot(i)!=null) selected=i; }
             else{ if(selected!=i) journey.MoveSlot(selected,i); selected=-1; }
         }
@@ -213,10 +243,61 @@ namespace Winterbourne.Pass
             return $"{s/60:00}:{s%60:00}";
         }
         static void Show(VisualElement el,bool visible)=>el.EnableInClassList("hidden",!visible);
+
+        void RefreshSearch(bool dirty)
+        {
+            bool search=journey.SearchOpen;
+            Show(searchSheet,search);
+            closeBag.text=Get(search?"search.close":"inventory.close");
+            if(!search) return;
+            bool locked=journey.PickingLock;
+            Show(lockTrack,locked);Show(searchRows,!locked);Show(takeAll,!locked);
+            if(locked)lockPin.style.left=Length.Percent(journey.LockPosition*100);
+            takeOne.text=Get(locked?"search.turn":"search.one");
+            takeAll.text=Get("search.all");
+            takeOne.SetEnabled(locked || journey.SearchCount>0);
+            takeAll.SetEnabled(journey.SearchCount>0);
+            searchTitle.text=Get(journey.OpenContainer?journey.OpenContainer.labelKey:"search.offer");
+            string notice=journey.Notice;
+            searchHelp.text=locked?Get("search.timing"):journey.AwaitingSwap?Get("search.exchange"):
+                !string.IsNullOrEmpty(notice)?notice:Get(journey.SearchCount==0?"search.empty":"search.select");
+            if(!dirty) return;
+            searchRows.Clear();
+            for(int i=0;i<journey.SearchCount;i++)
+            {
+                int at=i;
+                var item=journey.SearchItem(i);
+                var row=new Button(()=>journey.SelectSearchItem(at));
+                var icon=LootIcon(item.itemId);
+                if(icon){
+                    var picture=new VisualElement{pickingMode=PickingMode.Ignore};
+                    picture.AddToClassList("search-icon");
+                    picture.style.backgroundImage=new StyleBackground(icon);
+                    row.Add(picture);
+                }
+                var title=new Label(journey.ItemName(item.itemId)){pickingMode=PickingMode.Ignore};
+                title.AddToClassList("search-name"); row.Add(title);
+                var price=new Label(PassLootCatalogue.Format(PassLootCatalogue.Value(item.itemId))){pickingMode=PickingMode.Ignore};
+                price.AddToClassList("search-price"); row.Add(price);
+                row.AddToClassList("search-row");
+                row.EnableInClassList("selected",i==journey.SelectedSearchIndex);
+                searchRows.Add(row);
+            }
+        }
+
+        Texture2D LootIcon(string id)
+        {
+            if(id==null || id=="parachute") return null;
+            if(!lootIcons.TryGetValue(id,out var icon))
+                lootIcons[id]=icon=Resources.Load<Texture2D>("WinterbourneLootIcons/"+id);
+            return icon;
+        }
         void LateUpdate()
         {
             if(!journey || inventory==null) return;
-            if(Time.unscaledTime<nextPaint) return;
+            bool dirty=paintedLoot!=journey.LootRevision || redrawText;
+            if(Time.unscaledTime<nextPaint && !dirty && !journey.PickingLock) return;
+            paintedLoot=journey.LootRevision;redrawText=false;
             nextPaint=Time.unscaledTime+.065f;
             bool bag=journey.InventoryOpen, end=journey.Terminal, menu=journey.InStartMenu;
             bool hub=journey.InHub;
@@ -247,23 +328,34 @@ namespace Winterbourne.Pass
             }
             Show(shortcuts,!menu&&!bag&&!end);
             shortcuts.text=Get(hub?"hub.controls":journey.OnRoof?"roof.controls":"controls.shortcuts");
-            if(!bag) selected=-1;
+            if(!bag){ selected=-1;hoveredSlot=-1; }
+            RefreshSearch(dirty);
             int count=0;
             for(int i=0;i<12;i++){
                 int index=i<4?i:i-4;
                 var id=journey.Slot(index);
                 tiles[i].EnableInClassList("filled",id!=null);
-                tiles[i].EnableInClassList("selected",bag&&selected==index);
+                tiles[i].EnableInClassList("selected",bag ? selected==index : i<4&&journey.QuickSlot==index);
                 Show(glyphs[i],id!=null);
+                if(dirty) {
+                    var icon=LootIcon(id);
+                    glyphs[i].style.backgroundImage=icon?new StyleBackground(icon):new StyleBackground(StyleKeyword.None);
+                    glyphs[i].MarkDirtyRepaint();
+                }
                 if(i>=4){
                     tiles[i].tooltip=id==null?Get("inventory.empty"):journey.ItemName(id);
+                    slotNames[index].text=id==null?"":journey.ItemName(id);
+                    slotPrices[index].text=id==null?"":PassLootCatalogue.Format(PassLootCatalogue.Value(id));
                     if(id!=null) count++;
                 }
             }
             if(bag){
+                inventoryValue.text=Get("run.value")+"    "+value;
                 capacity.text=string.Format(Get("inventory.capacity"),count);
-                help.text=selected<0 ? Get("inventory.choose") :
-                    string.Format(Get("inventory.move"),journey.ItemName(journey.Slot(selected)));
+                var hover=hoveredSlot>=0?journey.Slot(hoveredSlot):null;
+                help.text=journey.AwaitingSwap?Get("search.exchange"):selected>=0?
+                    string.Format(Get("inventory.move"),journey.ItemName(journey.Slot(selected))):
+                    hover!=null?journey.ItemName(hover):Get("inventory.choose");
             }
             float at=-journey.walker.transform.position.z;
             string area=at<480?"mountain":at<780?"tunnel":at<1110?"fellbridge":at<1400?"gorge":"viaduct";

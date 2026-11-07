@@ -6,8 +6,6 @@ namespace Winterbourne.Pass
     {
         public const int TargetValue = 240000;
         public const float RunDuration = 12 * 60f;
-        [SerializeField, Min(0)] int carriedValue;
-        public int CarriedValue => Mathf.Max(0,carriedValue);
         public int Health { get; private set; } = 100;
         public int LastImpactDamage { get; private set; }
         public float RunSeconds { get; private set; }
@@ -19,7 +17,6 @@ namespace Winterbourne.Pass
 
         void ResetExpedition()
         {
-            carriedValue = 0;
             Health = 100;
             LastImpactDamage = 0;
             HasSettlement = false;
@@ -76,13 +73,15 @@ namespace Winterbourne.Pass
                 end==JourneyPhase.Frozen || end==JourneyPhase.Crashed) Health=0;
         }
 
+        public static bool EnoughToExtract(int value) => value>=TargetValue;
+
         bool SettleExpedition()
         {
             TickExpedition();
             if (!InHub || RunExpired || Terminal || RunSeconds<=0) return false;
             clockStopped = true;
             HasSettlement = true;
-            SettledSuccessfully = CarriedValue >= TargetValue;
+            SettledSuccessfully = EnoughToExtract(CarriedValue);
             return true;
         }
     }

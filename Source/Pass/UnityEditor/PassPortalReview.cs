@@ -132,9 +132,11 @@ namespace Winterbourne.Editor
 
         static void Pick()
         {
-            var item=route.consist.GetComponentInChildren<PassPickup>();
+            if(route.HasParachute) return;
+            var item=Array.Find(route.consist.GetComponentsInChildren<PassPickup>(),p=>p.itemId=="parachute");
             var spot=item.transform.position+new Vector3(.70f,1.405f-item.transform.position.y,0);
             route.walker.Place(route.consist,route.consist.InverseTransformPoint(spot),Quaternion.identity,0);
+            route.walker.eyeCamera.transform.LookAt(item.transform.position);
             Check(route.TryPick(item) && route.HasParachute,"test pickup");
         }
 
@@ -197,21 +199,22 @@ namespace Winterbourne.Editor
                 "recoverable chase must return to the station, not the train");
             StationApproach(); visit=WalkThrough(route.stationGate,()=>route.VisitingStation);
             while(visit.MoveNext())yield return null;
-            route.Advance(90);
+            route.Advance((PassJourney.PlatformEnd+route.TrainLength-route.Distance)/2.75f+5f);
             Check(route.InHub && route.MissedTrainInHub && !route.Terminal && !route.VisitingStation,"missing train in hut should be safe");
             route.EndGame(); Check(route.InStartMenu && route.HasSettlement && !route.SettledSuccessfully,"hut End Game should settle empty value");
             route.NewGame();
             Check(route.InHub && !route.MissedTrainInHub && route.Distance==0 && !route.HasParachute,"New Game reset");
             Debug.Log("KEEPER STATION: station return, live 120-second dwell, departure, safe miss and New Game passed");
-            for(float nose=1564;nose<2120;nose+=.75f)
+            float firstEscape=PassJourney.Bridge+route.TrainLength+4.2f;
+            for(float nose=firstEscape;nose<PassJourney.Break;nose+=.75f)
             {
-                var deployment=new Vector3(6.9f,1.64f,-nose+PassJourney.TrainLength+.30f-2.21f);
+                var deployment=new Vector3(6.9f,1.64f,-nose+route.TrainLength+.30f-2.21f);
                 Check(route.TryFindLandingPair(deployment,out var ground,out var gate) &&
                     Vector3.Distance(ground,gate)>=4 && Vector3.Distance(ground,gate)<=7,
                     "No safely reachable arch for chainage "+nose);
             }
-            Debug.Log("KEEPER SURVEY: verified a dry, walkable touchdown and gate at .75m intervals throughout the 556m jump window");
-            foreach(float chainage in new[]{1565f,1830f,2116f})
+            Debug.Log("KEEPER SURVEY: verified a dry, walkable touchdown and gate every .75m throughout the jump window");
+            foreach(float chainage in new[]{firstEscape+1,1830f,2116f})
             {
                 float beforeBoarding=route.RunSeconds;
                 board=WalkThrough(route.hubGate,()=>route.Aboard);
@@ -220,7 +223,7 @@ namespace Winterbourne.Editor
                 route.AdvanceExpedition(25);
                 float onTrain=route.RunSeconds;
                 Pick(); Release(chainage);
-                Photo(chainage<1600f ? "LandingGateEarly" : chainage<2000f ? "LandingGate" : "LandingGateLate");
+                Photo(chainage<firstEscape+5 ? "LandingGateEarly" : chainage<2000f ? "LandingGate" : "LandingGateLate");
                 if(chainage==1830f)
                 {
                     shelves=PassBookcaseReview.Sweep(route,route.returnGate,false);
@@ -229,7 +232,7 @@ namespace Winterbourne.Editor
                 var back=WalkThrough(route.returnGate,()=>route.InHub);
                 while(back.MoveNext())yield return null;
                 Check(!route.Started && route.Distance>=chainage && route.HasParachute &&
-                    !route.consist.GetComponentInChildren<PassPickup>() && !route.returnGate.gameObject.activeSelf,
+                    !Array.Find(route.consist.GetComponentsInChildren<PassPickup>(),p=>p.itemId=="parachute") && !route.returnGate.gameObject.activeSelf,
                     "landing gate lost the completed trip before settlement");
                 Check(Mathf.Abs(onTrain-route.RunSeconds)<.04f,"landing return reset global clock");
             }

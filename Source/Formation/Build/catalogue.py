@@ -11,15 +11,15 @@ ROOT = Path(__file__).resolve().parents[3]
 PREVIEWS = ROOT / "Previews"
 # Coupling pitches are measured in centimetres, so the running total is exact.
 STOCK = (
-    ("Pacific locomotive", "No. 601 North Star  ·  4–6–2 express engine", 1380),
-    ("Corridor tender", "Coal, water and a through passage for crew", 840),
-    ("Railway stores", "Linen press, lamp room and workshop", 1966),
-    ("Compartment carriage", "24 seats  ·  Four six-seat compartments", 1966),
-    ("Open saloon", "32 seats  ·  Open seating with a centre aisle", 1966),
-    ("Restaurant carriage", "18 dining places  ·  Galley service", 1966),
-    ("Winterbourne", "4 single berths  ·  Private sleeping compartments", 1966),
-    ("Sleeping carriage", "16 berths  ·  Two-tier sleeping compartments", 1966),
-    ("Guard’s brake van", "Guard’s office, luggage and parcels weighing", 1966),
+    ("Pacific locomotive", "No. 601 North Star  ·  Instrument room", 1800),
+    ("Corridor tender", "Coal, water and two service rooms", 1200),
+    ("Railway stores", "Linen press, lamp aisles and workshop", 2940),
+    ("Compartment carriage", "24 seats  ·  Drawing and correspondence rooms", 2940),
+    ("Open saloon", "32 seats  ·  Reading table and luggage recess", 2940),
+    ("Restaurant carriage", "18 dining places  ·  Private dining and silver pantry", 2940),
+    ("Winterbourne", "4 single berths  ·  Morning room and steward's stores", 2940),
+    ("Sleeping carriage", "16 berths  ·  Berth luggage and linen exchange", 2940),
+    ("Guard’s brake van", "Valuables room, sorting office and luggage aisles", 2940),
 )
 PAPER, GREEN, INK = "#f1ecde", "#1e3734", "#242e2b"
 GOLD, RULE, RUBY, GREY = "#c9a56a", "#b8ac8c", "#764337", "#48554f"

@@ -124,7 +124,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951559
-    m_Localized: Tab  Inventory
+    m_Localized: "F  Search / use    \xB7    Tab  Inventory"
     m_Metadata:
       m_Items: []
   - m_Id: 1420951558
@@ -156,7 +156,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951564
-    m_Localized: "Departure  {0}    \xB7    E at a door"
+    m_Localized: "Departure  {0}    \xB7    F / E at a door"
     m_Metadata:
       m_Items: []
   - m_Id: 1420951557
@@ -164,10 +164,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951556
-    m_Localized: 'E to open a passing door
+    m_Localized: 'F / E to open a passing door
 
-      Hold Shift to catch up, then Space
-      to jump aboard'
+      Hold Shift to catch up, then
+      Space to jump aboard'
     m_Metadata:
       m_Items: []
   - m_Id: 1420951571
@@ -191,8 +191,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951553
-    m_Localized: 'Van 09: E at the rear door. Space to jump, then press Space again
-      to open the parachute.'
+    m_Localized: 'Van 09: F / E at the rear door. Space to jump, then press Space
+      again to open the parachute.'
     m_Metadata:
       m_Items: []
   - m_Id: 1420951555
@@ -205,15 +205,15 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 1420951560
     m_Localized: "WASD  Move   \xB7   Shift  Sprint\nSpace  Jump   \xB7   Ctrl  Crouch
-      / stand\nE  Doors and ladders"
+      / stand\nF  Search / use   \xB7   Tab  Inventory"
     m_Metadata:
       m_Items: []
   - m_Id: 20641230225413
-    m_Localized: E   Climb to the roof
+    m_Localized: F / E   Climb to the roof
     m_Metadata:
       m_Items: []
   - m_Id: 20641230225410
-    m_Localized: E   Climb down into the van
+    m_Localized: F / E   Climb down into the van
     m_Metadata:
       m_Items: []
   - m_Id: 20641230225408
@@ -221,7 +221,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 20641230225409
-    m_Localized: "Ctrl  Crouch / stand    \xB7    E at a hatch to climb down"
+    m_Localized: "Ctrl  Crouch / stand    \xB7    F / E at a hatch to climb down"
     m_Metadata:
       m_Items: []
   - m_Id: 20641230225414
@@ -296,15 +296,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1416757248
-    m_Localized: E   Open door
+    m_Localized: F / E   Open door
     m_Metadata:
       m_Items: []
   - m_Id: 372375552
-    m_Localized: E   Close door
+    m_Localized: F / E   Close door
     m_Metadata:
       m_Items: []
   - m_Id: 1416757249
-    m_Localized: E  Close door
+    m_Localized: F / E  Close door
     m_Metadata:
       m_Items: []
   - m_Id: 1420951609
@@ -420,7 +420,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 15208885125120
-    m_Localized: E at the lit cottage door to go inside.
+    m_Localized: F / E at the lit cottage door to go inside.
     m_Metadata:
       m_Items: []
   - m_Id: 15604575764480
@@ -431,6 +431,138 @@ MonoBehaviour:
   - m_Id: 15604655456256
     m_Localized: Your parachute was still packed at impact. Press Space again as
       soon as you leave the train.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829833
+    m_Localized: Celestial enamel gold watch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092355
+    m_Localized: Dragon-handled crystal cup
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092365
+    m_Localized: Enamel singing-bird box
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092361
+    m_Localized: Gold portrait snuffbox
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092357
+    m_Localized: Emerald waterfall tiara
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092358
+    m_Localized: Amethyst serpent seal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092353
+    m_Localized: Sardonyx cameo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035322372096
+    m_Localized: Pierced gilt astrolabe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092352
+    m_Localized: Clockwork celestial globe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092360
+    m_Localized: Ruby and pearl aigrette
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092362
+    m_Localized: Winter Rose enamel egg
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092359
+    m_Localized: Jewelled court fan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092356
+    m_Localized: Boxwood diptych sundial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092354
+    m_Localized: "Cloisonn\xE9 lotus vase"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092364
+    m_Localized: Silver-gilt nef
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54035381092363
+    m_Localized: Gold-caged scent flacon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829840
+    m_Localized: Luggage case
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829842
+    m_Localized: Drawer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829839
+    m_Localized: Cabinet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829846
+    m_Localized: At your feet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829848
+    m_Localized: F   Search {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829854
+    m_Localized: "F   Pick lock \xB7 {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829849
+    m_Localized: "F   Pick up {0}   \xB7   {1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829845
+    m_Localized: "Lock held \xB7 Try again"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829851
+    m_Localized: "Target reached \xB7 Return to the cottage to settle"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829852
+    m_Localized: Press F when the pin crosses the green band.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829853
+    m_Localized: F   Turn lock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829847
+    m_Localized: F   Take selected
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829838
+    m_Localized: H   Take all
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829841
+    m_Localized: Esc   Close
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829844
+    m_Localized: "Bag full \xB7 Click the bag slot to leave here in exchange."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829850
+    m_Localized: "Click a row or use \u2191 / \u2193 to select."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53173002829843
+    m_Localized: Empty
     m_Metadata:
       m_Items: []
   references:

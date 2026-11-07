@@ -143,12 +143,15 @@ namespace Winterbourne.Editor
             Sheet("central soffit",-1.29f,1.29f,5.65f);
             for(int hand=-1;hand<=1;hand+=2)
             {
-                float inner=hand*1.29f,outer=hand*2.06f;
-                Sheet(hand<0?"left shoulder":"right shoulder",Mathf.Min(inner,outer),Mathf.Max(inner,outer),5.40f);
+                float inner=hand*1.29f,returnEdge=hand*1.72f,outer=hand*2.64f;
+                string side=hand<0?"left":"right";
+                Sheet(side+" shoulder",Mathf.Min(inner,returnEdge),Mathf.Max(inner,returnEdge),5.40f);
+                Sheet(side+" eaves",Mathf.Min(returnEdge,outer),Mathf.Max(returnEdge,outer),5.14f);
                 b.Block(Paint.Iron,W(inner,5.57f,630),new Vector3(.039f,.29f,300));
+                b.Block(Paint.Iron,W(returnEdge,5.31f,630),new Vector3(.039f,.30f,300));
                 for(int s=480;s<=780;s+=6)
                 {
-                    b.Bar(Paint.Steel,W(outer,5.52f,s),W(hand*2.78f,5.70f,s),.072f,.073f);
+                    b.Bar(Paint.Steel,W(outer,5.24f,s),W(hand*2.84f,5.70f,s),.072f,.073f);
                     b.Bar(Paint.Iron,W(hand*.98f,5.76f,s),W(hand*1.10f,6.64f,s),.042f,.048f);
                 }
             }
