@@ -132,6 +132,7 @@ namespace Winterbourne.Editor
                     int stand=rng.Next(2,7);
                     for(int k=0;k<stand;k++){
                         float xx=x+Between(rng,-8,8),ss=s+Between(rng,-8,8);
+                        if(InStationHousePlot(xx,ss))continue;
                         float y=PassAtmosphere.GroundHeight(xx,ss);
                         Spruce(b,W(xx,y-.27f,ss),size*Between(rng,.49f,1.18f),rng,false);
                     }
@@ -140,7 +141,7 @@ namespace Winterbourne.Editor
             for(int i=0;i<17;i++){
                 float s=start+Between(rng,0,100);
                 float x=(i%2==0?-1:1)*Between(rng,9.5f,i<5?30:115);
-                if((s>905&&s<1126&&Mathf.Abs(x)<18)||(s>1395&&s<2220&&Mathf.Abs(x)<42))continue;
+                if((s>905&&s<1126&&Mathf.Abs(x)<18)||InStationHousePlot(x,s)||(s>1395&&s<2220&&Mathf.Abs(x)<42))continue;
                 Boulder(b,W(x,PassAtmosphere.GroundHeight(x,s)-.5f,s),Between(rng,.63f,2.95f),rng);
             }
             for(int k=Mathf.CeilToInt(start/34f);k*34<start+100;k++)
@@ -170,6 +171,8 @@ namespace Winterbourne.Editor
                 }
             }
         }
+
+        static bool InStationHousePlot(float x,float s) => x < -7 && x > -23 && s > 991 && s < 1019;
 
         static void Boulder(Batch b,Vector3 o,float r,System.Random rng)
         {

@@ -52,7 +52,7 @@ namespace Winterbourne.Editor
                 float noise=Mathf.PerlinNoise(s*.134f,12.7f);
                 var inner=PlatformPoint(Back+.55f+1.33f*noise,.012f,s);
                 var outer=PlatformPoint(Back,.044f+.27f*noise,s);
-                if(j>0)body.Quad(m.snow,lastInner,inner,outer,lastOuter,Vector3.up);
+                if(j>0 && !HouseFrontage(s-.5f))body.Quad(m.snow,lastInner,inner,outer,lastOuter,Vector3.up);
                 lastInner=inner;lastOuter=outer;
             }
             body.Finish(structure,"Fellbridge stone platform");
@@ -61,6 +61,7 @@ namespace Winterbourne.Editor
             var fittings=new StationFabrication();
             for(float s=PlatformFirst;s<=PlatformLast;s+=2.50f)
             {
+                if (HouseFrontage(s)) continue;
                 fittings.Box(m.pine,PlatformPoint(Back+.11f,.62f,s),new Vector3(.105f,1.24f,.105f));
                 fittings.Box(m.snow,PlatformPoint(Back+.11f,1.261f,s),new Vector3(.133f,.042f,.133f));
                 if(s+2.49f<=PlatformLast)
@@ -69,8 +70,9 @@ namespace Winterbourne.Editor
                         fittings.Box(m.pine,PlatformPoint(Back+.11f,h,s+1.25f),new Vector3(.061f,.064f,2.5f));
                 }
             }
-            Box(furniture,"Rear fence",PlatformPoint(Back+.11f,.62f,StationOrigin),
-                new Vector3(.115f,1.24f,length));
+            foreach (var span in new[]{ new Vector2(PlatformFirst,995f),new Vector2(1015f,PlatformLast) })
+                Box(furniture,"Rear fence",PlatformPoint(Back+.11f,.62f,(span.x+span.y)/2),
+                    new Vector3(.115f,1.24f,span.y-span.x));
             foreach(float end in new[]{PlatformFirst+.06f,PlatformLast-.06f})
             {
                 for(float x=Back+.18f;x<Edge;x+=1.15f)
@@ -91,6 +93,7 @@ namespace Winterbourne.Editor
 
             Shelter(concourse,m,"Fellbridge waiting room",985f,13f,1);
             Shelter(concourse,m,"Fellbridge parcels office",1053f,8.8f,3);
+            MakeStationHouse(station,m);
         }
 
         static void Nameboard(StationFabrication f,Transform parent,Finishes m,float x,float s)

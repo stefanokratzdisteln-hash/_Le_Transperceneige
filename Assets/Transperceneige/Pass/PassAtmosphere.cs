@@ -82,6 +82,7 @@ namespace Winterbourne.Pass
         {
             if (!flakeMaterial) return;
             flurries=new ParticleSystem[2];
+            var shelters=FindObjectsByType<PassShelterVolume>(FindObjectsSortMode.None);
             for (int i=0;i<2;i++)
             {
                 var go=new GameObject("Windborne snow "+i); go.transform.SetParent(transform,false);
@@ -93,6 +94,15 @@ namespace Winterbourne.Pass
                 main.startColor=new ParticleSystem.MinMaxGradient(new Color(.70f,.77f,.85f,.58f),new Color(.96f,.96f,.98f,.91f));
                 var shape=ps.shape; shape.shapeType=ParticleSystemShapeType.Box; shape.scale=new Vector3(10,5,34);
                 var velocity=ps.velocityOverLifetime; velocity.enabled=true; velocity.space=ParticleSystemSimulationSpace.World;
+                if (shelters.Length>0)
+                {
+                    var shelter=ps.trigger;
+                    shelter.enabled=true;
+                    shelter.enter=ParticleSystemOverlapAction.Kill;
+                    shelter.inside=ParticleSystemOverlapAction.Kill;
+                    for(int j=0;j<shelters.Length;j++)
+                        shelter.SetCollider(j,shelters[j].GetComponent<BoxCollider>());
+                }
                 velocity.x=new ParticleSystem.MinMaxCurve(i==0 ? -.7f : .7f);
                 velocity.y=new ParticleSystem.MinMaxCurve(-3.0f);velocity.z=new ParticleSystem.MinMaxCurve(.6f);
                 var renderer=go.GetComponent<ParticleSystemRenderer>();

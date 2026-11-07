@@ -78,6 +78,10 @@ namespace Winterbourne.Editor
         public void Quad(Material mat,Vector3 a,Vector3 b,Vector3 c,Vector3 d,Vector3 normal)
             => Face(mat,a,b,c,d,normal,Vector2.zero,Vector2.one);
 
+        public void AtlasQuad(Material mat,Vector3 a,Vector3 b,Vector3 c,Vector3 d,Vector3 normal,
+                              Vector2 lowerLeft,Vector2 upperRight)
+            => Face(mat,a,b,c,d,normal,lowerLeft,upperRight);
+
         public void Sign(Material mat,Vector3 centre,float width,float height,int row,bool faceTrain=true)
         {
             var right=Vector3.forward*(faceTrain ? 1 : -1)*width/2;

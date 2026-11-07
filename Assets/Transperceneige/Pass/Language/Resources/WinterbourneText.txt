@@ -1,0 +1,90 @@
+hub.name	Bridge keeper’s cottage	桥下养护小屋
+game.title	Winterbourne Express	雪岭夜行快车
+hub.depart	Board the train · Sleeper 07	登车 · 07 号卧铺
+hub.station	Return to Fellbridge	返回费尔桥站
+hub.missed	The train has left	本趟列车已离站
+station.hub	Bridge keeper’s cottage	返回桥下小屋
+landing.return	Return to the cottage	返回桥下小屋
+hub.click	Click to explore	单击开始探索
+hub.returned	Back at the cottage	已返回小屋
+hub.restarted	A new journey	新一趟旅程
+station.returned	Back at Fellbridge	已返回费尔桥站
+landing.safe	Safe landing · Walk to the return gate	安全着陆 · 走到传送门返回小屋
+hub.controls	Esc · Use room buttons	Esc · 使用小屋按钮
+hub.ready	Walk through the blue light in the bookcase to board coach 07.	穿过书柜中央的蓝光，登上 07 号卧铺。
+hub.chase	The train is leaving. The gate still leads to Fellbridge.	列车正在离站，仍可经传送门返回费尔桥站。
+hub.wait	Fellbridge departs in {0}	费尔桥站还有 {0} 发车
+hub.done	The train has left. End Game to return to the title screen.	本趟列车已离站。可结束游戏返回开始画面。
+menu.end	End Game	结束游戏
+menu.new	New Game	新游戏
+menu.quit	Quit	退出
+inventory.title	Inventory	随身行李
+inventory.capacity	{0} / 8 slots used · First four shown below	已用 {0} / 8 格 · 前四格常显
+inventory.choose	Select an item, then its destination slot.	选中物品，再点目标格换位。
+inventory.move	{0} · Choose a destination slot	{0} · 请选择目标格
+inventory.close	Tab   Close inventory	Tab   收起背包
+inventory.empty	Empty slot	空格位
+controls.shortcuts	Tab  Inventory    ·    L  Lighting	Tab  背包    ·    L  光线
+controls.retry	R   Retry checkpoint	R   从检查点重试
+mountain	Fell mountains	雪岭山地
+tunnel	Mountain tunnel	山腰隧道
+fellbridge	Fellbridge Station	费尔桥站
+gorge	Gorge approach	峡谷入口
+viaduct	Greywater Viaduct	北峡高架桥
+landing.name	Gorge floor	峡谷谷底
+dusk	Dusk	黄昏
+day	Daylight	白昼
+night	Night	深夜
+dwell	Departure  {0}    ·    E at a door	发车倒计时  {0}    ·    对准车门按 E
+chase.on	Departing Fellbridge	列车正在离站
+chase.off	E to open a passing door\nHold Shift to catch up, then Space to jump aboard	对准身边的车门按 E\n按住 Shift 追平，空格跳进门
+freezing	Train gone · Exposure  {0}	列车已离开 · 失温  {0}
+falling	In freefall	正在下落
+descending	Canopy open · Descending to the valley	伞已展开 · 正向谷底降落
+bridge.time	Broken span ahead  {0}	前方断桥  {0}
+bridge.pack	Collect the parachute in van 09	去 09 号行李架取伞包
+bridge.ready	Go to the rear door of van 09	去 09 号尾门跳伞
+bridge.wait	Get ready at the rear of the train	到车尾准备跳伞
+station.approach	Approaching Fellbridge	即将停靠费尔桥站
+controls.walk	WASD  Move   ·   Shift  Sprint\nSpace  Jump   ·   E  Doors	WASD 移动   ·   Shift 加速\n空格 跳跃   ·   E 开关门
+ending.failed	Game Over	游戏结束
+ending.frozen	You missed the last coach and succumbed to the cold at Fellbridge.	您错过了最后一节车，在站台上失温。
+ending.crashed	The train reached the broken span. Escape from the rear of van 09 before impact.	列车驶入断桥。下次请从 09 号尾门及时撤离。
+ending.fell	You fell into the gorge. Collect the parachute in van 09 before jumping.	您坠入峡谷。先到 09 号车拾取跳伞包，再从尾门跃出。
+帆布跳伞包	Canvas parachute pack	帆布跳伞包
+背包已满	Inventory full	背包已满
+已收好 · 	Collected · 	已收好 · 
+F   拾取	F   Pick up 	F   拾取
+雪山黄昏	Mountain dusk	雪山黄昏
+风雪白昼	Snowy daylight	风雪白昼
+暴雪深夜	Midnight blizzard	暴雪深夜
+车尾进入峡谷后解锁	Unlocks when the rear of the train reaches the gorge	车尾进入峡谷后解锁
+车门已锁闭	Door locked	车门已锁闭
+请先离开门槛	Stand clear of the doorway	请先离开门槛
+单击画面继续	Click to resume	单击画面继续
+单击开始行程	Click to begin	单击开始行程
+E   开门	E   Open door	E   开门
+E   关门	E   Close door	E   关门
+E 关门	E  Close door	E 关门
+伞已展开	Canopy deployed	伞已展开
+已回到检查点	Checkpoint restored	已回到检查点
+已回到站台	Back on the platform	已回到站台
+空格   跃入峡谷 · 伞包已就绪	Space   Jump · Parachute ready	空格   跃入峡谷 · 伞包已就绪
+空格   跃入峡谷 · 未携带伞包	Space   Jump · No parachute	空格   跃入峡谷 · 未携带伞包
+空格   脱困并返回站台	Space   Climb clear to the platform	空格   脱困并返回站台
+空格   攀回站台	Space   Climb onto the platform	空格   攀回站台
+朝门移动 + 空格   跳上列车	Move toward the door + Space to board	朝门移动 + 空格   跳上列车
+已抓住车尾扶手	Holding the rear handrail	已抓住车尾扶手
+已抓住车门扶手	Holding the door handrail	已抓住车门扶手
+portal.sleeping	SLEEPER 07	07 号卧铺
+portal.hut	KEEPER'S ROOM	桥下养护小屋
+portal.platform	FELLBRIDGE	费尔桥站
+portal.closed	SERVICE ENDED	列车已离站
+run.clock	Countdown	整局倒计时
+run.target	Target	目标价值
+run.health	Health	血量
+run.value	Carried value	携带价值
+run.timeout	The 12-minute limit expired before you settled in the cottage.	未能在十二分钟内回小屋结算，本次行动超时。
+run.success	Extraction successful	撤离成功
+run.shortfall	Extraction failed · Value below target	撤离失败 · 价值未达标
+run.settled	Recovered {0} / {1}	带回价值 {0} / {1}

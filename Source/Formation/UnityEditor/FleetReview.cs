@@ -266,18 +266,8 @@ namespace Winterbourne.Editor
                 .OrderByDescending(r=>r.points[0].z).First();
             path.AddRange(saloon.Where(p=>p.z>seatingBay.points[0].z).Select(p=>World(5,p)));
             path.AddRange(seatingBay.points.Select(p=>World(5,p)));
-            Walk(path,"continuous Winterbourne bedside / restaurant / occupied paired seating bay");
-            var figures=GameObject.Find("Travellers").GetComponentsInChildren<MeshRenderer>();
-            Vector3 foot=body.transform.position;
-            float clearance=float.PositiveInfinity;
-            foreach(var figure in figures)
-            {
-                var bounds=figure.bounds;
-                var axis=foot+Vector3.up*Mathf.Clamp(bounds.center.y-foot.y,FleetImport.Radius,FleetImport.Height-FleetImport.Radius);
-                clearance=Mathf.Min(clearance,Mathf.Sqrt(bounds.SqrDistance(axis))-FleetImport.Radius);
-            }
-            FleetImport.Require(figures.Length==32 && clearance>=.005f,"Arrival capsule overlaps a seated traveller");
-            Debug.Log($"FLEET ARRIVAL {seatingBay.name}, Car05 local {(foot-Vector3.forward*offsets[4]):F3}, capsule clearance to nearest passenger bounds {clearance:F3} m");
+            Walk(path,"continuous Winterbourne bedside / restaurant / empty paired seating bay");
+            Debug.Log($"FLEET ARRIVAL {seatingBay.name}, Car05 local {(body.transform.position-Vector3.forward*offsets[4]):F3}");
         }
     }
 }

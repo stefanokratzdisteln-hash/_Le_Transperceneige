@@ -14,11 +14,6 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Car07_Livery
     second: {fileID: 2100000, guid: 979a3b89279dced4fa7836db498437e1, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Travellers_Cloth
-    second: {fileID: 2100000, guid: 060fca023b8f33e42b6ee6969114d309, type: 2}
   materials:
     materialImportMode: 1
     materialName: 0

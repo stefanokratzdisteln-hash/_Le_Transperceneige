@@ -92,33 +92,6 @@ namespace Winterbourne.Editor
         {
             if (!AssetDatabase.IsValidFolder(parent+"/"+name)) AssetDatabase.CreateFolder(parent,name);
         }
-        static Material TravellerMaterial()
-        {
-            const string texturePath=Base+"/Textures/Travellers.png";
-            var importer=AssetImporter.GetAtPath(texturePath) as TextureImporter;
-            Require(importer,"Missing traveller costume texture");
-            importer.sRGBTexture=true;
-            importer.maxTextureSize=2048;
-            importer.npotScale=TextureImporterNPOTScale.None;
-            importer.wrapMode=TextureWrapMode.Clamp;
-            importer.mipmapEnabled=true;
-            importer.SaveAndReimport();
-            EnsureFolder(Base,"Materials");
-            string path=Base+"/Materials/Travellers_Cloth.mat";
-            var material=AssetDatabase.LoadAssetAtPath<Material>(path);
-            if(!material)
-            {
-                material=new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                AssetDatabase.CreateAsset(material,path);
-            }
-            material.SetTexture("_BaseMap",Load<Texture2D>(texturePath));
-            material.SetColor("_BaseColor",Color.white);
-            material.SetFloat("_Metallic",.06f);
-            material.SetFloat("_Smoothness",.28f);
-            EditorUtility.SetDirty(material);
-            AssetDatabase.SaveAssets();
-            return material;
-        }
         static GameObject ImportModel(int number)
         {
             string path=$"{Base}/Models/{Id(number)}.fbx";
@@ -146,8 +119,6 @@ namespace Winterbourne.Editor
                 importer.GetExternalObjectMap().Keys.Where(id=>id.type==typeof(Material)));
             foreach (var mat in AssetDatabase.LoadAllAssetsAtPath(path).OfType<Material>())
                 identifiers.Add(new AssetImporter.SourceAssetIdentifier(mat));
-            if(number==5 && identifiers.Any(id=>id.name=="Travellers_Cloth"))
-                materials["Travellers_Cloth"]=TravellerMaterial();
             foreach (var id in identifiers)
             {
                 Require(materials.ContainsKey(id.name), "Unrecognized material "+id.name+" on "+path);
@@ -247,17 +218,14 @@ namespace Winterbourne.Editor
             var filters=car.GetComponentsInChildren<MeshFilter>(true);
             var doors=car.GetComponentsInChildren<Car07SlidingDoor>(true);
             Require(doors.Length==(spec.doors?.Length??0),"Missing moving doors in "+car.name);
-            if(spec.number==5 && AssetDatabase.LoadAssetAtPath<Texture2D>(Base+"/Textures/Travellers.png"))
+            if(spec.number==5)
             {
-                var group=FindModelNode(car,"Travellers");
-                var figures=group.GetComponentsInChildren<MeshRenderer>(true);
-                var fabric=Load<Material>(Base+"/Materials/Travellers_Cloth.mat");
-                Require(group.gameObject.activeInHierarchy && figures.Length==32 &&
-                    figures.All(r=>r.sharedMaterials.Contains(fabric)) && !group.GetComponentInChildren<Collider>(true),
-                    "Expected 32 visible, removable travellers with the cloth atlas");
-                group.gameObject.SetActive(false);
-                Require(car.GetComponentsInChildren<MeshRenderer>().Length==filters.Length-32,"Traveller visibility also affected the saloon");
-                group.gameObject.SetActive(true);
+                var names=new HashSet<string>(filters.Select(f=>f.name));
+                Require(Enumerable.Range(1,8).All(i=>names.Contains($"Saloon_Row_{i:D2}")) &&
+                    car.GetComponentsInChildren<BoxCollider>(true).Count(c=>c.name.StartsWith("Saloon_Row",StringComparison.Ordinal))==16,
+                    "The empty saloon must retain eight rows of paired benches and their colliders");
+                Require(!car.GetComponentsInChildren<Transform>(true).Any(t=>t.name=="Travellers" ||
+                    t.name.StartsWith("Traveller_",StringComparison.Ordinal)), "Seated figures still present in the saloon");
             }
             if(spec.number==4)
             {

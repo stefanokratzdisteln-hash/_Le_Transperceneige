@@ -66,16 +66,16 @@ namespace Winterbourne.Pass
         {
             if (walker.externalMotion || !body.enabled) return "";
             if (EscapeJumpReady())
-                return HasParachute ? "空格   跃入峡谷 · 伞包已就绪" : "空格   跃入峡谷 · 未携带伞包";
-            if (PlatformLedge(out _, out bool trapped)) return trapped ? "空格   脱困并返回站台" : "空格   攀回站台";
+                return PassText.Get(HasParachute ? "空格   跃入峡谷 · 伞包已就绪" : "空格   跃入峡谷 · 未携带伞包");
+            if (PlatformLedge(out _, out bool trapped)) return PassText.Get(trapped ? "空格   脱困并返回站台" : "空格   攀回站台");
             if (!Aboard && BoardingDoor(false))
-                return "朝门移动 + 空格   跳上列车";
+                return PassText.Get("朝门移动 + 空格   跳上列车");
             return "";
         }
 
         public void ReconcileBoarding()
         {
-            if (Terminal || boardingAge >= 0 || !body.enabled || walker.externalMotion) return;
+            if (InHub || InStartMenu || AtLanding || Terminal || boardingAge >= 0 || !body.enabled || walker.externalMotion) return;
             Vector3 feet = walker.transform.position;
             if (!Aboard && walker.JumpAge > .025f && walker.JumpAge < .72f)
             {

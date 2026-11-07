@@ -153,6 +153,7 @@ namespace Winterbourne.Editor
             doors = route.consist.GetComponentsInChildren<PassDoor>(true);
             grips = route.consist.GetComponentsInChildren<PassDoorTarget>(true);
             yield return Capture();
+            PassReview.EnterFromRoom(route);
             yield return Couplings();
             ClockToStation();
             yield return DoorSweep();
@@ -375,7 +376,7 @@ namespace Winterbourne.Editor
         static IEnumerator RearEscape()
         {
             ClockToStation();
-            route.Advance(61);
+            route.Advance(121);
             while (!route.EscapeReady && !route.Terminal) route.Advance(.5f);
             Check(route.EscapeReady, "Tail did not reach the playable escape location");
             var rear = doors.Single(d => d.kind == PassDoorKind.Escape);

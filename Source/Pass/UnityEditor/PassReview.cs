@@ -342,6 +342,86 @@ namespace Winterbourne.Editor
             PassBuild.Check(journey.TryJump() && journey.Phase==JourneyPhase.Jumping,"Space did not launch from the rear footplate");
             PassBuild.Check(!journey.Aboard,"Jump did not leave the moving train frame");
         }
+        internal static void EnterFromRoom(PassJourney route)
+        {
+            CheckRoom(route);
+            var gate=route.hubGate;
+            var feet=gate.transform.position+Vector3.up*.045f;
+            route.walker.Place(null,feet,gate.transform.rotation,0);
+            Physics.SyncTransforms();
+            PassBuild.Check(route.TryEnterPortal(gate) && route.Aboard && route.Started &&
+                Vector3.Distance(route.walker.transform.position,route.sleeperSpawn.position)<.06f,
+                "Hut gate did not place passenger beside the bed in 07");
+        }
+        static void CheckRoom(PassJourney route)
+        {
+            PassBuild.Check(route.InHub && !route.Aboard && !route.Started,"Expected a fresh journey in the cottage");
+            route.Advance(180);
+            PassBuild.Check(route.Distance==0 && !route.Started,"Train moved before the room gate was crossed");
+        }
+        static IEnumerator PressButton(string name)
+        {
+            var button=hud.rootVisualElement.Q<Button>(name);
+            PassBuild.Check(button!=null && button.panel!=null && button.worldBound.height>0,"Button unavailable: "+name);
+            using (var submit=NavigationSubmitEvent.GetPooled()){
+                submit.target=button;
+                button.SendEvent(submit);
+            }
+            float until=Time.unscaledTime+.17f;
+            while(Time.unscaledTime<until) yield return null;
+        }
+
+        static IEnumerator CheckRoomInterface()
+        {
+            var root=hud.rootVisualElement;
+            PassText.SetChinese(false);
+            PassBuild.Check(journey.Health==100 && journey.CarriedValue==0 && journey.RunSeconds>715,
+                "New run should start in the room with 100 HP, zero value and twelve minutes");
+            float initialTime=journey.RunSeconds;
+            journey.SetInventory(true);
+            journey.AdvanceExpedition(18);
+            journey.SetInventory(false);
+            PassBuild.Check(Mathf.Abs(initialTime-18-journey.RunSeconds)<.02f && journey.Distance==0,
+                "Backpack or cottage changed the independent run timer");
+            var ui=PressButton("roomLanguage"); while(ui.MoveNext()) yield return null;
+            PassBuild.Check(PassText.Chinese && root.Q<Button>("endGame").text=="结束游戏" &&
+                journey.hubGate.plaque.text==PassText.Get("portal.sleeping") && journey.Distance==0,"Room language or sign stayed in English");
+            ui=PressButton("endGame");while(ui.MoveNext())yield return null;
+            PassBuild.Check(journey.InStartMenu && journey.HasSettlement && !journey.SettledSuccessfully &&
+                root.Q("titleScreen").resolvedStyle.display!=DisplayStyle.None,
+                "End Game failed to show the title menu");
+            ui=PressButton("titleLanguage");while(ui.MoveNext()) yield return null;
+            PassBuild.Check(!PassText.Chinese && root.Q<Button>("newGame").text=="New Game" &&
+                root.Q<Button>("quitGame").text=="Quit","Title screen language switch failed");
+            var journal=WithInterface("FieldJournal");while(journal.MoveNext())yield return null;
+            ui=PressButton("newGame");while(ui.MoveNext()) yield return null;
+            CheckRoom(journey);
+            // No player-facing loot sources in this release. Inject valuation at the settlement boundary only.
+            var state=new SerializedObject(journey);
+            foreach(int value in new[]{PassJourney.TargetValue-1,PassJourney.TargetValue}){
+                state.Update();
+                state.FindProperty("carriedValue").intValue=value;
+                state.ApplyModifiedPropertiesWithoutUndo();
+                journey.AdvanceExpedition(PassJourney.RunDuration-.5f);
+                ui=PressButton("endGame");while(ui.MoveNext())yield return null;
+                PassBuild.Check(journey.HasSettlement && journey.SettledSuccessfully==(value==PassJourney.TargetValue),
+                    "Incorrect settlement boundary at "+value);
+                if(value==PassJourney.TargetValue){
+                    var screen=WithInterface("MenuSuccess");while(screen.MoveNext())yield return null;
+                }
+                ui=PressButton("newGame");while(ui.MoveNext())yield return null;
+            }
+            journey.AdvanceExpedition(PassJourney.RunDuration);
+            journey.EndGame();
+            PassBuild.Check(journey.RunExpired && journey.Terminal && !journey.HasSettlement &&
+                journey.Health==0,"A late settlement or death at zero seconds was mishandled");
+            float wait=Time.unscaledTime+.16f;while(Time.unscaledTime<wait)yield return null;
+            ui=PressButton("retry");while(ui.MoveNext())yield return null;
+            CheckRoom(journey);
+            PassBuild.Check(journey.Health==100 && journey.CarriedValue==0 && journey.RunSeconds==PassJourney.RunDuration,
+                "New Game did not reset the run after expiry");
+            Debug.Log("PASS EXPEDITION: room and inventory time, localized buttons, 239999/240000 at 0.5s, death at zero and new run");
+        }
         static IEnumerator Evaluate()
         {
             journey=Object.FindFirstObjectByType<PassJourney>();
@@ -357,6 +437,11 @@ namespace Winterbourne.Editor
             bag=journey.consist.GetComponentInChildren<PassPickup>();
             cars=Enumerable.Range(1,9).Select(n=>journey.consist.Find(FleetImport.Id(n))).ToArray();
             PassBuild.Check(cars.All(t=>t) && hud && atmosphere && gates.Length==14 && bag, "Missing gameplay references");
+            CheckRoom(journey);
+            float ready=Time.unscaledTime+.30f;while(Time.unscaledTime<ready)yield return null;
+            var buttons=CheckRoomInterface();while(buttons.MoveNext())yield return null;
+            var cottage=WithInterface("Cottage");while(cottage.MoveNext())yield return null;
+            EnterFromRoom(journey);
             var ep=eye.transform.localPosition;
             var er=eye.transform.localRotation;
             var start=body.transform.localPosition;
@@ -379,7 +464,7 @@ namespace Winterbourne.Editor
             Photo("Tunnel"); WindowMatrix("Tunnel");
             eye.transform.localPosition=ep; eye.transform.localRotation=er;
             RideTo(PassJourney.Stop);
-            PassBuild.Check(journey.Phase==JourneyPhase.Dwell && journey.StationSeconds>59,"Did not dwell for 60 seconds");
+            PassBuild.Check(journey.Phase==JourneyPhase.Dwell && journey.StationSeconds>119.95f && journey.StationSeconds<=120,"Stop must last two minutes");
             Vector3 stopped=journey.consist.position;
             Window(0); Photo("Fellbridge"); WindowMatrix("Station");
             HomeEye();
@@ -389,7 +474,7 @@ namespace Winterbourne.Editor
             ExitToPlatform(); At(new Vector3(-4.18f,1.4f,-973));
             eye.transform.localPosition=new Vector3(0,1.54f,0); Look(new Vector3(-3.7f,2.52f,-995));
             Photo("Platform");
-            journey.Advance(45.3f);
+            journey.Advance(105.3f);
             PassBuild.Check(journey.Phase==JourneyPhase.Dwell && journey.StationSeconds<15,"Whistle interval missing");
             var occupiedGate=gates.First(d=>d.car==cars[6]);
             AdvanceTo(JourneyPhase.Chase);
@@ -403,7 +488,7 @@ namespace Winterbourne.Editor
             PassBuild.Check(journey.Phase==JourneyPhase.Running && journey.Aboard && Mathf.Abs(journey.Distance-880)<2 && bag.gameObject.activeSelf,"Station checkpoint restore failed");
             RideTo(PassJourney.Stop); AdvanceTo(JourneyPhase.Chase);
             var clearance=ProgressiveDoorLock(); while(clearance.MoveNext())yield return null;
-            Debug.Log("PASS DWELL: 60s stop, whistle, progressive door locking, missed boarding and station checkpoint verified");
+            Debug.Log("PASS DWELL: 120s stop, whistle, progressive door locking, missed boarding and station checkpoint verified");
             RideTo(1390);
             At(journey.escapeLaunch.position-Vector3.forward*.9f);HomeEye();
             PassBuild.Check(!journey.TryDoor(rear),"Tail door unlocked before bridge entry");
@@ -433,6 +518,12 @@ namespace Winterbourne.Editor
                 PickBag(slot);
                 if(slot==7){
                     journey.SetInventory(true);
+                    float readyBag=Time.unscaledTime+.15f;while(Time.unscaledTime<readyBag)yield return null;
+                    var language=PressButton("bagLanguage");while(language.MoveNext())yield return null;
+                    PassBuild.Check(PassText.Chinese && journey.ItemName("parachute")=="帆布跳伞包" &&
+                        journey.Slot(7)=="parachute","Backpack language changed the item slot or left the item untranslated");
+                    language=PressButton("bagLanguage");while(language.MoveNext())yield return null;
+                    PassBuild.Check(!PassText.Chinese && journey.ItemName("parachute")=="Canvas parachute pack","English item name missing");
                     var inventory=WithInterface("Backpack");while(inventory.MoveNext())yield return null;
                     journey.SetInventory(false);
                 }
@@ -458,6 +549,7 @@ namespace Winterbourne.Editor
             atmosphere=Object.FindFirstObjectByType<PassAtmosphere>();hud=Object.FindFirstObjectByType<UIDocument>();
             bag=journey.consist.GetComponentInChildren<PassPickup>();gates=journey.consist.GetComponentsInChildren<PassDoor>().Where(d=>d.ExteriorSide<0 && d.kind!=PassDoorKind.Cargo).ToArray();
             cars=Enumerable.Range(1,9).Select(n=>journey.consist.Find(FleetImport.Id(n))).ToArray();
+            EnterFromRoom(journey);
             PickBag(0);journey.SetInventory(true);
             float uiReady=Time.unscaledTime+.18f;while(Time.unscaledTime<uiReady)yield return null;
             var cells=hud.rootVisualElement.Q("allSlots");
@@ -468,7 +560,7 @@ namespace Winterbourne.Editor
             ExitToPlatform();AdvanceTo(JourneyPhase.Frozen);journey.Retry();
             PassBuild.Check(journey.Slot(7)=="parachute" && !bag.gameObject.activeSelf && Mathf.Abs(journey.Distance-880f)<2,"Populated station checkpoint lost/doubled item");
             RideTo(PassJourney.Stop);
-            journey.Advance(60.1f);RideTo(1390);
+            journey.Advance(120.1f);RideTo(1390);
             journey.SetInventory(true);journey.MoveSlot(7,2);journey.SetInventory(false);
             RideTo(PassJourney.Break);journey.Retry();
             PassBuild.Check(journey.Slot(7)=="parachute" && journey.Slot(2)==null && !bag.gameObject.activeSelf && Mathf.Abs(journey.Distance-1370)<2,"Populated bridge checkpoint failed to undo later inventory edits");

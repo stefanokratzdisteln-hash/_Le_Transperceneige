@@ -1,0 +1,9 @@
+{
+    "name": "Winterbourne.Localization.Authoring",
+    "references": [ "Winterbourne.Language", "Unity.Localization" ],
+    "includePlatforms": [ "Editor" ],
+    "versionDefines": [
+        { "name": "com.unity.localization", "expression": "1.5.0", "define": "WINTERBOURNE_LOCALIZATION" }
+    ],
+    "defineConstraints": [ "WINTERBOURNE_LOCALIZATION" ]
+}

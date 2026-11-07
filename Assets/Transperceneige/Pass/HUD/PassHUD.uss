@@ -10,7 +10,7 @@
     border-left-width: 3px; border-left-color: #b4975f;
 }
 .frost { position:absolute; left:0; right:0; top:0; bottom:0; }
-.place { font-size: 23px; color: #fff4d9; }
+.place { white-space:normal; font-size: 23px; color: #fff4d9; }
 .mileage { font-size: 14px; color: #cbb58d; margin-top: 3px; }
 .task { font-size: 16px; color: #f1dbb2; margin-top: 5px; white-space: normal; }
 .urgent { border-left-color: #f19159; }
@@ -40,4 +40,50 @@
 .hint, .description { margin-top:13px; font-size:16px; color:#e5d9c1; white-space:normal; }
 .command { margin-top:19px; align-self:flex-start; padding:6px 12px; border-width:1px; border-color:#ad965f; background-color:#354948; color:#fff3d5; font-size:16px; }
 .command:hover { background-color:#4d6058; }
+.room-actions { position:absolute; right:24px; top:24px; flex-direction:row; }
+.compact { margin-top:0; margin-left:8px; background-color:rgba(18,34,34,.91); }
+.commands { flex-direction:row; flex-wrap:wrap; justify-content:space-between; }
+.language { align-self:flex-end; }
+.headline { white-space:normal; }
+
+/* The route card, objective and kit follow the three sightlines of the field sketch. */
+.waybill { min-width:152px; max-width:340px; border-left-width:2px; padding:9px 15px; }
+.task { margin-top:4px; color:#efe0c1; }
+.kit { flex-direction:row; align-items:center; justify-content:center; }
+.bag-badge { width:60px; height:60px; margin-right:9px; padding:0; flex-direction:column; align-items:center;
+    justify-content:center; border-width:1px; border-color:#c3ac7d; border-radius:30px;
+    color:#ebdfbf; background-color:rgba(18,32,36,.89); }
+.bag-drawing { width:31px; height:31px; margin-top:2px; }
+.bag-key { -unity-text-align:middle-center; font-size:12px; color:#e6d6ae; }
+.inventory-leaf { background-image:url("Art/LedgerLeaf.png"); width:468px; padding:30px 34px; background-color:#e8dbc0; border-color:#b7975a; color:#30291f; }
+.inventory-leaf .headline { color:#2b3535; }
+.inventory-leaf .caption, .inventory-leaf .hint { color:#584e3c; }
+.inventory-leaf .slot { width:81px; height:64px; margin:3px; border-radius:2px; background-color:#ddd0b5; border-color:#85795f; }
+.inventory-leaf .slot-number { color:#524b3d; }
+.inventory-leaf .filled, .inventory-leaf .selected { background-color:#b9ac8c; border-color:#534a33; }
+.field-cover { background-image:url("Art/FieldBook.png"); width:402px; height:528px; max-height:90%; padding:31px 43px;
+    justify-content:flex-end; background-color:#192e3a; border-color:#b79b67; }
+.field-cover .headline { color:#f7dfaa; margin-bottom:10px; -unity-text-align:middle-center; }
+.field-cover .command { align-self:stretch; margin-top:7px; background-color:rgba(19,35,41,.91); }
+.field-cover .language { align-self:center; margin-top:12px; }
+
+.run-board { position:absolute; top:22px; left:33%; right:33%; align-items:center; }
+.run-line { min-height:25px; min-width:222px; flex-direction:row; justify-content:center; align-items:center;
+    padding:1px 9px; background-color:rgba(17,31,37,.88); }
+.run-caption { font-size:15px; color:#e8dabe; margin-right:8px; }
+.run-number { font-size:21px; color:#fff2d1; -unity-font-style:bold; }
+.run-value { font-size:15px; color:#f2dfab; }
+.last-minute { color:#ffae83; }
+.value-line { flex-direction:row; align-items:center; }
+.drop { width:10px; height:14px; margin:0 4px 0 1px; }
+.value-number { font-size:12px; color:#efdca7; }
+.bag-column { align-items:center; margin-right:7px; }
+.bag-badge { margin-right:0; }
+.bag-key { background-color:rgba(17,31,37,.82); padding:0 4px; }
+.vitals { width:234px; flex-direction:row; align-items:center; margin-left:63px; margin-bottom:2px; }
+.health-number { min-width:30px; -unity-text-align:middle-center; padding:0 3px; font-size:14px; color:#f2e6d5; background-color:rgba(18,29,32,.90); }
+.health-track { flex-grow:1; height:7px; margin-left:3px; background-color:#3b3232; border-width:1px; border-color:#ad977b; }
+.health-fill { height:100%; background-color:#bf7057; }
+.settlement { color:#f2d5a5; font-size:16px; white-space:normal; -unity-text-align:middle-center; }
+.settlement-value { color:#d5c5a5; font-size:14px; -unity-text-align:middle-center; margin-bottom:8px; }
 .hidden { display:none; }

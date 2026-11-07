@@ -1,0 +1,388 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Interface-en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 548b40c4b9e63364cba7ade4a43b1638, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 1420951580
+    m_Localized: "Bridge keeper\u2019s cottage"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951572
+    m_Localized: Winterbourne Express
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951577
+    m_Localized: "Board the train \xB7 Sleeper 07"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951584
+    m_Localized: Return to Fellbridge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951579
+    m_Localized: The train has left
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951605
+    m_Localized: "Bridge keeper\u2019s cottage"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951593
+    m_Localized: Return to the cottage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951575
+    m_Localized: Click to explore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951583
+    m_Localized: Back at the cottage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951582
+    m_Localized: A new journey
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951606
+    m_Localized: Back at Fellbridge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951594
+    m_Localized: "Safe landing \xB7 Walk to the return gate"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951576
+    m_Localized: "Esc \xB7 Use room buttons"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951581
+    m_Localized: Walk through the blue light in the bookcase to board coach 07.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951574
+    m_Localized: The train is leaving. The gate still leads to Fellbridge.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951585
+    m_Localized: Fellbridge departs in {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951578
+    m_Localized: The train has left. End Game to return to the title screen.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951595
+    m_Localized: End Game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951596
+    m_Localized: New Game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951597
+    m_Localized: Quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951591
+    m_Localized: Inventory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951586
+    m_Localized: "{0} / 8 slots used \xB7 First four shown below"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951587
+    m_Localized: Select an item, then its destination slot.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951590
+    m_Localized: "{0} \xB7 Choose a destination slot"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951588
+    m_Localized: Tab   Close inventory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951589
+    m_Localized: Empty slot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951559
+    m_Localized: "Tab  Inventory    \xB7    L  Lighting"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951558
+    m_Localized: R   Retry checkpoint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951598
+    m_Localized: Fell mountains
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951607
+    m_Localized: Mountain tunnel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951570
+    m_Localized: Fellbridge Station
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951573
+    m_Localized: Gorge approach
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951608
+    m_Localized: Greywater Viaduct
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951592
+    m_Localized: Gorge floor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951563
+    m_Localized: Dusk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951561
+    m_Localized: Daylight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951599
+    m_Localized: Night
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951564
+    m_Localized: "Departure  {0}    \xB7    E at a door"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951557
+    m_Localized: Departing Fellbridge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951556
+    m_Localized: 'E to open a passing door
+
+      Hold Shift to catch up, then Space
+      to jump aboard'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951571
+    m_Localized: "Train gone \xB7 Exposure  {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951569
+    m_Localized: In freefall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951562
+    m_Localized: "Canopy open \xB7 Descending to the valley"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951554
+    m_Localized: Broken span ahead  {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951552
+    m_Localized: Collect the parachute in van 09
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951553
+    m_Localized: Go to the rear door of van 09
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951555
+    m_Localized: Get ready at the rear of the train
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951604
+    m_Localized: Approaching Fellbridge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951560
+    m_Localized: "WASD  Move   \xB7   Shift  Sprint\nSpace  Jump   \xB7   E  Doors"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951566
+    m_Localized: Game Over
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951568
+    m_Localized: You missed the last coach and succumbed to the cold at Fellbridge.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951565
+    m_Localized: The train reached the broken span. Escape from the rear of van 09
+      before impact.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951567
+    m_Localized: You fell into the gorge. Collect the parachute in van 09 before
+      jumping.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951617
+    m_Localized: Canvas parachute pack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951624
+    m_Localized: Inventory full
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951616
+    m_Localized: "Collected \xB7 "
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416757250
+    m_Localized: 'F   Pick up '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951628
+    m_Localized: Mountain dusk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951629
+    m_Localized: Snowy daylight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951618
+    m_Localized: Midnight blizzard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951626
+    m_Localized: Unlocks when the rear of the train reaches the gorge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951627
+    m_Localized: Door locked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951625
+    m_Localized: Stand clear of the doorway
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951611
+    m_Localized: Click to resume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951610
+    m_Localized: Click to begin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416757248
+    m_Localized: E   Open door
+    m_Metadata:
+      m_Items: []
+  - m_Id: 372375552
+    m_Localized: E   Close door
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416757249
+    m_Localized: E  Close door
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951609
+    m_Localized: Canopy deployed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951612
+    m_Localized: Checkpoint restored
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951613
+    m_Localized: Back on the platform
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951622
+    m_Localized: "Space   Jump \xB7 Parachute ready"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951623
+    m_Localized: "Space   Jump \xB7 No parachute"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951621
+    m_Localized: Space   Climb clear to the platform
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951620
+    m_Localized: Space   Climb onto the platform
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951619
+    m_Localized: Move toward the door + Space to board
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951614
+    m_Localized: Holding the rear handrail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951615
+    m_Localized: Holding the door handrail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951603
+    m_Localized: SLEEPER 07
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951601
+    m_Localized: KEEPER'S ROOM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951602
+    m_Localized: FELLBRIDGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951600
+    m_Localized: SERVICE ENDED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1631985991680
+    m_Localized: Countdown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632065683460
+    m_Localized: Target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632065683456
+    m_Localized: Health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632065683462
+    m_Localized: Carried value
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632065683461
+    m_Localized: The 12-minute limit expired before you settled in the cottage.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632065683459
+    m_Localized: Extraction successful
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632065683458
+    m_Localized: "Extraction failed \xB7 Value below target"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632065683457
+    m_Localized: Recovered {0} / {1}
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

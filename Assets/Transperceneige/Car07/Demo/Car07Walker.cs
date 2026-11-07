@@ -25,6 +25,7 @@ namespace Winterbourne.Demo
         bool ownsCursor;
         // Optional hooks for a journey scene; the standalone carriage keeps its original controls.
         public System.Func<bool> useOverride;
+        public System.Func<bool> pointerOverControl;
         public System.Func<bool> jumpOverride;
         public bool automaticRespawn = true;
         public bool externalMotion;
@@ -73,7 +74,7 @@ namespace Winterbourne.Demo
 
             if (escape || !Application.isFocused || overlayOpen)
                 ReleaseCursor();
-            else if (click && !ownsCursor)
+            else if (click && !ownsCursor && !(pointerOverControl?.Invoke() ?? false))
             {
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;

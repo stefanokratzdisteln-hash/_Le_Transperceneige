@@ -1,10 +1,16 @@
 # Winterbourne 雪夜快车
 
-一列虚构的 1930 年代英国北境夜车，往返于 London 和 Fellbridge。全列 **1 台蒸汽机车、1 辆煤水车、7 节车厢**，沿车钩对接平面计长 **159.82 米**。玩家在 07 号单人卧铺的床边出发，可以沿走廊步行到餐厅、座车、车尾值班室及机车驾驶室。
+一列虚构的 1930 年代英国北境夜车，往返于 London 和 Fellbridge。全列 **1 台蒸汽机车、1 辆煤水车、7 节车厢**，沿车钩对接平面计长 **159.82 米**。玩家在峡谷高架桥下的养护小屋开始，走入书柜传送门即可抵达 07 号卧铺床边，沿走廊步行到餐厅、座车、车尾值班室及机车驾驶室。
 
 ## 试玩雪岭断桥线
 
-在 Unity 6 的 URP 工程中导入[完整资源包](Releases/Winterbourne.unitypackage)，打开 [WinterbournePass 场景](Assets/Transperceneige/Pass/WinterbournePass.unity)，点击 **Play**，再单击车厢画面启程。需要随时查看车辆模型时，可打开独立的 [WinterbourneExpress 自由参观场景](Assets/Transperceneige/Formation/Demo/WinterbourneExpress.unity)。
+在 Unity 6 的 URP 工程中导入[完整资源包](Releases/Winterbourne.unitypackage)，打开 [WinterbournePass 场景](Assets/Transperceneige/Pass/WinterbournePass.unity)，点击 **Play**，单击小屋画面行走。左前方的书柜是滑动盖门，固定的蓝色入口在右后方。对准书柜或把手按 **E** 可开合，走进露出的蓝光就到 07 号卧铺。需要随时查看车辆模型时，可打开独立的 [WinterbourneExpress 自由参观场景](Assets/Transperceneige/Formation/Demo/WinterbourneExpress.unity)。
+
+游戏界面首次默认英文。小屋右上角、背包和开始画面的 **English / 中文** 按钮可立即切换语言。进入小屋立即开始 **12 分钟**整局倒计时。地点及停站、断桥时钟在左上，整局时钟与价值目标在顶端中央。底部血条开局为 **100**，背包和顶部共用携带价值。首版不投放计价战利品，不计算逐次受伤。行走时按 **Esc** 释放鼠标。在小屋点 **End Game** 结算。时限内携带价值达到 **240,000** 才算撤离成功，低于目标显示失败。整局时限耗尽则死亡。开局价值为 0，当前自然试玩不会累积到目标值。结算画面上的 **New Game** 重开，**Quit** 退出。
+
+[书柜实机开合](Previews/Pass/BookcaseSlide.gif) · [可编辑的 Blender 书柜](Source/Pass/BookshelfPortal.blend) · [谷底回程门](Previews/Pass/LandingGate.png)
+
+书柜在前轨滑动 1.57 米。Blender 时间轴第 1 帧为开启，第 28 帧为关闭，书和柜体一同移动。
 
 ![雪岭断桥线俯视路线图](Previews/Pass/RouteMap.png)
 
@@ -12,15 +18,17 @@
 |---|---|
 | WASD／方向键、鼠标 | 行走、观察。按住左或右 **Shift** 逐渐加速，松开减速。Esc 释放鼠标。 |
 | E | 对准门扇、把手或门框拉手开关门。车内门随时可开；停稳后两侧外门解锁。发车时，仍在站台旁的那扇门可以重新打开。 |
-| F、B | F 拾取物品，B 展开或收起八格背包。底部常显前四格；打开背包后依次点两格可以换位。 |
+| F、Tab／B | F 拾取物品，Tab 或 B 展开或收起八格背包。底部常显前四格；打开背包后依次点两格可以换位。 |
 | 空格 | 原地跳、跑跳或斜跳。掉到站台下时，面向站台边缘按空格攀回去。在峡谷中，从已解锁的 09 号尾台向外跃出。 |
 | L、R | L 在雪山黄昏、风雪白昼、暴雪深夜间切换。结局画面按 R 从最近的检查点重试。 |
 
-列车沿 2.12 公里线路行驶。穿过 300 米长的山体隧道后，列车在 Fellbridge 的 190 米站台停靠 **60 秒**，最后 **15 秒**鸣哨。发车时若还在站上，先靠近任意一扇仍在站台边的门，**按 E 开门，按住 Shift 追平，按空格斜跳进门洞**。车门逐扇驶离站台后上锁，09 号亮灯侧踏板是最后的登车机会。错过末班踏板会失温。
+列车沿 2.12 公里线路行驶。穿过 300 米长的山体隧道后，列车在 Fellbridge 的 190 米站台停靠 **2 分钟**，最后 **15 秒**鸣哨。发车时若还在站上，先靠近任意一扇仍在站台边的门，**按 E 开门，按住 Shift 追平，按空格斜跳进门洞**。车门逐扇驶离站台后上锁，09 号亮灯侧踏板是最后的登车机会。留在站台错过最后一节车会失温。
 
-在 **09 号行李车靠值班室的低层架子**上可以找到帆布跳伞包。上桥后，列车以约 6 米/秒驶向已炸断的桥跨，预警时间约 **120 秒**。等车尾悬在峡谷上方，到朝后的尾门按 E 开门，再到尾部平台按空格跳伞。背包的八个格子都可以装伞；携带时自动开伞，降落到谷底后通关。留在列车上或无伞坠落都有独立失败结局。停站前及上桥前自动记录检查点。
+站台后方的两层站长楼设有售票厅、行李间和楼上的办公室。一楼传送门可回桥下小屋，列车继续计时，背包和整局倒计时随行。只要车尾仍在站台旁，穿回小屋的门即可返回站长楼追车。若列车已离开，小屋里会显示误车提醒，可选 **End Game / 结束游戏** 回开始画面。
 
-[卧铺窗外的黄昏](Previews/Pass/MountainDusk.png) · [白昼](Previews/Pass/MountainDay.png) · [深夜](Previews/Pass/MountainNight.png) · [山体隧道](Previews/Pass/Tunnel.png) · [站台](Previews/Pass/Platform.png) · [高架桥](Previews/Pass/Viaduct.png) · [断口](Previews/Pass/BrokenSpan.png)
+在 **09 号行李车靠值班室的低层架子**上可以找到帆布跳伞包。上桥后，列车以约 6 米/秒驶向已炸断的桥跨，预警时间约 **120 秒**。等车尾悬在峡谷上方，到朝后的尾门按 E 开门，再到尾部平台按空格跳伞。背包的八个格子都可以装伞；携带时自动开伞，降落到谷底后收伞，玩家可以徒步走进落点旁的回程门，回小屋开始下一趟旅程。留在列车上或无伞坠落都有独立失败结局。停站前及上桥前自动记录检查点。
+
+[桥下阅览室](Previews/Pass/KeepersRoom.png) · [站长楼售票厅](Previews/Pass/FellbridgeBookingHall.png) · [二楼办公室](Previews/Pass/FellbridgeDutyRoom.png) · [二楼窗景](Previews/Pass/FellbridgeDutyWindow.png) · [卧铺窗外的黄昏](Previews/Pass/MountainDusk.png) · [白昼](Previews/Pass/MountainDay.png) · [深夜](Previews/Pass/MountainNight.png) · [山体隧道](Previews/Pass/Tunnel.png) · [站台](Previews/Pass/Platform.png) · [高架桥](Previews/Pass/Viaduct.png) · [断口](Previews/Pass/BrokenSpan.png)
 
 窗景、机关和补给都能在该场景中编辑。移动 09 号车内的 `ParachutePack` 对象即可调整拾取点。重建关卡时，将 [Pass 编辑器脚本](Source/Pass/UnityEditor) 和编组编辑器脚本一起放入 URP 工程的 `Assets/Editor`，依次执行 `Winterbourne.Editor.PassBuild.Build` 和 `Winterbourne.Editor.PassBuild.Export`，并传入 `-formationRoot "<仓库绝对路径>"`。
 
@@ -32,7 +40,7 @@
 2. 打开 [WinterbourneExpress 场景](Assets/Transperceneige/Formation/Demo/WinterbourneExpress.unity)，点击 **Play**，再单击游戏画面。
 3. **WASD／方向键**移动，鼠标转动视角。对准包厢滑门按 **E** 开关。**Esc** 释放鼠标。
 
-从床边走出包厢，转向编号较小的一端。穿过第一道车间接缝就是 **06 号餐厅**，三组双人桌和四人桌共 18 席。沿传菜口旁的乘客侧廊继续前行，可以绕过炉灶和洗碗池，到达 **05 号开放座车**。32 位旅客是按座位摆放的静态人物；在 05 号实例内切换 `Travellers` 对象可以查看空车。
+从床边走出包厢，转向编号较小的一端。穿过第一道车间接缝就是 **06 号餐厅**，三组双人桌和四人桌共 18 席。沿传菜口旁的乘客侧廊继续前行，可以绕过炉灶和洗碗池，到达 **05 号开放座车**。座车保留八排 2＋2 共 32 个空座，中央过道可通行。
 
 ![06 号餐厅，从卧铺方向望向传菜口](Previews/Formation/Car06_PassengerView.png)
 
@@ -46,7 +54,7 @@
 | 02 | **走廊式煤水车** · 八轮底架、煤仓、水柜、受护侧廊，前部通往机车踏板 | [Blender](Source/Formation/Car02.blend) | [预制体](Assets/Transperceneige/Formation/Prefabs/Car02.prefab) | [内景](Previews/Formation/Car02_Interior.png) · [剖视](Previews/Formation/Car02_Cutaway.png) |
 | 03 | **勤务备品车** · 布草架、湿工具柜、信号灯架、钳工台与备件箱 | [Blender](Source/Formation/Car03.blend) | [预制体](Assets/Transperceneige/Formation/Prefabs/Car03.prefab) | [内景](Previews/Formation/Car03_Interior.png) · [剖视](Previews/Formation/Car03_Cutaway.png) |
 | 04 | **包厢座车** · 四间六人包厢、相对的长椅、侧廊及四扇滑门，共 24 席 | [Blender](Source/Formation/Car04.blend) | [预制体](Assets/Transperceneige/Formation/Prefabs/Car04.prefab) | [内景](Previews/Formation/Car04_Interior.png) · [关门后的视线](Previews/Formation/Car04_DoorWindow.png) · [剖视](Previews/Formation/Car04_Cutaway.png) |
-| 05 | **开放式座车** · 八排 2＋2、贯通中廊、上方行李架及 32 名可隐藏的旅客 | [Blender](Source/Formation/Car05.blend) | [预制体](Assets/Transperceneige/Formation/Prefabs/Car05.prefab) | [内景](Previews/Formation/Car05_Interior.png) · [剖视](Previews/Formation/Car05_Cutaway.png) |
+| 05 | **开放式座车** · 八排 2＋2 共 32 个空座、中央过道与上方行李架 | [Blender](Source/Formation/Car05.blend) | [预制体](Assets/Transperceneige/Formation/Prefabs/Car05.prefab) | [内景](Previews/Formation/Car05_Interior.png) · [剖视](Previews/Formation/Car05_Cutaway.png) |
 | 06 | **带厨房餐车** · 18 套餐具、桌灯、餐具柜、传菜口、独立乘客通道与 L 形厨房 | [Blender](Source/Formation/Car06.blend) | [预制体](Assets/Transperceneige/Formation/Prefabs/Car06.prefab) | [内景](Previews/Formation/Car06_Interior.png) · [厨房](Previews/Formation/Car06_Galley.png) · [剖视](Previews/Formation/Car06_Cutaway.png) |
 | 07 | **Winterbourne 头等卧铺** · 四间单人包厢、窗边桌灯、写字台与独立卫生间 | [Blender](Source/Car07/Car07.blend) | [预制体](Assets/Transperceneige/Car07/Car07.prefab) | [内景](Previews/Formation/Car07_Interior.png) · [剖视](Previews/Car07_Cutaway.png) |
 | 08 | **普通卧铺车** · 四间四铺包厢，共 16 铺，含铺帘、爬梯、编号和共用盥洗室 | [Blender](Source/Formation/Car08.blend) | [预制体](Assets/Transperceneige/Formation/Prefabs/Car08.prefab) | [内景](Previews/Formation/Car08_Interior.png) · [剖视](Previews/Formation/Car08_Cutaway.png) |

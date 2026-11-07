@@ -200,6 +200,7 @@ def map_panel(page,d):
     note(780,0,60,'780 m   /   EXIT PORTAL','出隧道')
     note(1095,-42,-152,'1,095 m   /   FELLBRIDGE','费尔桥站')
     note(1400,0,84,'1,400 m   /   BRIDGEHEAD','峡谷桥头')
+    note(1820,0,-99,"1,820 m   /   KEEPER'S COTTAGE",'桥下小屋 · 游戏起点',GREEN)
     note(2120,-2,-133,'2,120 m   /   SEVERED SPAN','爆破断口',RED)
     label(d,(px(246),py(180)),'雪松林','cn',21,'#4c6556','mm')
     label(d,(px(1635),py(-72)),'冰封河道','cn',22,'#416b71','mm',stroke_width=2,stroke_fill='#d1d8c7')
@@ -250,6 +251,8 @@ def station_detail(d,x,y,w):
     d.line((sx(920),py-12,sx(1110),py-12),fill='#FFF7D9',width=5)
     for s,l in ((985,13),(1053,8.8)):
         d.rectangle((sx(s-l/2),py-48,sx(s+l/2),py-30),fill='#738278',outline=GREEN)
+    d.rectangle((sx(995),py-54,sx(1015),py-27),fill=GOLD,outline=GREEN,width=2)
+    label(d,((sx(995)+sx(1015))/2,py-40),'站长楼','cnb',16,INK,'mm')
     label(d,(sx(948),py-40),'190 m 站台','cn',20,GREEN,'mm')
     for s,t in ((920,'920'),(1095,'1095'),(1110,'1110 m')):
         d.line((sx(s),py-78,sx(s),py-61),fill=MUTED,width=2)
@@ -272,8 +275,8 @@ def station_detail(d,x,y,w):
     d.line((grip,py-8,grip,py+64,grip+21,py+64),fill=RED,width=3)
     d.ellipse((grip-5,py-12,grip+5,py-2),fill=RED)
     label(d,(grip+29,py+65),'09 侧门：最后登车踏板','cn',20,RED)
-    label(d,(x+27,y+352),'停站 60 秒，余 15 秒鸣哨。','cnb',25)
-    label(d,(x+27,y+397),'三角标为登车处。对准站台旁的车门按 E，按住 Shift 追平，再按空格斜跳。','cn',23,MUTED)
+    label(d,(x+27,y+352),'停站 2 分钟，余 15 秒鸣哨。站长楼一楼有传送门。','cnb',25)
+    label(d,(x+27,y+397),'进屋后列车继续计时。末车驶离前可返回站台，按 E 开门、Shift 追车、空格跳上。','cn',23,MUTED)
 
 
 def bridge_detail(d,x,y,w):
@@ -307,7 +310,7 @@ def bridge_detail(d,x,y,w):
     for yy2 in (hy(-65),hy(-75)):
         d.line((sx(1600),yy2,sx(1614),yy2),fill=WATER,width=3)
     label(d,(x+27,y+352),'桥上约 120 秒；断口之前必须离车。','cnb',25)
-    label(d,(x+27,y+397),'09 号车取伞包，从尾端门向侧后方跃出。纵向高度为示意。','cn',23,MUTED)
+    label(d,(x+27,y+397),'安全着陆后，走进落点旁的传送门返回桥下小屋。高度为示意。','cn',23,MUTED)
 
 
 def main():

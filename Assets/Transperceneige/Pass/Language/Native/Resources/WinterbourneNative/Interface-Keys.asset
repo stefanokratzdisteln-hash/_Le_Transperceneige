@@ -1,0 +1,388 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Interface-Keys
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Winterbourne Interface
+  m_TableCollectionNameGuidString: 548b40c4b9e63364cba7ade4a43b1638
+  m_Entries:
+  - m_Id: 372375552
+    m_Key: "E   \u5173\u95E8"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416757248
+    m_Key: "E   \u5F00\u95E8"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416757249
+    m_Key: "E \u5173\u95E8"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1416757250
+    m_Key: "F   \u62FE\u53D6"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951552
+    m_Key: bridge.pack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951553
+    m_Key: bridge.ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951554
+    m_Key: bridge.time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951555
+    m_Key: bridge.wait
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951556
+    m_Key: chase.off
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951557
+    m_Key: chase.on
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951558
+    m_Key: controls.retry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951559
+    m_Key: controls.shortcuts
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951560
+    m_Key: controls.walk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951561
+    m_Key: day
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951562
+    m_Key: descending
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951563
+    m_Key: dusk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951564
+    m_Key: dwell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951565
+    m_Key: ending.crashed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951566
+    m_Key: ending.failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951567
+    m_Key: ending.fell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951568
+    m_Key: ending.frozen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951569
+    m_Key: falling
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951570
+    m_Key: fellbridge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951571
+    m_Key: freezing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951572
+    m_Key: game.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951573
+    m_Key: gorge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951574
+    m_Key: hub.chase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951575
+    m_Key: hub.click
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951576
+    m_Key: hub.controls
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951577
+    m_Key: hub.depart
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951578
+    m_Key: hub.done
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951579
+    m_Key: hub.missed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951580
+    m_Key: hub.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951581
+    m_Key: hub.ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951582
+    m_Key: hub.restarted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951583
+    m_Key: hub.returned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951584
+    m_Key: hub.station
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951585
+    m_Key: hub.wait
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951586
+    m_Key: inventory.capacity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951587
+    m_Key: inventory.choose
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951588
+    m_Key: inventory.close
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951589
+    m_Key: inventory.empty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951590
+    m_Key: inventory.move
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951591
+    m_Key: inventory.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951592
+    m_Key: landing.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951593
+    m_Key: landing.return
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951594
+    m_Key: landing.safe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951595
+    m_Key: menu.end
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951596
+    m_Key: menu.new
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951597
+    m_Key: menu.quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951598
+    m_Key: mountain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951599
+    m_Key: night
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951600
+    m_Key: portal.closed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951601
+    m_Key: portal.hut
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951602
+    m_Key: portal.platform
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951603
+    m_Key: portal.sleeping
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951604
+    m_Key: station.approach
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951605
+    m_Key: station.hub
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951606
+    m_Key: station.returned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951607
+    m_Key: tunnel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951608
+    m_Key: viaduct
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951609
+    m_Key: "\u4F1E\u5DF2\u5C55\u5F00"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951610
+    m_Key: "\u5355\u51FB\u5F00\u59CB\u884C\u7A0B"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951611
+    m_Key: "\u5355\u51FB\u753B\u9762\u7EE7\u7EED"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951612
+    m_Key: "\u5DF2\u56DE\u5230\u68C0\u67E5\u70B9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951613
+    m_Key: "\u5DF2\u56DE\u5230\u7AD9\u53F0"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951614
+    m_Key: "\u5DF2\u6293\u4F4F\u8F66\u5C3E\u6276\u624B"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951615
+    m_Key: "\u5DF2\u6293\u4F4F\u8F66\u95E8\u6276\u624B"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951616
+    m_Key: "\u5DF2\u6536\u597D \xB7 "
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951617
+    m_Key: "\u5E06\u5E03\u8DF3\u4F1E\u5305"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951618
+    m_Key: "\u66B4\u96EA\u6DF1\u591C"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951619
+    m_Key: "\u671D\u95E8\u79FB\u52A8 + \u7A7A\u683C   \u8DF3\u4E0A\u5217\u8F66"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951620
+    m_Key: "\u7A7A\u683C   \u6500\u56DE\u7AD9\u53F0"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951621
+    m_Key: "\u7A7A\u683C   \u8131\u56F0\u5E76\u8FD4\u56DE\u7AD9\u53F0"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951622
+    m_Key: "\u7A7A\u683C   \u8DC3\u5165\u5CE1\u8C37 \xB7 \u4F1E\u5305\u5DF2\u5C31\u7EEA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951623
+    m_Key: "\u7A7A\u683C   \u8DC3\u5165\u5CE1\u8C37 \xB7 \u672A\u643A\u5E26\u4F1E\u5305"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951624
+    m_Key: "\u80CC\u5305\u5DF2\u6EE1"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951625
+    m_Key: "\u8BF7\u5148\u79BB\u5F00\u95E8\u69DB"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951626
+    m_Key: "\u8F66\u5C3E\u8FDB\u5165\u5CE1\u8C37\u540E\u89E3\u9501"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951627
+    m_Key: "\u8F66\u95E8\u5DF2\u9501\u95ED"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951628
+    m_Key: "\u96EA\u5C71\u9EC4\u660F"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1420951629
+    m_Key: "\u98CE\u96EA\u767D\u663C"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1631985991680
+    m_Key: run.clock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632065683456
+    m_Key: run.health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632065683457
+    m_Key: run.settled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632065683458
+    m_Key: run.shortfall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632065683459
+    m_Key: run.success
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632065683460
+    m_Key: run.target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632065683461
+    m_Key: run.timeout
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632065683462
+    m_Key: run.value
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 1409674136253104128
+  references:
+    version: 2
+    RefIds:
+    - rid: 1409674136253104128
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1794068123835

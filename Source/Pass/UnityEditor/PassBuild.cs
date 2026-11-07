@@ -96,6 +96,7 @@ namespace Winterbourne.Editor
             route.escapeLaunch = Anchor(cars[8].transform, "EscapeLaunch");
             route.canopy = PassFittings.MakeCanopy(player.transform);
             route.canopy.SetActive(false);
+            PassPortalBuild.Build(route);
             SetHud(route);
             AssetDatabase.SaveAssets();
             Check(EditorSceneManager.SaveScene(scene, ScenePath, true), "Could not save WinterbournePass scene");
@@ -110,7 +111,13 @@ namespace Winterbourne.Editor
             var route = Object.FindFirstObjectByType<PassJourney>();
             Check(route && route.walker && route.consist && route.canopy && route.chaseGrip && route.chaseArrival &&
                 route.escapeLaunch, "Missing a route or passenger reference in the saved scene");
-            Check(route.walker.transform.parent == route.consist && !route.canopy.activeSelf, "Spawn hierarchy invalid");
+            Check(route.hubGate && route.stationGate && route.returnGate && route.hubSpawn && route.stationSpawn &&
+                route.sleeperSpawn && route.sleeperSpawn.IsChildOf(route.consist), "Missing portal or destination");
+            Check(!route.walker.transform.IsChildOf(route.consist) && !route.canopy.activeSelf &&
+                Vector3.Distance(route.walker.transform.position,route.hubSpawn.position)<.06f,
+                "Passenger must start in the bridge keeper's room");
+            Check(route.stationGate.transform.position.y < 2.5f && route.stationSpawn.position.y < 2.5f,
+                "Fellbridge gate and arrival must be on the ground floor");
             var document = Object.FindFirstObjectByType<UIDocument>();
             Check(document && document.visualTreeAsset && document.panelSettings &&
                 document.GetComponent<PassHUD>().journey == route, "HUD is not linked to the journey");

@@ -157,20 +157,6 @@ def build(n):
             collection.objects.link(obj)
             objects.append(obj)
     assign_origins(objects,l,root)
-    if n==5:
-        import travellers
-        from wardrobe import fabric, SWATCHES
-        crowd=Geometry()
-        travellers.build(crowd)
-        clothing=fabric(ROOT/'Assets/Transperceneige/Formation/Textures')
-        people=crowd.finish(clothing,collection,SWATCHES)
-        if len(people)!=32:
-            raise ValueError('The occupied saloon requires one passenger per seat.')
-        cabin=empty('Travellers',collection,root)
-        for person in people:
-            person.parent=cabin
-        objects+=people
-        manifest['seatedTravellers']=len(people)
     for name,x in zip(('Socket_A','Socket_B'),l.ends):
         empty(name,collection,root,(x,0,.97))
     models=ROOT/'Assets/Transperceneige/Formation/Models'
@@ -183,8 +169,6 @@ def build(n):
             key='Canopy and headlining'
         elif o.name.startswith(('Bogie','Wheelset','Underframe','Coupling','Drive','Axle')):
             key='Chassis and machinery'
-        elif o.name.startswith('Traveller_'):
-            key='Seated travellers'
         elif 'Starboard' in o.name or 'Port' in o.name or 'lining' in o.name:
             key='Sides and glazing'
         else:
@@ -199,8 +183,7 @@ def build(n):
     bpy.context.view_layer.objects.active=root
     for image in bpy.data.images:
         if image.packed_file:
-            kit='Formation' if image.name=='Travellers.png' else 'Car07'
-            image.filepath=f'//../../Assets/Transperceneige/{kit}/Textures/'+image.name
+            image.filepath='//../../Assets/Transperceneige/Car07/Textures/'+image.name
     source_file=HERE.parent/f'Car{n:02}.blend'
     bpy.ops.wm.save_as_mainfile(filepath=str(source_file),compress=True,relative_remap=False)
     for o in objects:

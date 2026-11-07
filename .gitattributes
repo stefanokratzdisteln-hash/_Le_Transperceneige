@@ -12,3 +12,5 @@
 *.asset text=auto eol=lf whitespace=-blank-at-eol
 # Retain the upstream license verbatim in exported font assets.
 **/OFL.txt text eol=lf whitespace=-blank-at-eol
+# Inventory message fragments in this localization table include literal spaces.
+Assets/Transperceneige/Pass/Language/Resources/WinterbourneText.txt text eol=lf whitespace=-blank-at-eol
