@@ -1,0 +1,33 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="PassHUD.uss" />
+    <ui:VisualElement name="passRoot" class="pass-hud" picking-mode="Ignore">
+        <ui:VisualElement name="frost" class="frost" picking-mode="Ignore" />
+        <ui:VisualElement name="waybill" class="waybill" picking-mode="Ignore">
+            <ui:Label name="place" class="place" />
+            <ui:Label name="mileage" class="mileage" />
+            <ui:Label name="task" class="task" />
+        </ui:VisualElement>
+        <ui:VisualElement name="reticle" class="reticle" picking-mode="Ignore"/>
+        <ui:VisualElement class="foot-hud" picking-mode="Ignore">
+            <ui:Label name="message" class="action" />
+            <ui:VisualElement name="quickSlots" class="slot-row" picking-mode="Ignore" />
+            <ui:Label text="B  背包     ·     L  光线" class="shortcuts" />
+        </ui:VisualElement>
+        <ui:VisualElement name="inventory" class="shade hidden">
+            <ui:VisualElement class="folio">
+                <ui:Label text="随身行李" class="headline" />
+                <ui:Label name="capacity" class="caption"/>
+                <ui:VisualElement name="allSlots" class="all-slots" />
+                <ui:Label name="slotHelp" class="hint" />
+                <ui:Button name="closeBag" text="B   收起背包" class="command" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="ending" class="shade hidden">
+            <ui:VisualElement class="folio end-card">
+                <ui:Label name="result" class="headline" />
+                <ui:Label name="reason" class="description" />
+                <ui:Button name="retry" text="R   从检查点重试" class="command" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

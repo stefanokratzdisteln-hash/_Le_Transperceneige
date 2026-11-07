@@ -2,9 +2,31 @@
 
 一列虚构的 1930 年代英国北境夜车，往返于 London 和 Fellbridge。全列 **1 台蒸汽机车、1 辆煤水车、7 节车厢**，沿车钩对接平面计长 **159.82 米**。玩家在 07 号单人卧铺的床边出发，可以沿走廊步行到餐厅、座车、车尾值班室及机车驾驶室。
 
+## 试玩雪岭断桥线
+
+在 Unity 6 的 URP 工程中导入[完整资源包](Releases/Winterbourne.unitypackage)，打开 [WinterbournePass 场景](Assets/Transperceneige/Pass/WinterbournePass.unity)，点击 **Play**，再单击车厢画面启程。需要随时查看车辆模型时，可打开独立的 [WinterbourneExpress 自由参观场景](Assets/Transperceneige/Formation/Demo/WinterbourneExpress.unity)。
+
+![雪岭断桥线俯视路线图](Previews/Pass/RouteMap.png)
+
+| 按键 | 操作 |
+|---|---|
+| WASD／方向键、鼠标 | 行走、观察；按住 Shift 奔跑。Esc 释放鼠标。 |
+| E | 对准把手开关门。04、05、07、08 两端的站台侧门和 06 餐厅端侧门在列车停稳后解锁。 |
+| F、B | F 拾取物品，B 展开或收起八格背包。底部常显前四格；打开背包后依次点两格可以换位。 |
+| 空格 | 离站时在亮灯的 09 号侧踏板旁追车；在峡谷中，从已打开的 09 号尾端门跃出。 |
+| L、R | L 在雪山黄昏、风雪白昼、暴雪深夜间切换。结局画面按 R 从最近的检查点重试。 |
+
+列车沿 2.12 公里线路行驶。山地之后是 300 米山体隧道；从隧道出来，列车减速驶入 Fellbridge。全长 190 米的站台是一组可替换的灰盒模型。停站 **60 秒**，最后 **15 秒**鸣哨。错过普通乘降门后仍可追上末节踏板；最后一节驶离站台，滞留在站上的玩家将失温。
+
+在 **09 号行李车靠值班室的低层架子**上可以找到帆布跳伞包。上桥后，列车以约 6 米/秒驶向已炸断的桥跨，预警时间约 **120 秒**。等车尾悬在峡谷上方，到朝后的尾门按 E 开门，再到尾部平台按空格跳伞。背包的八个格子都可以装伞；携带时自动开伞，降落到谷底后通关。留在列车上或无伞坠落都有独立失败结局。停站前及上桥前自动记录检查点。
+
+[卧铺窗外的黄昏](Previews/Pass/MountainDusk.png) · [白昼](Previews/Pass/MountainDay.png) · [深夜](Previews/Pass/MountainNight.png) · [山体隧道](Previews/Pass/Tunnel.png) · [站台](Previews/Pass/Platform.png) · [高架桥](Previews/Pass/Viaduct.png) · [断口](Previews/Pass/BrokenSpan.png)
+
+窗景、机关和补给都能在该场景中编辑。移动 09 号车内的 `ParachutePack` 对象即可调整拾取点。重建关卡时，将 [Pass 编辑器脚本](Source/Pass/UnityEditor) 和编组编辑器脚本一起放入 URP 工程的 `Assets/Editor`，依次执行 `Winterbourne.Editor.PassBuild.Build` 和 `Winterbourne.Editor.PassBuild.Export`，并传入 `-formationRoot "<仓库绝对路径>"`。
+
 ![Winterbourne 全车编组图册](Previews/Formation/Formation.png)
 
-## 在 Unity 中走一遍
+## 自由参观九节车辆
 
 1. 在使用通用渲染管线（URP）的 Unity 6 工程里导入 [Winterbourne.unitypackage](Releases/Winterbourne.unitypackage)。整列编组和 07 号的共享资源都在包内。
 2. 打开 [WinterbourneExpress 场景](Assets/Transperceneige/Formation/Demo/WinterbourneExpress.unity)，点击 **Play**，再单击游戏画面。

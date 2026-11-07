@@ -14,6 +14,15 @@ namespace Winterbourne.Demo
         CharacterController operatorController;
         float travel;
         bool closing;
+        public float ClosedFraction => travel;
+        public bool TargetClosed => closing;
+        public void RestorePose(float closedFraction, bool close)
+        {
+            operatorController = null;
+            travel = Mathf.Clamp01(closedFraction);
+            closing = close;
+            transform.localPosition = openPosition + closedOffset * Mathf.SmoothStep(0f, 1f, travel);
+        }
 
         void Awake()
         {

@@ -1,0 +1,43 @@
+.pass-hud {
+    position: absolute; top: 0; bottom: 0; left: 0; right: 0;
+    color: #f5ecd7;
+    -unity-font-definition: url("WinterbourneSans.ttf");
+    -unity-font: url("WinterbourneSans.ttf");
+}
+.waybill {
+    position: absolute; left: 27px; top: 24px; min-width: 200px; max-width: 420px;
+    padding: 11px 18px 12px 16px; background-color: rgba(18,34,34,.88);
+    border-left-width: 3px; border-left-color: #b4975f;
+}
+.frost { position:absolute; left:0; right:0; top:0; bottom:0; }
+.place { font-size: 23px; color: #fff4d9; }
+.mileage { font-size: 14px; color: #cbb58d; margin-top: 3px; }
+.task { font-size: 16px; color: #f1dbb2; margin-top: 5px; white-space: normal; }
+.urgent { border-left-color: #f19159; }
+.reticle {
+    position:absolute; top:50%; left:50%; width:4px; height:4px;
+    background-color:rgba(255,245,213,.82); border-radius:2px;
+}
+.foot-hud { position:absolute; bottom:16px; left:0; right:0; align-items:center; }
+.slot-row { flex-direction:row; justify-content:center; }
+.slot {
+    width:58px; height:49px; margin:0 3px; padding:2px 5px;
+    background-color:rgba(16,29,31,.83); border-width:1px; border-color:rgba(203,178,125,.64);
+    border-radius:3px; color:#c3b293;
+}
+.slot-number { position:absolute; top:1px; left:5px; font-size:11px; color:#d2c29e; }
+.glyph { position:absolute; top:6px; bottom:3px; left:11px; right:7px; }
+.filled { background-color:rgba(53,56,39,.96); border-color:#e1bc77; }
+.shortcuts { font-size:13px; padding:2px 8px; margin-top:4px; color:#eee4d0; background-color:rgba(16,27,30,.7); }
+.action { font-size:17px; padding:5px 13px; margin-bottom:8px; background-color:rgba(18,32,33,.92); }
+.shade { position:absolute; top:0; bottom:0; left:0; right:0; background-color:rgba(7,15,18,.72); justify-content:center; align-items:center; }
+.folio { width:392px; max-width:94%; padding:24px; background-color:#213536; border-width:1px; border-color:#ac956a; }
+.headline { font-size:28px; color:#fff1d5; }
+.caption { font-size:15px; color:#d9c7a6; margin-top:4px; margin-bottom:13px; }
+.all-slots { flex-direction:row; flex-wrap:wrap; }
+.bag-slot { width:75px; height:64px; margin:3px; }
+.bag-slot:hover, .selected { border-color:#ffe1a7; background-color:#48534a; }
+.hint, .description { margin-top:13px; font-size:16px; color:#e5d9c1; white-space:normal; }
+.command { margin-top:19px; align-self:flex-start; padding:6px 12px; border-width:1px; border-color:#ad965f; background-color:#354948; color:#fff3d5; font-size:16px; }
+.command:hover { background-color:#4d6058; }
+.hidden { display:none; }

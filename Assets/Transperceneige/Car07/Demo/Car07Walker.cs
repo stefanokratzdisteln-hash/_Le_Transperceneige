@@ -20,6 +20,33 @@ namespace Winterbourne.Demo
         Quaternion spawnRotation;
         float yaw, pitch, targetYaw, targetPitch, fallSpeed;
         bool ownsCursor;
+        // Optional hooks for a journey scene; the standalone carriage keeps its original controls.
+        public System.Func<bool> useOverride;
+        public bool automaticRespawn = true;
+        public bool externalMotion;
+        public float runningSpeed;
+        public bool HasMouse => ownsCursor;
+        public float ViewPitch => pitch;
+        bool overlayOpen;
+
+        public void Overlay(bool open)
+        {
+            overlayOpen = open;
+            if (open) ReleaseCursor();
+        }
+
+        public void Place(Transform support, Vector3 localPosition, Quaternion localRotation, float eyePitch)
+        {
+            controller = GetComponent<CharacterController>();
+            controller.enabled = false;
+            transform.SetParent(support, false);
+            transform.SetLocalPositionAndRotation(localPosition, localRotation);
+            yaw = targetYaw = localRotation.eulerAngles.y;
+            pitch = targetPitch = eyePitch;
+            fallSpeed = 0;
+            if (eyeCamera) eyeCamera.transform.localRotation = Quaternion.Euler(eyePitch, 0, 0);
+            controller.enabled = true;
+        }
 
         void Awake()
         {
@@ -35,7 +62,7 @@ namespace Winterbourne.Demo
         {
             ReadInput(out Vector2 walk, out Vector2 look, out bool click, out bool escape, out bool useDoor);
 
-            if (escape || !Application.isFocused)
+            if (escape || !Application.isFocused || overlayOpen)
                 ReleaseCursor();
             else if (click && !ownsCursor)
             {
@@ -65,17 +92,29 @@ namespace Winterbourne.Demo
             else
                 walk = Vector2.zero;
 
+            if (externalMotion || !controller.enabled)
+                return;
+            float speed = walkingSpeed;
+            if (runningSpeed > walkingSpeed && ownsCursor)
+            {
+#if ENABLE_INPUT_SYSTEM
+                if (Keyboard.current != null && Keyboard.current.shiftKey.isPressed) speed = runningSpeed;
+#elif ENABLE_LEGACY_INPUT_MANAGER
+                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) speed = runningSpeed;
+#endif
+            }
             Vector3 planar = transform.right * walk.x + transform.forward * walk.y;
             fallSpeed = controller.isGrounded && fallSpeed <= 0f
                 ? -1.2f : Mathf.Max(fallSpeed - 15f * dt, -25f);
-            controller.Move((Vector3.ClampMagnitude(planar, 1f) * walkingSpeed + Vector3.up * fallSpeed) * dt);
+            controller.Move((Vector3.ClampMagnitude(planar, 1f) * speed + Vector3.up * fallSpeed) * dt);
             float spawnHeight = transform.parent ? transform.parent.TransformPoint(spawnLocal).y : spawnLocal.y;
-            if (transform.position.y < spawnHeight - 3.5f)
+            if (automaticRespawn && transform.position.y < spawnHeight - 3.5f)
                 Respawn();
         }
 
         void Interact()
         {
+            if (useOverride != null && useOverride()) return;
             if (!eyeCamera)
                 return;
             Transform eye = eyeCamera.transform;

@@ -10,3 +10,5 @@
 *.prefab text eol=lf whitespace=-blank-at-eol
 *.unity text eol=lf whitespace=-blank-at-eol
 *.asset text=auto eol=lf whitespace=-blank-at-eol
+# Retain the upstream license verbatim in exported font assets.
+**/OFL.txt text eol=lf whitespace=-blank-at-eol
