@@ -19,7 +19,7 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 1420951580
-    m_Localized: "Bridge keeper\u2019s cottage"
+    m_Localized: "Bridge keeper's cottage"
     m_Metadata:
       m_Items: []
   - m_Id: 1420951572
@@ -39,7 +39,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951605
-    m_Localized: "Bridge keeper\u2019s cottage"
+    m_Localized: "Bridge keeper's cottage"
     m_Metadata:
       m_Items: []
   - m_Id: 1420951593

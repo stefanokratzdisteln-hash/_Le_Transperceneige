@@ -1,9 +1,9 @@
-hub.name	Bridge keeper’s cottage	桥下养护小屋
+hub.name	Bridge keeper's cottage	桥下养护小屋
 game.title	Winterbourne Express	雪岭夜行快车
 hub.depart	Board the train · Sleeper 07	登车 · 07 号卧铺
 hub.station	Return to Fellbridge	返回费尔桥站
 hub.missed	The train has left	本趟列车已离站
-station.hub	Bridge keeper’s cottage	返回桥下小屋
+station.hub	Bridge keeper's cottage	返回桥下小屋
 landing.return	Return to the cottage	返回桥下小屋
 hub.click	Click to explore	单击开始探索
 hub.returned	Back at the cottage	已返回小屋
