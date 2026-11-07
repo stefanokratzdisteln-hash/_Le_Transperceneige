@@ -10,9 +10,16 @@ namespace Winterbourne.Pass
         public Light sun;
         public Camera passengerEye;
         public Material flakeMaterial;
-        public int Mode { get; private set; }
+        public const float CloudPeriod = 38f;
+        public float CloudCover { get; private set; }
         public float TunnelBlend { get; private set; }
+        // Low over the compartment-side ridge, between the sleeper's horizontal sash bars.
+        static readonly Vector3 MoonDirection = new Vector3(-.9858f,.160f,.050f).normalized;
+        const float LunarCloudRow = .4375f;
+        static readonly Color Horizon = new Color(.075f,.117f,.176f);
+        static readonly Color Moonlight = new Color(.71f,.80f,1f);
         Material weatherSky;
+        Texture2D cloudDensity;
         ParticleSystem[] flurries;
         AudioSource runningSound, reflectedSound;
         AudioClip railLoop;
@@ -75,7 +82,12 @@ namespace Winterbourne.Pass
             if (passengerEye) { passengerEye.clearFlags=CameraClearFlags.Skybox; passengerEye.farClipPlane=1650; }
             MakeSnow();
             MakeRailSound();
-            Apply(0,passengerEye ? -passengerEye.transform.position.z : 0);
+            Apply(passengerEye ? -passengerEye.transform.position.z : 0);
+        }
+
+        void LateUpdate()
+        {
+            if (passengerEye) Apply(-passengerEye.transform.position.z);
         }
 
         void MakeSnow()
@@ -89,9 +101,9 @@ namespace Winterbourne.Pass
                 var ps=go.AddComponent<ParticleSystem>(); ps.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
                 var main=ps.main;
                 main.startLifetime=new ParticleSystem.MinMaxCurve(1.9f,3.0f);
-                main.startSize=new ParticleSystem.MinMaxCurve(.012f,.046f);
+                main.startSize=new ParticleSystem.MinMaxCurve(.009f,.030f);
                 main.maxParticles=550; main.startSpeed=0; main.simulationSpace=ParticleSystemSimulationSpace.World;
-                main.startColor=new ParticleSystem.MinMaxGradient(new Color(.70f,.77f,.85f,.58f),new Color(.96f,.96f,.98f,.91f));
+                main.startColor=new ParticleSystem.MinMaxGradient(new Color(.33f,.43f,.57f,.32f),new Color(.60f,.67f,.75f,.68f));
                 var shape=ps.shape; shape.shapeType=ParticleSystemShapeType.Box; shape.scale=new Vector3(10,5,34);
                 var velocity=ps.velocityOverLifetime; velocity.enabled=true; velocity.space=ParticleSystemSimulationSpace.World;
                 if (shelters.Length>0)
@@ -112,37 +124,41 @@ namespace Winterbourne.Pass
             }
         }
 
-        static Color Pick(int i,Color dusk,Color day,Color night) => i==1 ? day : i==2 ? night : dusk;
-
-        public void Apply(int mode,float viewerChainage)
+        public void Apply(float viewerChainage)
         {
-            Mode=Mathf.Clamp(mode,0,2);
+            SampleWeather(viewerChainage,(float)(Time.timeSinceLevelLoadAsDouble % CloudPeriod));
+        }
+
+        // Both the renderer and the exterior light sample the linear optical-cover
+        // texture at the moon's ray. Supply elapsed seconds to reproduce a recorded sky.
+        public void SampleWeather(float viewerChainage,float elapsedSeconds)
+        {
             float bore=ClampRamp(480,492,viewerChainage)*(1-ClampRamp(768,780,viewerChainage));
             TunnelBlend=bore;
-            Color horizon=Pick(Mode,new Color(.56f,.59f,.68f),new Color(.69f,.76f,.81f),new Color(.115f,.157f,.221f));
-            Color zenith=Pick(Mode,new Color(.18f,.29f,.46f),new Color(.41f,.58f,.72f),new Color(.030f,.048f,.094f));
-            Color glow=Pick(Mode,new Color(1,.75f,.52f),new Color(.95f,.91f,.80f),new Color(.57f,.66f,.83f));
-            if (weatherSky)
+            float drift=Mathf.Repeat(elapsedSeconds/CloudPeriod,1f);
+            var activeSky=weatherSky ? weatherSky : sky;
+            if (activeSky)
             {
-                weatherSky.SetColor("_Horizon",horizon);weatherSky.SetColor("_Zenith",zenith);weatherSky.SetColor("_Glow",glow);
-                weatherSky.SetFloat("_Night",Mode==2 ? 1:0);
-                weatherSky.SetFloat("_Storm",Mode==0 ? .27f : Mode==1 ? .70f : .84f);
+                if (!cloudDensity) cloudDensity=activeSky.GetTexture("_CloudDensity") as Texture2D;
+                CloudCover=cloudDensity ? cloudDensity.GetPixelBilinear(drift,LunarCloudRow).r : 0;
+                activeSky.SetVector("_CloudSample",new Vector4(drift,LunarCloudRow,0,0));
+                activeSky.SetVector("_MoonDirection",MoonDirection);
+                activeSky.SetFloat("_MoonTransmission",1f-CloudCover);
             }
             if (sun)
             {
-                sun.color=glow;
-                sun.intensity=Mathf.Lerp(Mode==0 ? .99f : Mode==1 ? .94f : .53f,.075f,bore);
-                sun.transform.rotation=Quaternion.Euler(Mode==0 ? 21:Mode==1 ? 42:28,Mode==0 ? 119:Mode==1 ? 138:105,0);
-                if (weatherSky) weatherSky.SetVector("_SunVector",-sun.transform.forward);
+                sun.color=Moonlight;
+                sun.intensity=Mathf.Lerp(Mathf.Lerp(.92f,.085f,CloudCover),.038f,bore);
+                sun.shadowStrength=Mathf.Lerp(.82f,.28f,CloudCover);
+                sun.transform.rotation=Quaternion.LookRotation(-MoonDirection,Vector3.up);
             }
             RenderSettings.ambientMode=AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor=Color.Lerp(Pick(Mode,new Color(.56f,.64f,.77f),new Color(.73f,.79f,.84f),
-                new Color(.26f,.34f,.50f)),new Color(.11f,.10f,.10f),bore);
-            RenderSettings.ambientEquatorColor=Color.Lerp(horizon*.62f,new Color(.09f,.085f,.08f),bore);
-            RenderSettings.ambientGroundColor=Color.Lerp(horizon*.39f,new Color(.055f,.053f,.05f),bore);
+            RenderSettings.ambientSkyColor=Color.Lerp(new Color(.24f,.31f,.43f),new Color(.11f,.10f,.10f),bore);
+            RenderSettings.ambientEquatorColor=Color.Lerp(new Color(.12f,.17f,.24f),new Color(.09f,.085f,.08f),bore);
+            RenderSettings.ambientGroundColor=Color.Lerp(new Color(.09f,.12f,.17f),new Color(.055f,.053f,.05f),bore);
             RenderSettings.fog=true;RenderSettings.fogMode=FogMode.ExponentialSquared;
-            RenderSettings.fogColor=Color.Lerp(horizon,new Color(.075f,.081f,.085f),bore);
-            RenderSettings.fogDensity=Mathf.Lerp(Mode==0 ? .00112f : Mode==1 ? .00170f : .0024f,.012f,bore);
+            RenderSettings.fogColor=Color.Lerp(Horizon,new Color(.075f,.081f,.085f),bore);
+            RenderSettings.fogDensity=Mathf.Lerp(.00128f,.012f,bore);
             if (flurries!=null && passengerEye)
             {
                 for(int i=0;i<flurries.Length;i++)
@@ -150,7 +166,7 @@ namespace Winterbourne.Pass
                     // Keep all births on the outside of the windows; the van interior stays dry.
                     flurries[i].transform.position=new Vector3((i==0?-1:1)*9.3f,passengerEye.transform.position.y+4,-viewerChainage);
                     var emit=flurries[i].emission;
-                    emit.rateOverTime=(Mode==0?10:Mode==1?85:145)*(1-bore);
+                    emit.rateOverTime=13f*(1-bore);
                 }
             }
             if (runningSound)

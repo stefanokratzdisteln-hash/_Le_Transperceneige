@@ -26,7 +26,6 @@ namespace Winterbourne.Pass
         public bool Aboard { get; private set; } = true;
         public bool Started { get; private set; }
         public bool InventoryOpen { get; private set; }
-        public int Lighting { get; private set; }
         public bool ManualClock { get; set; }
         public bool HasParachute => Array.IndexOf(slots,"parachute") >= 0;
         public bool Terminal => Phase==JourneyPhase.TimedOut || Phase==JourneyPhase.Frozen ||
@@ -39,7 +38,6 @@ namespace Winterbourne.Pass
         public string ItemName(string id) => id!=null && labels.TryGetValue(id,out string name) ? PassText.Get(name) : id;
         readonly string[] slots=new string[8];
         readonly Dictionary<string,string> labels=new Dictionary<string,string>();
-        PassAtmosphere air;
         PassDoor[] doors;
         PassDoor rear, chase;
         PassPickup[] items;
@@ -90,7 +88,7 @@ namespace Winterbourne.Pass
             foreach(var door in doors)
                 if(door.kind==PassDoorKind.Escape) rear=door;
                 else if(door.kind==PassDoorKind.Chase) chase=door;
-            air=FindFirstObjectByType<PassAtmosphere>();
+            var air=FindFirstObjectByType<PassAtmosphere>();
             if(air) air.train=consist;
             if(chaseGrip) gripLamp=chaseGrip.GetComponentInChildren<Light>(true);
             var vehicles=new List<Transform>();
@@ -138,7 +136,6 @@ namespace Winterbourne.Pass
             TickExpedition();
             if(!Application.isFocused || ManualClock) return;
             if(InStartMenu) return;
-            if(Key('L')) CycleLighting();
             if(Terminal){ if(Key('R')) Retry(); }
             else {
                 if(Key('B') && Phase!=JourneyPhase.Jumping && Phase!=JourneyPhase.UnderCanopy)
@@ -158,14 +155,6 @@ namespace Winterbourne.Pass
             ReconcileBoarding();
             CheckTunnelImpact();
             if(gripLamp) gripLamp.enabled=Phase==JourneyPhase.Chase;
-            if(air) air.Apply(Lighting,-walker.transform.position.z);
-        }
-
-        public void CycleLighting()
-        {
-            Lighting=(Lighting+1)%3;
-            if(air) air.Apply(Lighting,-walker.transform.position.z);
-            Tell(new[]{"雪山黄昏","风雪白昼","暴雪深夜"}[Lighting]);
         }
 
         public void SetInventory(bool visible)
@@ -470,7 +459,6 @@ namespace Winterbourne.Pass
             switch(key){
                 case 'B':return k.bKey.wasPressedThisFrame || k.tabKey.wasPressedThisFrame;
                 case 'F':return k.fKey.wasPressedThisFrame;
-                case 'L':return k.lKey.wasPressedThisFrame;
                 case 'R':return k.rKey.wasPressedThisFrame;
                 default:return false;
             }

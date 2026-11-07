@@ -24,7 +24,7 @@ inventory.choose	Select an item, then its destination slot.	选中物品，再�
 inventory.move	{0} · Choose a destination slot	{0} · 请选择目标格
 inventory.close	Tab   Close inventory	Tab   收起背包
 inventory.empty	Empty slot	空格位
-controls.shortcuts	Tab  Inventory    ·    L  Lighting	Tab  背包    ·    L  光线
+controls.shortcuts	Tab  Inventory	Tab  背包
 controls.retry	R   Retry checkpoint	R   从检查点重试
 mountain	Fell mountains	雪岭山地
 tunnel	Mountain tunnel	山腰隧道
@@ -32,9 +32,6 @@ fellbridge	Fellbridge Station	费尔桥站
 gorge	Gorge approach	峡谷入口
 viaduct	Greywater Viaduct	北峡高架桥
 landing.name	Gorge floor	峡谷谷底
-dusk	Dusk	黄昏
-day	Daylight	白昼
-night	Night	深夜
 dwell	Departure  {0}    ·    E at a door	发车倒计时  {0}    ·    对准车门按 E
 chase.on	Departing Fellbridge	列车正在离站
 chase.off	E to open a passing door\nHold Shift to catch up, then Space to jump aboard	对准身边的车门按 E\n按住 Shift 追平，空格跳进门
@@ -63,9 +60,6 @@ ending.fell	Fatal impact. Take the pack from van 09 and press Space again just a
 背包已满	Inventory full	背包已满
 已收好 · 	Collected · 	已收好 · 
 F   拾取	F   Pick up 	F   拾取
-雪山黄昏	Mountain dusk	雪山黄昏
-风雪白昼	Snowy daylight	风雪白昼
-暴雪深夜	Midnight blizzard	暴雪深夜
 车尾进入峡谷后解锁	Unlocks when the rear of the train reaches the gorge	车尾进入峡谷后解锁
 车门已锁闭	Door locked	车门已锁闭
 请先离开门槛	Stand clear of the doorway	请先离开门槛

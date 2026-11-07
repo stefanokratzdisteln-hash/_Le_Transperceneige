@@ -15,12 +15,13 @@ namespace Winterbourne.Editor
             new StationHouse(house,finishes).Build();
         }
 
-        sealed class StationHouse
+        sealed partial class StationHouse
         {
             const float Upper=3.42f, Eaves=6.88f, Depth=9f, HalfLength=10f;
             readonly Transform house;
             readonly Finishes m;
-            readonly StationFabrication shell=new StationFabrication(), interior=new StationFabrication();
+            readonly StationFabrication shell=new StationFabrication();
+            StationFabrication interior=new StationFabrication();
             readonly Material brick, brickLight, brickDark, plaster, green, glass, signs, timetable;
 
             internal StationHouse(Transform root,Finishes finishes)
@@ -34,6 +35,7 @@ namespace Winterbourne.Editor
                 glass=AssetDatabase.LoadAssetAtPath<Material>("Assets/Transperceneige/Car07/Car07_CabinGlass.mat");
                 signs=Graphic("House enamel signs","StationHouseEnamel");
                 timetable=Graphic("Station timetable ink","FellbridgeTimetable");
+                FitOutMaterials();
             }
 
             static Material Graphic(string name,string texture)
@@ -41,6 +43,7 @@ namespace Winterbourne.Editor
                 var mat=Paint(name,Color.white);
                 var image=AssetDatabase.LoadAssetAtPath<Texture2D>(Folder+"/"+texture+".png");
                 if (!image) throw new System.InvalidOperationException("Missing station artwork "+texture);
+                mat.SetTexture("_BaseMap",image);
                 mat.mainTexture=image;
                 EditorUtility.SetDirty(mat);
                 return mat;
@@ -115,6 +118,10 @@ namespace Winterbourne.Editor
                         var tint=edge==1||edge==3?green:edge==2?plaster:
                             ((i+j)%2==0?m.khaki:m.cream);
                         Vector3 a=P(-8.9f+i*tile,.004f,-10+j*tile)+gap;
+                        // Meltwater darkens the threshold in two irregular bands of foot traffic.
+                        float doorDistance=Mathf.Abs(Mathf.Abs(a.z+tile/2)-7.5f);
+                        float trail=.56f+.19f*Mathf.Sin(a.x*4.7f+a.z*.25f);
+                        if(a.x > -2.1f && doorDistance<trail && (i+j)%2!=0)tint=dampTile;
                         var b=a+Vector3.right*(tile-.008f);var c=b+Vector3.forward*(tile-.008f);
                         interior.Quad(tint,a,b,c,a+Vector3.forward*(tile-.008f),Vector3.up);
                         if(edge>3 && i%3==0 && j%3==0)
@@ -202,6 +209,8 @@ namespace Winterbourne.Editor
                 foreach(float h in new[]{sill+.035f,sill+(lintel-sill)*.58f,lintel-.025f})
                     shell.Box(plaster,At(0,h,.034f),Size(span,.06f,.086f));
                 shell.Box(m.stone,At(0,sill-.034f,.07f),Size(span+.23f,.104f,.37f));
+                if(n.x>0 || (n.z!=0 && (storey==0 || n.z<0)))
+                    FitLitSash(c,n,axis,floor+sill,floor+lintel,span,bay,storey);
             }
 
             void Roof()
@@ -297,6 +306,43 @@ namespace Winterbourne.Editor
                 Solid(interior,plaster,"Parcels partition",P(-5.55f,1.52f,-4.12f),P(6.72f,3.04f,.13f));
                 Solid(interior,plaster,"Parcels partition return",P(-.35f,1.52f,-4.12f),P(.50f,3.04f,.13f));
                 interior.Box(m.wood,P(-1.4f,2.87f,-4.12f),P(1.66f,.36f,.15f));
+                FurnitureMesh("Fellbridge luggage rack and straps",LuggageRack);
+                FurnitureMesh("Fellbridge booking window and till",BookingWindow);
+                FurnitureMesh("Fellbridge ticket pigeonholes",TicketRack);
+                FurnitureMesh("Fellbridge parcel sorting bench",ParcelWorkroom);
+                FurnitureMesh("Fellbridge waiting room hearth fixtures",WaitingHearth);
+                foreach(float z in new[]{-1.50f,1.12f}) BenchAt(-.48f,0,z);
+                // The duty room opens off the upper landing; a communication desk faces the line.
+                Solid(interior,plaster,"Duty room inner wall",P(-5.23f,Upper+1.49f,-2.30f),P(3.05f,2.98f,.13f));
+                Solid(interior,plaster,"Duty room arch return",P(-.87f,Upper+1.49f,-2.30f),P(1.47f,2.98f,.13f));
+                interior.Box(m.wood,P(-2.64f,Upper+2.63f,-2.30f),P(2.12f,.33f,.15f));
+                DutyRoom();
+                BenchAt(-1.08f,Upper,1.7f);
+                for(int i=0;i<7;i++)
+                {
+                    var p=P(-6.74f,Upper+1.01f,-8.93f+i*.37f);
+                    interior.Box(i%2==0?m.oxblood:green,p,P(.35f,.32f,.26f));
+                    interior.Box(m.khaki,p+P(.19f,.02f,0),P(.018f,.081f,.16f));
+                }
+                Solid(interior,m.wood,"Register table",P(-6.8f,Upper+.44f,-7.83f),P(.74f,.88f,2.84f));
+                ClockFace(-8.82f,2.75f,.75f);
+                ClockFace(-8.82f,Upper+2.37f,-7.46f);
+                ClockFace(-6.16f,2.24f,4.25f);
+            }
+
+            // Local renderer bounds let Forward URP select the lights in the room
+            // where the furniture stands, including its brass, paper and wood.
+            void FurnitureMesh(string name,System.Action build)
+            {
+                var room=interior;
+                interior=new StationFabrication();
+                build();
+                interior.Finish(house,name);
+                interior=room;
+            }
+
+            void LuggageRack()
+            {
                 // Parcels are tagged and lashed on a dedicated baggage rack.
                 for(int i=0;i<4;i++)
                 {
@@ -317,86 +363,8 @@ namespace Winterbourne.Editor
                     }
                 }
                 Box(house,"Baggage shelving",P(-7.75f,1.03f,-7.2f),P(1.33f,2.06f,3.45f));
-                // Rail ticket counter with a brass grille and glazed clerk's screen.
-                Solid(interior,green,"Booking counter",P(-6.57f,.57f,6.25f),P(.94f,1.14f,4.67f));
-                interior.Box(m.wood,P(-6.57f,1.16f,6.25f),P(1.08f,.09f,4.82f));
-                foreach(float z in new[]{4.11f,5.51f,6.99f,8.41f}) interior.Box(m.wood,P(-6.38f,1.92f,z),P(.091f,1.51f,.10f));
-                interior.Box(m.wood,P(-6.38f,2.64f,6.25f),P(.129f,.14f,4.49f));
-                for(int j=0;j<29;j++)
-                {
-                    float z=4.14f+j*.15f;float bottom=Mathf.Abs(z-6.25f)<.48f?1.67f:1.22f;
-                    interior.Ring(m.bronze,P(-6.34f,bottom,z),P(-6.34f,2.57f,z),.012f,.012f,6);
-                }
-                interior.Box(m.bronze,P(-6.34f,1.96f,6.25f),P(.038f,.038f,4.19f));
-                interior.Box(glass,P(-6.40f,2.22f,6.25f),P(.018f,.70f,4.19f));
-                Box(house,"Booking grille",P(-6.38f,1.95f,6.25f),P(.09f,1.52f,4.51f));
-                for(int i=0;i<12;i++)
-                    for(int row=0;row<3;row++)
-                    {
-                        var p=P(-8.69f,1.0f+row*.29f,4.31f+i*.32f);
-                        interior.Box(m.wood,p,P(.19f,.26f,.30f));
-                        interior.Box(m.khaki,p+P(.097f,.018f,0),P(.007f,.094f,.182f));
-                    }
-                foreach(float z in new[]{-1.8f,1.25f}) BenchAt(-1.10f,0,z);
-                // The duty room opens off the upper landing; a communication desk faces the line.
-                Solid(interior,plaster,"Duty room inner wall",P(-5.23f,Upper+1.49f,-2.30f),P(3.05f,2.98f,.13f));
-                Solid(interior,plaster,"Duty room arch return",P(-.87f,Upper+1.49f,-2.30f),P(1.47f,2.98f,.13f));
-                interior.Box(m.wood,P(-2.64f,Upper+2.63f,-2.30f),P(2.12f,.33f,.15f));
-                Desk(-2.05f,Upper,-6.10f);
-                BenchAt(-1.08f,Upper,1.7f);
-                for(int i=0;i<7;i++)
-                {
-                    var p=P(-6.74f,Upper+1.01f,-8.93f+i*.37f);
-                    interior.Box(i%2==0?m.oxblood:green,p,P(.35f,.32f,.26f));
-                    interior.Box(m.khaki,p+P(.19f,.02f,0),P(.018f,.081f,.16f));
-                }
-                Solid(interior,m.wood,"Register table",P(-6.8f,Upper+.44f,-7.83f),P(.74f,.88f,2.84f));
-                // Keep the portal approach in the booking hall clear of furniture.
-                ClockFace(-8.82f,2.75f,.75f);
-                ClockFace(-8.82f,Upper+2.37f,-7.46f);
-                ClockFace(-6.29f,2.74f,4.55f);
             }
 
-            void BenchAt(float x,float y,float z)
-            {
-                foreach(var dz in new[]{-.62f,.62f})
-                    foreach(var dx in new[]{-.19f,.19f}) interior.Box(green,P(x+dx,y+.23f,z+dz),P(.075f,.46f,.11f));
-                Solid(interior,m.wood,"Waiting bench",P(x,y+.46f,z),P(.57f,.10f,1.75f));
-                interior.Box(m.wood,P(x+.235f,y+.76f,z),P(.068f,.49f,1.75f));
-                Box(house,"Bench back",P(x+.235f,y+.76f,z),P(.068f,.49f,1.75f));
-            }
-            void Desk(float x,float y,float z)
-            {
-                for(int side=-1;side<=1;side+=2)
-                    Solid(interior,m.wood,"Desk pedestal",P(x,y+.41f,z+side*.73f),P(.78f,.82f,.52f));
-                Solid(interior,m.wood,"Dispatch desk top",P(x,y+.85f,z),P(.97f,.088f,2.21f));
-                interior.Box(green,P(x,y+.903f,z),P(.74f,.025f,1.67f));
-                interior.Box(m.khaki,P(x,y+.926f,z+.38f),P(.42f,.026f,.56f),Quaternion.Euler(0,-12,0));
-                for(int i=0;i<7;i++)interior.Box(m.soot,P(x+.14f-i*.045f,y+.943f,z+.38f),P(.009f,.004f,.32f));
-                // Telegraph brass key and bell on an ebony plinth.
-                var t=P(x,y+.97f,z-.69f);
-                interior.Box(m.soot,t,P(.38f,.11f,.23f));
-                interior.Beam(m.bronze,t+P(-.13f,.09f,0),t+P(.12f,.12f,0),.032f,.043f);
-                interior.Ring(m.soot,t+P(.12f,.13f,0),t+P(.12f,.16f,0),.053f,.061f);
-                interior.Ring(m.bronze,t+P(-.13f,.07f,.07f),t+P(-.13f,.16f,.07f),.067f,.037f);
-                var lamp=P(x-.11f,y+.916f,z+.90f);
-                interior.Ring(m.bronze,lamp,lamp+Vector3.up*.045f,.139f,.11f);
-                interior.Ring(m.bronze,lamp+Vector3.up*.045f,lamp+Vector3.up*.34f,.028f,.023f);
-                interior.Beam(m.bronze,lamp+P(0,.34f,0),lamp+P(-.08f,.40f,0),.045f,.035f);
-                interior.Box(green,lamp+P(-.09f,.39f,0),P(.20f,.12f,.33f));
-                interior.Box(m.lamp,lamp+P(-.09f,.329f,0),P(.17f,.009f,.30f));
-                var warm=Child(house,"Ledger lamp",lamp+P(-.09f,.30f,0)).AddComponent<Light>();
-                warm.type=LightType.Point;warm.color=new Color(1,.80f,.52f);warm.range=2.3f;warm.intensity=.32f;
-                float cx=x-1;
-                foreach(float side in new[]{-.21f,.21f})
-                    foreach(float end in new[]{-.23f,.23f})
-                        interior.Box(m.wood,P(cx+side,y+.23f,z+end),P(.075f,.46f,.074f));
-                Solid(interior,m.oxblood,"Stationmaster chair",P(cx,y+.49f,z),P(.57f,.13f,.60f));
-                foreach(float dz in new[]{-.235f,.235f})
-                    interior.Box(m.wood,P(cx-.23f,y+.74f,z+dz),P(.065f,.63f,.071f));
-                interior.Box(m.oxblood,P(cx-.23f,y+.89f,z),P(.08f,.33f,.55f));
-                Box(house,"Chair back",P(cx-.23f,y+.87f,z),P(.08f,.40f,.55f));
-            }
             void ClockFace(float x,float y,float z)
             {
                 var centre=P(x,y,z);
@@ -404,13 +372,9 @@ namespace Winterbourne.Editor
                 centre+=Vector3.right*.075f;
                 interior.Ring(plaster,centre,centre+Vector3.right*.01f,.344f,.344f,48);
                 centre+=Vector3.right*.014f;
-                for(int i=0;i<12;i++)
-                {
-                    float a=i*Mathf.PI/6;
-                    var d=P(0,Mathf.Cos(a),Mathf.Sin(a));
-                    interior.Beam(m.soot,centre+d*.27f,centre+d*.312f,.014f,.019f);
-                }
-                interior.Beam(m.soot,centre,centre+P(0,.14f,-.1f),.021f,.019f);
+                ClockNumerals(centre);
+                centre+=Vector3.right*.005f;
+                interior.Beam(m.soot,centre,centre+P(0,.036f,-.188f),.021f,.019f);
                 interior.Beam(m.soot,centre,centre+P(0,.04f,.24f),.012f,.012f);
             }
             void Sign(Vector3 centre,float width,int row,bool positive=true)
@@ -425,33 +389,44 @@ namespace Winterbourne.Editor
                 Sign(P(1.80f,3.03f,0),3.65f,0);
                 Sign(P(.15f,2.79f,7.5f),2.15f,1);
                 Sign(P(.15f,2.79f,-7.5f),2.15f,2);
-                Sign(P(-6.29f,2.51f,6.25f),1.25f,4);
+                Sign(P(-6.23f,2.54f,6.25f),1.25f,4);
                 Sign(P(-3.95f,Upper+2.5f,-2.23f),1.69f,3);
                 Sign(P(-.17f,2.78f,7.5f),1.70f,5,false);
-                var centre=P(-8.855f,1.8f,-1.15f);
+                var centre=P(-.177f,1.97f,-.06f);
                 interior.Box(m.wood,centre,P(.047f,1.74f,1.36f));
-                var f=centre+Vector3.right*.026f;
-                var right=Vector3.forward*.627f;var up=Vector3.up*.806f;
-                interior.Quad(timetable,f-right-up,f+right-up,f+right+up,f-right+up,Vector3.right);
+                var f=centre-Vector3.right*.026f;
+                var right=Vector3.back*.627f;var up=Vector3.up*.806f;
+                interior.Quad(timetable,f-right-up,f+right-up,f+right+up,f-right+up,Vector3.left);
                 foreach(float level in new[]{0,Upper})
                     foreach(float z in new[]{-6.5f,0f,6.6f})
                     {
-                        var p=P(-3.47f,level+2.66f,z);
+                        bool overQueue=level==0 && z>6;
+                        var p=P(overQueue?-4.60f:-3.47f,level+2.66f,z);
                         interior.Ring(m.bronze,p+P(0,.06f,0),p+P(0,.59f,0),.022f,.027f);
                         interior.Ring(m.bronze,p+P(0,.02f,0),p+P(0,.17f,0),.19f,.071f);
                         interior.Ring(m.lamp,p-Vector3.up*.18f,p+Vector3.up*.025f,.162f,.17f,16);
-                        var l=Child(house,"Opal pendant",p-Vector3.up*.24f).AddComponent<Light>();
-                        l.type=LightType.Point;l.color=new Color(1,.79f,.53f);l.range=7f;l.intensity=1.5f;l.shadows=LightShadows.None;
+                        interior.Ring(m.bronze,p-Vector3.up*.185f,p-Vector3.up*.162f,.124f,.131f,24);
+                        var pool=overQueue ? P(-6.15f,.94f,6.07f) : p-Vector3.up*2.7f;
+                        TaskLight("Downward opal pendant",p-Vector3.up*.21f,pool,
+                            109f,5.9f,overQueue?4.2f:2.15f);
                     }
+                foreach(float doorZ in new[]{-7.5f,7.5f}) {
+                    var canopyLamp=P(.87f,2.97f,doorZ);
+                    shell.Ring(m.bronze,canopyLamp-P(0,.07f,0),canopyLamp,.121f,.073f);
+                    OpalGlobe(shell,canopyLamp-P(0,.07f,0),.11f);
+                    // A downward pool also catches the nameplate and the timber door jamb.
+                    TaskLight("Station entrance pool",canopyLamp-P(0,.18f,0),P(.05f,1.61f,doorZ),
+                        110f,4.8f,4.4f);
+                }
                 foreach(float z in new[]{-7.5f,0,7.5f})
                 {
                     Vector3 p=P(.96f,5.03f,z);
                     shell.Beam(m.pine,p-Vector3.right*.88f,p,.056f,.056f);
                     shell.Beam(m.pine,p-Vector3.right*.65f-Vector3.up*.25f,p,.041f,.041f);
                     shell.Ring(green,p+Vector3.up*.036f,p-Vector3.up*.11f,.065f,.21f);
-                    shell.Ring(m.lamp,p-Vector3.up*.18f,p-Vector3.up*.11f,.126f,.16f);
-                    var l=Child(house,"Platform wall lantern",p-Vector3.up*.20f).AddComponent<Light>();
-                    l.type=LightType.Point;l.color=new Color(1,.80f,.59f);l.intensity=2.6f;l.range=6f;
+                    OpalGlobe(shell,p-Vector3.up*.108f,.157f);
+                    TaskLight("Platform wall lantern",p-Vector3.up*.29f,p+P(-1.02f,-1.47f,0),
+                        111f,5.4f,3.0f);
                 }
             }
         }

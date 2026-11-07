@@ -124,7 +124,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951559
-    m_Localized: "Tab  \u80CC\u5305    \xB7    L  \u5149\u7EBF"
+    m_Localized: "Tab  \u80CC\u5305"
     m_Metadata:
       m_Items: []
   - m_Id: 1420951558
@@ -153,18 +153,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 1420951592
     m_Localized: "\u5CE1\u8C37\u8C37\u5E95"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1420951563
-    m_Localized: "\u9EC4\u660F"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1420951561
-    m_Localized: "\u767D\u663C"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1420951599
-    m_Localized: "\u6DF1\u591C"
     m_Metadata:
       m_Items: []
   - m_Id: 1420951564
@@ -284,18 +272,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 1416757250
     m_Localized: "F   \u62FE\u53D6"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1420951628
-    m_Localized: "\u96EA\u5C71\u9EC4\u660F"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1420951629
-    m_Localized: "\u98CE\u96EA\u767D\u663C"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1420951618
-    m_Localized: "\u66B4\u96EA\u6DF1\u591C"
     m_Metadata:
       m_Items: []
   - m_Id: 1420951626

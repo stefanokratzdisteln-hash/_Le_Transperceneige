@@ -30,6 +30,10 @@ namespace Winterbourne.Editor
             Bore();Viaduct();RiverAndRubble();Signals();
             var atmo=landscape.gameObject.AddComponent<PassAtmosphere>();
             atmo.sky=Create("North Fell sky","Winterbourne/Pass sky");
+            var clouds=AssetDatabase.LoadAssetAtPath<Texture2D>(Folder+"/Drifting cloud density.png");
+            PassBuild.Check(clouds && clouds.isReadable,"Moonlight needs the readable cloud cover used by the sky");
+            atmo.sky.SetTexture("_CloudDensity",clouds);
+            EditorUtility.SetDirty(atmo.sky);
             atmo.passengerEye=Camera.main;
             atmo.sun=RenderSettings.sun;
             if(!atmo.sun){
@@ -41,8 +45,7 @@ namespace Winterbourne.Editor
             if(atmo.passengerEye) {
                 atmo.passengerEye.clearFlags=CameraClearFlags.Skybox;atmo.passengerEye.farClipPlane=1650;
             }
-            RenderSettings.fog=true;RenderSettings.fogMode=FogMode.ExponentialSquared;
-            RenderSettings.fogColor=new Color(.66f,.66f,.72f);RenderSettings.fogDensity=.00112f;
+            atmo.SampleWeather(0,0);
             AssetDatabase.SaveAssets();
         }
 

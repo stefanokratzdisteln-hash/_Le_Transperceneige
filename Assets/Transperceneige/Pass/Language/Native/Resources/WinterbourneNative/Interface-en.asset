@@ -124,7 +124,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951559
-    m_Localized: "Tab  Inventory    \xB7    L  Lighting"
+    m_Localized: Tab  Inventory
     m_Metadata:
       m_Items: []
   - m_Id: 1420951558
@@ -153,18 +153,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 1420951592
     m_Localized: Gorge floor
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1420951563
-    m_Localized: Dusk
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1420951561
-    m_Localized: Daylight
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1420951599
-    m_Localized: Night
     m_Metadata:
       m_Items: []
   - m_Id: 1420951564
@@ -285,18 +273,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 1416757250
     m_Localized: 'F   Pick up '
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1420951628
-    m_Localized: Mountain dusk
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1420951629
-    m_Localized: Snowy daylight
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1420951618
-    m_Localized: Midnight blizzard
     m_Metadata:
       m_Items: []
   - m_Id: 1420951626

@@ -118,6 +118,18 @@ namespace Winterbourne.Editor
                 "Passenger must start in the bridge keeper's room");
             Check(route.stationGate.transform.position.y < 2.5f && route.stationSpawn.position.y < 2.5f,
                 "Fellbridge gate and arrival must be on the ground floor");
+            var weather=Object.FindAnyObjectByType<PassAtmosphere>();
+            Check(weather && weather.sky && weather.sun &&
+                weather.sky.GetTexture("_CloudDensity") is Texture2D cover && cover.isReadable,
+                "The moon and the landscape need the same readable cloud map");
+            var house=GameObject.Find("Fellbridge Station/Fellbridge station house").transform;
+            foreach(var name in new[]{"TicketDatingPress","ParcelsScale","WaitingRoomGrate","StationmasterDesk"}) {
+                var fitting=house.Find(name);
+                var renderer=fitting ? fitting.GetComponentInChildren<MeshRenderer>() : null;
+                Check(renderer && renderer.GetComponent<MeshFilter>().sharedMesh &&
+                    renderer.sharedMaterials.All(m => m && m.shader && m.shader.name!="Hidden/InternalErrorShader"),
+                    "Unresolved station fitting or finish: "+name);
+            }
             Check(route.CottageDoor && route.CottageDoor.kind==PassDoorKind.Cottage &&
                 !route.CottageDoor.transform.IsChildOf(route.consist), "Missing the exterior door of the bridge keeper's cottage");
             var document = Object.FindFirstObjectByType<UIDocument>();

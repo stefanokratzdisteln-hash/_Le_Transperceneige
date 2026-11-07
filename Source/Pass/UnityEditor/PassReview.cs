@@ -89,11 +89,6 @@ namespace Winterbourne.Editor
             for(int i=0;i<limit && journey.Phase!=target;i++) journey.Advance(.25f);
             PassBuild.Check(journey.Phase==target,"Expected "+target+" but reached "+journey.Phase+" at "+journey.Distance);
         }
-        static void Lighting(int mode)
-        {
-            for(int i=0;i<3 && journey.Lighting!=mode;i++)journey.CycleLighting();
-            atmosphere.Apply(mode,-eye.transform.position.z);
-        }
         static void Window(int view)
         {
             // Window bays in the actual cabin, occupied saloon and long side corridor.
@@ -104,7 +99,7 @@ namespace Winterbourne.Editor
             else{p=new Vector3(.72f,2.972f,3.74f);aim=new Vector3(4.0f,2.94f,4.12f);}
             eye.transform.position=cars[car-1].TransformPoint(p);
             Look(cars[car-1].TransformPoint(aim));
-            atmosphere.Apply(journey.Lighting,-eye.transform.position.z);
+            atmosphere.Apply(-eye.transform.position.z);
         }
         static int Photo(string name,bool deliver=true)
         {
@@ -148,13 +143,14 @@ namespace Winterbourne.Editor
         {
             for(int v=0;v<3;v++){
                 var fingerprints=new HashSet<int>();
-                for(int m=0;m<3;m++){
-                    Lighting(m); Window(v);
-                    fingerprints.Add(Photo(label+"-window"+v+"-weather"+m,false));
+                Window(v);
+                foreach(float seconds in new[]{0f,PassAtmosphere.CloudPeriod*.15f,PassAtmosphere.CloudPeriod*.5f}){
+                    atmosphere.SampleWeather(-eye.transform.position.z,seconds);
+                    fingerprints.Add(Photo(label+"-window"+v+"-cloud"+seconds,false));
                 }
-                if(label!="Tunnel") PassBuild.Check(fingerprints.Count==3,label+" window lighting unchanged for position "+v);
+                if(label!="Tunnel") PassBuild.Check(fingerprints.Count==3,label+" moonlight unchanged for window "+v);
             }
-            Lighting(0);
+            atmosphere.Apply(-eye.transform.position.z);
         }
         static IEnumerator WithInterface(string name)
         {
@@ -465,7 +461,7 @@ namespace Winterbourne.Editor
             var er=eye.transform.localRotation;
             var start=body.transform.localPosition;
             var sceneCameraOrientation=eye.transform.rotation;
-            atmosphere.Apply(0,-eye.transform.position.z);
+            atmosphere.Apply(-eye.transform.position.z);
             var warmupEnd=Time.realtimeSinceStartup+2.0f;
             while(Time.realtimeSinceStartup<warmupEnd || ShaderUtil.anythingCompiling)yield return null;
             for(int i=0;i<3;i++){Photo("Warmup-"+i,false);yield return null;}
@@ -473,13 +469,13 @@ namespace Winterbourne.Editor
             RideTo(162);
             PassBuild.Check((body.transform.localPosition-start).sqrMagnitude<.001f,"Passenger slid along moving carriage");
             WindowMatrix("Mountain");
-            foreach(var pair in new[]{("MountainDusk",0),("MountainDay",1),("MountainNight",2)}){
-                Lighting(pair.Item2); Window(0);
-                float weatherSettled=Time.time+.77f;while(Time.time<weatherSettled)yield return null;
-                Photo(pair.Item1);
-            }
-            RideTo(696); Lighting(0); Window(0);
-            PassBuild.Check(atmosphere.TunnelBlend>.9f,"Daylight still enabled in the middle of the bore");
+            Window(0);
+            atmosphere.SampleWeather(-eye.transform.position.z,0);
+            Photo("MountainMoonlight");
+            atmosphere.SampleWeather(-eye.transform.position.z,PassAtmosphere.CloudPeriod*.5f);
+            Photo("MountainCloudCover");
+            RideTo(696); Window(0);
+            PassBuild.Check(atmosphere.TunnelBlend>.9f,"Exterior lighting still enabled in the middle of the bore");
             Photo("Tunnel"); WindowMatrix("Tunnel");
             eye.transform.localPosition=ep; eye.transform.localRotation=er;
             RideTo(PassJourney.Stop);
@@ -512,7 +508,7 @@ namespace Winterbourne.Editor
             At(journey.escapeLaunch.position-Vector3.forward*.9f);HomeEye();
             PassBuild.Check(!journey.TryDoor(rear),"Tail door unlocked before bridge entry");
             RideTo(1555); eye.transform.position=cars[6].TransformPoint(new Vector3(.99f,2.98f,3.75f)); Look(eye.transform.position+new Vector3(3.90f,-1.05f,-2.23f)); Photo("Gorge");
-            RideTo(1740); Lighting(0); eye.transform.position=cars[6].TransformPoint(new Vector3(-1.18f,3.03f,-5.13f)); Look(eye.transform.position+new Vector3(-2.40f,-1.51f,-3.33f)); Photo("Viaduct");WindowMatrix("Viaduct");HomeEye();
+            RideTo(1740); eye.transform.position=cars[6].TransformPoint(new Vector3(-1.18f,3.03f,-5.13f)); Look(eye.transform.position+new Vector3(-2.40f,-1.51f,-3.33f)); Photo("Viaduct");WindowMatrix("Viaduct");HomeEye();
             var jump=JumpFromRear();while(jump.MoveNext())yield return null;
             PassBuild.Check(!journey.TryDeployParachute(),"Opened a canopy without collecting the pack in van 09");
             AdvanceTo(JourneyPhase.Fell);

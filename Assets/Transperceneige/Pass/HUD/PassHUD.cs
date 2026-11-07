@@ -15,7 +15,6 @@ namespace Winterbourne.Pass
         Label place,mileage,task,message,reason,result,capacity,help;
         readonly VisualElement[] tiles=new VisualElement[12];
         readonly VisualElement[] glyphs=new VisualElement[12];
-        static readonly string[] Skies={"dusk","day","night"};
         VisualElement root,roomActions,titleScreen,kit,vitals,healthFill,runBoard;
         Label shortcuts,healthNumber,bagValue,runClock,runTarget,settlement,settledValue;
         VisualElement deployPrompt;
@@ -270,7 +269,6 @@ namespace Winterbourne.Pass
             string area=at<480?"mountain":at<780?"tunnel":at<1110?"fellbridge":at<1400?"gorge":"viaduct";
             place.text=Get(hub?"hub.name":journey.AtLanding?"landing.name":area);
             mileage.text=$"{journey.Distance/1000:0.000} / 2.120 km";
-            mileage.tooltip=Get(Skies[journey.Lighting]);
             Show(mileage,!hub&&!journey.AtLanding);
             float cold=journey.Phase==JourneyPhase.Frozen?1:journey.Phase==JourneyPhase.Freezing?
                 Mathf.Clamp01(1-journey.ColdSeconds/8):0;

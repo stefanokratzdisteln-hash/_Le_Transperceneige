@@ -117,7 +117,7 @@ namespace Winterbourne.Editor
                 f.Box(m.lamp,PlatformPoint(x+.33f,2.043f,s),new Vector3(.066f,.014f,.423f));
                 var glow=Child(parent,"Nameboard downlight",PlatformPoint(x+.37f,2.03f,s)).AddComponent<Light>();
                 glow.type=LightType.Spot;glow.color=new Color(1f,.84f,.64f);
-                glow.range=3.5f;glow.intensity=1.12f;glow.spotAngle=128f;glow.innerSpotAngle=85f;
+                glow.range=3.5f;glow.intensity=1.74f;glow.spotAngle=128f;glow.innerSpotAngle=85f;
                 glow.transform.rotation=Quaternion.LookRotation(new Vector3(-.31f,-.45f,0));
                 glow.shadows=LightShadows.None;
             }
@@ -214,6 +214,15 @@ namespace Winterbourne.Editor
                 g.Box(m.khaki,new Vector3(xBack+.138f,1.73f,z),new Vector3(.013f,.839f,.648f));
                 for(int j=0;j<10;j++)
                     g.Box(m.soot,new Vector3(xBack+.147f,1.446f+j*.056f,z),new Vector3(.006f,.010f,.485f));
+            }
+            foreach(float bay in new[]{-.24f,.24f}) {
+                var p=new Vector3(.27f,2.72f,length*bay);
+                g.Ring(m.bronze,p-Vector3.up*.11f,p,.156f,.062f);
+                g.Ring(m.lamp,p-Vector3.up*.17f,p-Vector3.up*.11f,.078f,.136f,16);
+                var l=Child(root,"Shelter reading lamp",p-Vector3.up*.18f).AddComponent<Light>();
+                l.transform.localRotation=Quaternion.LookRotation(new Vector3(-.29f,-1f,0));
+                l.type=LightType.Spot;l.color=new Color(1f,.79f,.56f);
+                l.spotAngle=116;l.innerSpotAngle=74;l.intensity=2.8f;l.range=5.3f;
             }
             g.Finish(root,name+" kit");
         }

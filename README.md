@@ -21,7 +21,7 @@
 | F、Tab／B | F 拾取物品，Tab 或 B 展开或收起八格背包。底部常显前四格；打开背包后依次点两格可以换位。 |
 | 空格 | 跳跃。从过道朝 06 号餐桌移动，同时按空格可以跳上桌面。掉到站台下时，面向站台边缘按空格攀回去。在 09 号尾台按空格跃出，松开后在空中**再按一次空格开伞**，用 **WASD** 控制滑翔方向。 |
 | 左／右 Ctrl | 按一下蹲下，再按一下站起。上方空间不足时保持蹲姿。 |
-| L、R | L 在雪山黄昏、风雪白昼、暴雪深夜间切换。结局画面按 R 从最近的检查点重试。 |
+| R | 在结局画面从最近的检查点重试。 |
 
 **03 号备品车和 09 号行李车**内设有通向车顶的梯子。走进 03 号的 **WORKSHOP** 工具间或 09 号的 **GUARD** 值班室，回头看门洞旁的铁梯。对准梯子按 **E** 爬上车顶，回到舱口按 **E** 下梯。车顶接近隧道时会出现提示。请在自己所在的车厢进洞前按 **Ctrl** 蹲下，等这节车驶出洞口再站起。站着撞上隧道顶会死亡，可以按 **R** 重试。
 
@@ -29,11 +29,15 @@
 
 列车沿 2.12 公里线路行驶。穿过 300 米长的山体隧道后，列车在 Fellbridge 的 190 米站台停靠 **2 分钟**，最后 **15 秒**鸣哨。发车时若还在站上，先靠近任意一扇仍在站台边的门，**按 E 开门，按住 Shift 追平，按空格斜跳进门洞**。车门逐扇驶离站台后上锁，09 号亮灯侧踏板是最后的登车机会。留在站台错过最后一节车会失温。
 
-站台后方的两层站长楼设有售票厅、行李间和楼上的办公室。一楼传送门可回桥下小屋，列车继续计时，背包和整局倒计时随行。只要车尾仍在站台旁，穿回小屋的门即可返回站长楼追车。若列车已离开，小屋里会显示误车提醒，可选 **End Game / 结束游戏** 回开始画面。
+站台后方的两层站房设在 **1935–1936 年冬季**。售票员从目的地票格取出编号硬卡票，在柜边的小压印机上盖好日期，再从木窗下递给旅客。行包间在侧门旁称重、系签、上架。上楼到值班桌前能看见职工时刻表和窗外列车。Fellbridge 使用虚构的 North Fell Railway 站名与印件，美术参考包括按 1937 年面貌复原的 Pickering、Haltwhistle 保存的售票隔墙、Chesterfield Central 的日期压印机，以及英国北部保存的候车室与行包秤。[Pickering 年代说明](https://www.nymr.co.uk/about/non-profit-organisation/) · [Haltwhistle 售票厅](https://tvcrp.org.uk/tvcrp-projects/378-bookinghall) · [日期压印机](https://collection.sciencemuseumgroup.org.uk/objects/co209722/ticket-dating-press-london-north-eastern-railway) · [Monkwearmouth 候车室](https://historicengland.org.uk/listing/the-list/list-entry/1209029) · [行包秤](https://www.nymr.co.uk/plan-your-visit/our-heritage-stations/pickering-station/pickering-station-trail/)
+
+站房一楼的书柜可回桥下小屋，列车继续计时，背包和整局倒计时随行。只要车尾仍在站台旁，就能通过小屋书柜返回站长楼追车。若列车已离开，小屋里可选 **End Game / 结束游戏** 回开始画面。
 
 在 **09 号行李车靠值班室的低层架子**上可以找到帆布跳伞包。上桥后，列车以约 6 米/秒驶向已炸断的桥跨，预警时间约 **120 秒**。等车尾悬在峡谷上方，到朝后的尾门按 E 开门，再到尾部平台按空格跳伞。伞包放在八格中的任一格都可使用。**松开空格，在空中再按一次空格开伞，用 WASD 调整滑翔方向。** 未开伞直落或开伞过晚，落地时会按撞击速度扣血，生命值归零即死亡。安全着陆后可穿过落点旁的书柜，也可沿雪地走到小屋窗旁亮着灯的入口，按 **E** 开门进屋结算。停站前及上桥前自动记录检查点。
 
-[桥下阅览室](Previews/Pass/KeepersRoom.png) · [站长楼售票厅](Previews/Pass/FellbridgeBookingHall.png) · [二楼办公室](Previews/Pass/FellbridgeDutyRoom.png) · [二楼窗景](Previews/Pass/FellbridgeDutyWindow.png) · [卧铺窗外的黄昏](Previews/Pass/MountainDusk.png) · [白昼](Previews/Pass/MountainDay.png) · [深夜](Previews/Pass/MountainNight.png) · [山体隧道](Previews/Pass/Tunnel.png) · [站台](Previews/Pass/Platform.png) · [高架桥](Previews/Pass/Viaduct.png) · [断口](Previews/Pass/BrokenSpan.png)
+从小屋到峡谷谷底，列车行驶在同一个有流云的雪夜。07 号床边的月盘、雪坡与车顶受同一层云遮挡。车厢桌灯和站台暖灯在厚云经过时仍然亮着。实录前 38 秒从卧铺看雪岭，后 38 秒从站台看夜班站房。[Unity 月光实录](Previews/Pass/WinterbourneMoonlight.mp4) · [售票厅](Previews/Pass/FellbridgeBookingHall.png) · [候车室壁炉](Previews/Pass/FellbridgeHearth.png) · [二楼办公室](Previews/Pass/FellbridgeDutyRoom.png) · [站长室窗景](Previews/Pass/FellbridgeDutyWindow.png)
+
+[售票窗与日期压印机](Previews/Pass/FellbridgeTicketWindow.png) · [行包间与机械秤](Previews/Pass/FellbridgeParcelsRoom.png) · [四件站房器物的可编辑 Blender 源文件](Source/Pass/FellbridgeHeritage.blend)
 
 窗景、机关和补给都能在该场景中编辑。移动 09 号车内的 `ParachutePack` 对象即可调整拾取点。重建关卡时，将 [Pass 编辑器脚本](Source/Pass/UnityEditor) 和编组编辑器脚本一起放入 URP 工程的 `Assets/Editor`，依次执行 `Winterbourne.Editor.PassBuild.Build` 和 `Winterbourne.Editor.PassBuild.Export`，并传入 `-formationRoot "<仓库绝对路径>"`。
 
