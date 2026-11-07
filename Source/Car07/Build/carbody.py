@@ -123,7 +123,7 @@ def _curtain(g, group, side, x, handed, fullness):
           (center-handed*.051, side*1.410, 2.778), .004, 6)
 
 
-def _cabin(g, group, side, wing, i):
+def _cabin(g, group, side, wing, i, window_desks, curtains):
     x = wing * (2.37 + i * 1.38)
     z = 2.98
     tile = _rounded(x,z,1.38,1.12,.004)
@@ -153,19 +153,21 @@ def _cabin(g, group, side, wing, i):
     # The petite transom and curtain rail leave a clear line of sight.
     for offset in (-.220,.220):
         g.box(group,'gilt',(x+offset,side*1.495,3.290),(.013,.023,.096),.003)
-    for dx in (-.545,.545):
-        g.cyl(interior_group,'gilt',(x+dx,side*1.43,3.372),(x+dx,side*1.385,3.372),.018,12)
-    g.cyl(interior_group,'gilt',(x-.567,side*1.385,3.372),(x+.567,side*1.385,3.372),.013,12)
-    for handed in (-1,1):
-        fullness = .82 + .075*((i+wing+side+handed)%4)
-        if side < 0:
-            fullness *= .55
-        _curtain(g,interior_group,side,x,handed,fullness)
-        for finger in (0,.45,.9):
-            eye_x = x+handed*(.492-.252*fullness*finger)
-            g.cyl(interior_group,'gilt',(eye_x,side*1.385,3.343),(eye_x,side*1.385,3.377),.006,8)
+    dressed=curtains(side,wing,i) if callable(curtains) else curtains
+    if dressed:
+        for dx in (-.545,.545):
+            g.cyl(interior_group,'gilt',(x+dx,side*1.43,3.372),(x+dx,side*1.385,3.372),.018,12)
+        g.cyl(interior_group,'gilt',(x-.567,side*1.385,3.372),(x+.567,side*1.385,3.372),.013,12)
+        for handed in (-1,1):
+            fullness = .82 + .075*((i+wing+side+handed)%4)
+            if side < 0:
+                fullness *= .55
+            _curtain(g,interior_group,side,x,handed,fullness)
+            for finger in (0,.45,.9):
+                eye_x = x+handed*(.492-.252*fullness*finger)
+                g.cyl(interior_group,'gilt',(eye_x,side*1.385,3.343),(eye_x,side*1.385,3.377),.006,8)
 
-    if side > 0 and i in (1,3):
+    if window_desks and side > 0 and i in (1,3):
         furniture = 'Interior_Window_desks'
         # The shallow writing shelf projects into the actual compartment.
         # Its two turned, wall-mounted brackets leave the floor unobstructed.
@@ -268,7 +270,7 @@ def _door(g,side,wing,name):
                  [(.13,.65,.63,.44),(.29,.93,1,.31),(.50,1,.84,.35),(.73,.58,.48,.21)])
 
 
-def _cladding(g,side,wing,group):
+def _cladding(g,side,wing,group,window_desks,curtains):
     def box(mat,x,depth,z,width,thickness,height,bevel=0):
         g.box(group,mat,(wing*x,side*depth,z),(width,thickness,height),bevel)
     start,stop = 1.68,7.405
@@ -290,7 +292,7 @@ def _cladding(g,side,wing,group):
         for i in range(4):
             _framed_panel(g,group,side,-(2.37+1.38*i),1.918,1.246,.654,1.556)
     for i in range(4):
-        _cabin(g,'Cabin_windows_'+('Port' if side<0 else 'Starboard'),side,wing,i)
+        _cabin(g,'Cabin_windows_'+('Port' if side<0 else 'Starboard'),side,wing,i,window_desks,curtains)
 
 
 def _inner_panelling(g,side):
@@ -347,7 +349,7 @@ def _inner_panelling(g,side):
         _plate(g,group,'wallcloth',-side,-1.425,inner)
 
 
-def build(g):
+def build(g, *, window_desks=True, curtains=True):
     g.box('Floorpan','dark',(0,0,1.326),(18.0,2.991,.092),.025)
     for side in (-1,1):
         flank = 'Port' if side == -1 else 'Starboard'
@@ -358,7 +360,7 @@ def build(g):
         g.box(group,'gilt',(0,side*1.570,1.482),(3.36,.008,.012),.002)
         g.box(group,'gilt',(0,side*1.563,1.354),(3.36,.015,.018),.004)
         for wing in (-1,1):
-            _cladding(g,side,wing,group)
+            _cladding(g,side,wing,group,window_desks,curtains)
             _door(g,side,wing,flank+('_A' if wing<0 else '_B'))
             for dx,line in ((1.618,.019),(1.577,.009)):
                 g.box(group,'gilt',(wing*dx,side*1.559,2.89),(line,.012,1.544),.002)

@@ -1,0 +1,1002 @@
+{
+  "number": 4,
+  "title": "Compartment carriage",
+  "socketA": -9.83,
+  "socketB": 9.83,
+  "boxes": [
+    {
+      "name": "Coach floor",
+      "parent": "",
+      "center": [
+        0,
+        1.329,
+        0
+      ],
+      "size": [
+        2.96,
+        0.102,
+        18.02
+      ]
+    },
+    {
+      "name": "Side Port",
+      "parent": "",
+      "center": [
+        1.473,
+        2.48,
+        0
+      ],
+      "size": [
+        0.082,
+        2.21,
+        18.0
+      ]
+    },
+    {
+      "name": "Side Starboard",
+      "parent": "",
+      "center": [
+        -1.473,
+        2.48,
+        0
+      ],
+      "size": [
+        0.082,
+        2.21,
+        18.0
+      ]
+    },
+    {
+      "name": "Coach ceiling",
+      "parent": "",
+      "center": [
+        0,
+        3.686,
+        0
+      ],
+      "size": [
+        2.91,
+        0.1,
+        18.0
+      ]
+    },
+    {
+      "name": "A bulkhead -1",
+      "parent": "",
+      "center": [
+        1.055,
+        2.47,
+        -8.994
+      ],
+      "size": [
+        0.76,
+        2.16,
+        0.11
+      ]
+    },
+    {
+      "name": "A bellows -1",
+      "parent": "",
+      "center": [
+        0.708,
+        2.43,
+        -9.35
+      ],
+      "size": [
+        0.11,
+        2.11,
+        0.65
+      ]
+    },
+    {
+      "name": "A bulkhead 1",
+      "parent": "",
+      "center": [
+        -1.055,
+        2.47,
+        -8.994
+      ],
+      "size": [
+        0.76,
+        2.16,
+        0.11
+      ]
+    },
+    {
+      "name": "A bellows 1",
+      "parent": "",
+      "center": [
+        -0.708,
+        2.43,
+        -9.35
+      ],
+      "size": [
+        0.11,
+        2.11,
+        0.65
+      ]
+    },
+    {
+      "name": "Connection A",
+      "parent": "",
+      "center": [
+        0,
+        1.362,
+        -9.34
+      ],
+      "size": [
+        1.275,
+        0.057,
+        0.98
+      ]
+    },
+    {
+      "name": "Open end leaf A",
+      "parent": "EndDoor_A",
+      "center": [
+        -0.68,
+        2.43,
+        -8.335
+      ],
+      "size": [
+        0.076,
+        2.06,
+        1.15
+      ]
+    },
+    {
+      "name": "B bulkhead -1",
+      "parent": "",
+      "center": [
+        1.055,
+        2.47,
+        8.994
+      ],
+      "size": [
+        0.76,
+        2.16,
+        0.11
+      ]
+    },
+    {
+      "name": "B bellows -1",
+      "parent": "",
+      "center": [
+        0.708,
+        2.43,
+        9.35
+      ],
+      "size": [
+        0.11,
+        2.11,
+        0.65
+      ]
+    },
+    {
+      "name": "B bulkhead 1",
+      "parent": "",
+      "center": [
+        -1.055,
+        2.47,
+        8.994
+      ],
+      "size": [
+        0.76,
+        2.16,
+        0.11
+      ]
+    },
+    {
+      "name": "B bellows 1",
+      "parent": "",
+      "center": [
+        -0.708,
+        2.43,
+        9.35
+      ],
+      "size": [
+        0.11,
+        2.11,
+        0.65
+      ]
+    },
+    {
+      "name": "Connection B",
+      "parent": "",
+      "center": [
+        0,
+        1.362,
+        9.34
+      ],
+      "size": [
+        1.275,
+        0.057,
+        0.98
+      ]
+    },
+    {
+      "name": "Open end leaf B",
+      "parent": "EndDoor_B",
+      "center": [
+        -0.68,
+        2.43,
+        8.335
+      ],
+      "size": [
+        0.076,
+        2.06,
+        1.15
+      ]
+    },
+    {
+      "name": "Passenger_bulkhead_0_Wall",
+      "parent": "",
+      "center": [
+        -0.535,
+        2.496,
+        -7.16
+      ],
+      "size": [
+        1.814,
+        2.2279999999999998,
+        0.075
+      ]
+    },
+    {
+      "name": "Passenger_bulkhead_1_Wall",
+      "parent": "",
+      "center": [
+        -0.535,
+        2.496,
+        -3.58
+      ],
+      "size": [
+        1.814,
+        2.2279999999999998,
+        0.075
+      ]
+    },
+    {
+      "name": "Passenger_bulkhead_2_Wall",
+      "parent": "",
+      "center": [
+        -0.535,
+        2.496,
+        0.0
+      ],
+      "size": [
+        1.814,
+        2.2279999999999998,
+        0.075
+      ]
+    },
+    {
+      "name": "Passenger_bulkhead_3_Wall",
+      "parent": "",
+      "center": [
+        -0.535,
+        2.496,
+        3.58
+      ],
+      "size": [
+        1.814,
+        2.2279999999999998,
+        0.075
+      ]
+    },
+    {
+      "name": "Passenger_bulkhead_4_Wall",
+      "parent": "",
+      "center": [
+        -0.535,
+        2.496,
+        7.16
+      ],
+      "size": [
+        1.814,
+        2.2279999999999998,
+        0.075
+      ]
+    },
+    {
+      "name": "Drawing_compartment_1_Front_Left",
+      "parent": "",
+      "center": [
+        0.368,
+        2.496,
+        -6.50375
+      ],
+      "size": [
+        0.079,
+        2.2279999999999998,
+        1.3125
+      ]
+    },
+    {
+      "name": "Drawing_compartment_1_Front_Right",
+      "parent": "",
+      "center": [
+        0.368,
+        2.496,
+        -4.23625
+      ],
+      "size": [
+        0.079,
+        2.2279999999999998,
+        1.3125
+      ]
+    },
+    {
+      "name": "Drawing_compartment_1_Lintel",
+      "parent": "",
+      "center": [
+        0.368,
+        3.489,
+        -5.37
+      ],
+      "size": [
+        0.1,
+        0.242,
+        0.955
+      ]
+    },
+    {
+      "name": "DrawingRoomDoor_01 leaf",
+      "parent": "DrawingRoomDoor_01",
+      "center": [
+        0.454,
+        2.387,
+        -6.352
+      ],
+      "size": [
+        0.049,
+        1.984,
+        0.971
+      ]
+    },
+    {
+      "name": "Drawing_compartment_1_Settee_-1",
+      "parent": "",
+      "center": [
+        -0.535,
+        1.969,
+        -6.689
+      ],
+      "size": [
+        1.745,
+        1.174,
+        0.604
+      ]
+    },
+    {
+      "name": "Drawing_compartment_1_Settee_1",
+      "parent": "",
+      "center": [
+        -0.535,
+        1.969,
+        -4.051
+      ],
+      "size": [
+        1.745,
+        1.174,
+        0.604
+      ]
+    },
+    {
+      "name": "Drawing_compartment_1_Writing_table",
+      "parent": "",
+      "center": [
+        -1.225,
+        2.237,
+        -5.37
+      ],
+      "size": [
+        0.396,
+        0.055,
+        0.695
+      ]
+    },
+    {
+      "name": "Drawing_compartment_2_Front_Left",
+      "parent": "",
+      "center": [
+        0.368,
+        2.496,
+        -2.92375
+      ],
+      "size": [
+        0.079,
+        2.2279999999999998,
+        1.3125
+      ]
+    },
+    {
+      "name": "Drawing_compartment_2_Front_Right",
+      "parent": "",
+      "center": [
+        0.368,
+        2.496,
+        -0.65625
+      ],
+      "size": [
+        0.079,
+        2.2279999999999998,
+        1.3125
+      ]
+    },
+    {
+      "name": "Drawing_compartment_2_Lintel",
+      "parent": "",
+      "center": [
+        0.368,
+        3.489,
+        -1.79
+      ],
+      "size": [
+        0.1,
+        0.242,
+        0.955
+      ]
+    },
+    {
+      "name": "DrawingRoomDoor_02 leaf",
+      "parent": "DrawingRoomDoor_02",
+      "center": [
+        0.454,
+        2.387,
+        -2.7720000000000002
+      ],
+      "size": [
+        0.049,
+        1.984,
+        0.971
+      ]
+    },
+    {
+      "name": "Drawing_compartment_2_Settee_-1",
+      "parent": "",
+      "center": [
+        -0.535,
+        1.969,
+        -3.109
+      ],
+      "size": [
+        1.745,
+        1.174,
+        0.604
+      ]
+    },
+    {
+      "name": "Drawing_compartment_2_Settee_1",
+      "parent": "",
+      "center": [
+        -0.535,
+        1.969,
+        -0.471
+      ],
+      "size": [
+        1.745,
+        1.174,
+        0.604
+      ]
+    },
+    {
+      "name": "Drawing_compartment_2_Writing_table",
+      "parent": "",
+      "center": [
+        -1.225,
+        2.237,
+        -1.79
+      ],
+      "size": [
+        0.396,
+        0.055,
+        0.695
+      ]
+    },
+    {
+      "name": "Drawing_compartment_3_Front_Left",
+      "parent": "",
+      "center": [
+        0.368,
+        2.496,
+        0.65625
+      ],
+      "size": [
+        0.079,
+        2.2279999999999998,
+        1.3125
+      ]
+    },
+    {
+      "name": "Drawing_compartment_3_Front_Right",
+      "parent": "",
+      "center": [
+        0.368,
+        2.496,
+        2.92375
+      ],
+      "size": [
+        0.079,
+        2.2279999999999998,
+        1.3125
+      ]
+    },
+    {
+      "name": "Drawing_compartment_3_Lintel",
+      "parent": "",
+      "center": [
+        0.368,
+        3.489,
+        1.79
+      ],
+      "size": [
+        0.1,
+        0.242,
+        0.955
+      ]
+    },
+    {
+      "name": "DrawingRoomDoor_03 leaf",
+      "parent": "DrawingRoomDoor_03",
+      "center": [
+        0.454,
+        2.387,
+        0.808
+      ],
+      "size": [
+        0.049,
+        1.984,
+        0.971
+      ]
+    },
+    {
+      "name": "Drawing_compartment_3_Settee_-1",
+      "parent": "",
+      "center": [
+        -0.535,
+        1.969,
+        0.471
+      ],
+      "size": [
+        1.745,
+        1.174,
+        0.604
+      ]
+    },
+    {
+      "name": "Drawing_compartment_3_Settee_1",
+      "parent": "",
+      "center": [
+        -0.535,
+        1.969,
+        3.109
+      ],
+      "size": [
+        1.745,
+        1.174,
+        0.604
+      ]
+    },
+    {
+      "name": "Drawing_compartment_3_Writing_table",
+      "parent": "",
+      "center": [
+        -1.225,
+        2.237,
+        1.79
+      ],
+      "size": [
+        0.396,
+        0.055,
+        0.695
+      ]
+    },
+    {
+      "name": "Drawing_compartment_4_Front_Left",
+      "parent": "",
+      "center": [
+        0.368,
+        2.496,
+        4.23625
+      ],
+      "size": [
+        0.079,
+        2.2279999999999998,
+        1.3125
+      ]
+    },
+    {
+      "name": "Drawing_compartment_4_Front_Right",
+      "parent": "",
+      "center": [
+        0.368,
+        2.496,
+        6.50375
+      ],
+      "size": [
+        0.079,
+        2.2279999999999998,
+        1.3125
+      ]
+    },
+    {
+      "name": "Drawing_compartment_4_Lintel",
+      "parent": "",
+      "center": [
+        0.368,
+        3.489,
+        5.37
+      ],
+      "size": [
+        0.1,
+        0.242,
+        0.955
+      ]
+    },
+    {
+      "name": "DrawingRoomDoor_04 leaf",
+      "parent": "DrawingRoomDoor_04",
+      "center": [
+        0.454,
+        2.387,
+        4.388
+      ],
+      "size": [
+        0.049,
+        1.984,
+        0.971
+      ]
+    },
+    {
+      "name": "Drawing_compartment_4_Settee_-1",
+      "parent": "",
+      "center": [
+        -0.535,
+        1.969,
+        4.051
+      ],
+      "size": [
+        1.745,
+        1.174,
+        0.604
+      ]
+    },
+    {
+      "name": "Drawing_compartment_4_Settee_1",
+      "parent": "",
+      "center": [
+        -0.535,
+        1.969,
+        6.689
+      ],
+      "size": [
+        1.745,
+        1.174,
+        0.604
+      ]
+    },
+    {
+      "name": "Drawing_compartment_4_Writing_table",
+      "parent": "",
+      "center": [
+        -1.225,
+        2.237,
+        5.37
+      ],
+      "size": [
+        0.396,
+        0.055,
+        0.695
+      ]
+    }
+  ],
+  "doors": [
+    {
+      "name": "DrawingRoomDoor_01",
+      "closedOffset": [
+        0,
+        0,
+        0.982
+      ]
+    },
+    {
+      "name": "DrawingRoomDoor_02",
+      "closedOffset": [
+        0,
+        0,
+        0.982
+      ]
+    },
+    {
+      "name": "DrawingRoomDoor_03",
+      "closedOffset": [
+        0,
+        0,
+        0.982
+      ]
+    },
+    {
+      "name": "DrawingRoomDoor_04",
+      "closedOffset": [
+        0,
+        0,
+        0.982
+      ]
+    }
+  ],
+  "lights": [
+    {
+      "name": "Vestibule ceiling A",
+      "center": [
+        0,
+        3.37,
+        -8.05
+      ],
+      "color": [
+        1,
+        0.77,
+        0.53
+      ],
+      "range": 3,
+      "intensity": 0.924
+    },
+    {
+      "name": "Vestibule ceiling B",
+      "center": [
+        0,
+        3.37,
+        8.05
+      ],
+      "color": [
+        1,
+        0.77,
+        0.53
+      ],
+      "range": 3,
+      "intensity": 0.924
+    },
+    {
+      "name": "Drawing-room light 1",
+      "center": [
+        -0.525,
+        3.3080000000000003,
+        -5.37
+      ],
+      "color": [
+        1,
+        0.81,
+        0.61
+      ],
+      "range": 3.6,
+      "intensity": 2.97
+    },
+    {
+      "name": "Drawing-room light 2",
+      "center": [
+        -0.525,
+        3.3080000000000003,
+        -1.79
+      ],
+      "color": [
+        1,
+        0.81,
+        0.61
+      ],
+      "range": 3.6,
+      "intensity": 2.97
+    },
+    {
+      "name": "Drawing-room light 3",
+      "center": [
+        -0.525,
+        3.3080000000000003,
+        1.79
+      ],
+      "color": [
+        1,
+        0.81,
+        0.61
+      ],
+      "range": 3.6,
+      "intensity": 2.97
+    },
+    {
+      "name": "Drawing-room light 4",
+      "center": [
+        -0.525,
+        3.3080000000000003,
+        5.37
+      ],
+      "color": [
+        1,
+        0.81,
+        0.61
+      ],
+      "range": 3.6,
+      "intensity": 2.97
+    },
+    {
+      "name": "Corridor light 1",
+      "center": [
+        0.917,
+        3.309,
+        -5.4
+      ],
+      "color": [
+        1,
+        0.81,
+        0.61
+      ],
+      "range": 3.1,
+      "intensity": 1.518
+    },
+    {
+      "name": "Corridor light 2",
+      "center": [
+        0.917,
+        3.309,
+        -1.8
+      ],
+      "color": [
+        1,
+        0.81,
+        0.61
+      ],
+      "range": 3.1,
+      "intensity": 1.518
+    },
+    {
+      "name": "Corridor light 3",
+      "center": [
+        0.917,
+        3.309,
+        1.8
+      ],
+      "color": [
+        1,
+        0.81,
+        0.61
+      ],
+      "range": 3.1,
+      "intensity": 1.518
+    },
+    {
+      "name": "Corridor light 4",
+      "center": [
+        0.917,
+        3.309,
+        5.4
+      ],
+      "color": [
+        1,
+        0.81,
+        0.61
+      ],
+      "range": 3.1,
+      "intensity": 1.518
+    }
+  ],
+  "routes": [
+    {
+      "name": "Enter drawing room 1",
+      "points": [
+        {
+          "x": 0.904,
+          "y": 1.395,
+          "z": -5.37
+        },
+        {
+          "x": -0.2,
+          "y": 1.395,
+          "z": -5.37
+        },
+        {
+          "x": -0.7,
+          "y": 1.395,
+          "z": -5.37
+        }
+      ]
+    },
+    {
+      "name": "Enter drawing room 2",
+      "points": [
+        {
+          "x": 0.904,
+          "y": 1.395,
+          "z": -1.79
+        },
+        {
+          "x": -0.2,
+          "y": 1.395,
+          "z": -1.79
+        },
+        {
+          "x": -0.7,
+          "y": 1.395,
+          "z": -1.79
+        }
+      ]
+    },
+    {
+      "name": "Enter drawing room 3",
+      "points": [
+        {
+          "x": 0.904,
+          "y": 1.395,
+          "z": 1.79
+        },
+        {
+          "x": -0.2,
+          "y": 1.395,
+          "z": 1.79
+        },
+        {
+          "x": -0.7,
+          "y": 1.395,
+          "z": 1.79
+        }
+      ]
+    },
+    {
+      "name": "Enter drawing room 4",
+      "points": [
+        {
+          "x": 0.904,
+          "y": 1.395,
+          "z": 5.37
+        },
+        {
+          "x": -0.2,
+          "y": 1.395,
+          "z": 5.37
+        },
+        {
+          "x": -0.7,
+          "y": 1.395,
+          "z": 5.37
+        }
+      ]
+    },
+    {
+      "name": "Side corridor",
+      "points": [
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": -8.76
+        },
+        {
+          "x": 0.9,
+          "y": 1.395,
+          "z": -7.81
+        },
+        {
+          "x": 0.9,
+          "y": 1.395,
+          "z": 7.79
+        },
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": 8.76
+        }
+      ]
+    }
+  ],
+  "view": {
+    "position": [
+      0.266,
+      2.979,
+      -5.37
+    ],
+    "target": [
+      -0.923,
+      2.349,
+      -6.57
+    ],
+    "lens": 19
+  },
+  "meshes": 81,
+  "triangles": 190979
+}

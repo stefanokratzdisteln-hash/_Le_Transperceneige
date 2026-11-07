@@ -57,8 +57,9 @@ def make_material(folder):
     return mat
 
 
-def build(collection,folder):
-    mat = make_material(folder)
+def build(collection,folder,mat=None):
+    if mat is None:
+        mat = make_material(folder)
     result = []
     for side, suffix in [(-1,'Port'),(1,'Starboard')]:
         verts,faces,coords = [],[],[]

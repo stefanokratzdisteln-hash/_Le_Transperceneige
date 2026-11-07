@@ -1,0 +1,232 @@
+{
+  "number": 1,
+  "title": "North Fell Pacific",
+  "socketA": -6.9,
+  "socketB": 6.9,
+  "boxes": [
+    {
+      "name": "Boiler_and_smokebox",
+      "parent": "",
+      "center": [
+        0,
+        2.71,
+        -1.19
+      ],
+      "size": [
+        1.68,
+        1.68,
+        9.45
+      ]
+    },
+    {
+      "name": "Front_frames",
+      "parent": "",
+      "center": [
+        0,
+        0.99,
+        -1.46
+      ],
+      "size": [
+        2.49,
+        0.77,
+        9.7
+      ]
+    },
+    {
+      "name": "Cab_footplate",
+      "parent": "",
+      "center": [
+        0,
+        1.305,
+        4.813
+      ],
+      "size": [
+        2.83,
+        0.154,
+        3.22
+      ]
+    },
+    {
+      "name": "Cab_fallplate",
+      "parent": "",
+      "center": [
+        0,
+        1.337,
+        6.609
+      ],
+      "size": [
+        1.44,
+        0.09,
+        0.582
+      ]
+    },
+    {
+      "name": "Backhead",
+      "parent": "",
+      "center": [
+        0,
+        2.5,
+        3.53
+      ],
+      "size": [
+        2.77,
+        2.24,
+        0.51
+      ]
+    },
+    {
+      "name": "Cab_roof",
+      "parent": "",
+      "center": [
+        0,
+        3.974,
+        4.697
+      ],
+      "size": [
+        2.87,
+        0.16,
+        2.91
+      ]
+    },
+    {
+      "name": "Cab_side_-1",
+      "parent": "",
+      "center": [
+        1.397,
+        1.956,
+        4.68
+      ],
+      "size": [
+        0.103,
+        1.145,
+        2.7
+      ]
+    },
+    {
+      "name": "Driver_seat_-1",
+      "parent": "",
+      "center": [
+        1.193,
+        1.81,
+        4.949
+      ],
+      "size": [
+        0.333,
+        0.12,
+        0.55
+      ]
+    },
+    {
+      "name": "Cab_side_1",
+      "parent": "",
+      "center": [
+        -1.397,
+        1.956,
+        4.68
+      ],
+      "size": [
+        0.103,
+        1.145,
+        2.7
+      ]
+    },
+    {
+      "name": "Driver_seat_1",
+      "parent": "",
+      "center": [
+        -1.193,
+        1.81,
+        4.949
+      ],
+      "size": [
+        0.333,
+        0.12,
+        0.55
+      ]
+    },
+    {
+      "name": "Brake_stand",
+      "parent": "",
+      "center": [
+        0.972,
+        1.861,
+        4.246
+      ],
+      "size": [
+        0.345,
+        0.959,
+        0.389
+      ]
+    }
+  ],
+  "doors": [],
+  "lights": [
+    {
+      "name": "Footplate_oil_lamp",
+      "center": [
+        0.702,
+        3.205,
+        4.19
+      ],
+      "color": [
+        1,
+        0.74,
+        0.43
+      ],
+      "range": 3.4,
+      "intensity": 1.584
+    },
+    {
+      "name": "Firehole_glow",
+      "center": [
+        0.09,
+        1.901,
+        3.779
+      ],
+      "color": [
+        1,
+        0.28,
+        0.048
+      ],
+      "range": 1.4,
+      "intensity": 0.528
+    }
+  ],
+  "routes": [
+    {
+      "name": "Footplate_to_tender",
+      "points": [
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": 4.39
+        },
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": 5.82
+        },
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": 6.88
+        }
+      ]
+    }
+  ],
+  "view": {
+    "position": [
+      -0.512,
+      2.83,
+      5.97
+    ],
+    "target": [
+      0.092,
+      2.397,
+      3.59
+    ],
+    "lens": 20
+  },
+  "meshes": 17,
+  "triangles": 49044
+}

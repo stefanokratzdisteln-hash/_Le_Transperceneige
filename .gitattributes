@@ -9,3 +9,4 @@
 *.mat text eol=lf whitespace=-blank-at-eol
 *.prefab text eol=lf whitespace=-blank-at-eol
 *.unity text eol=lf whitespace=-blank-at-eol
+*.asset text=auto eol=lf whitespace=-blank-at-eol

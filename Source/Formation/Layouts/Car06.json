@@ -1,0 +1,901 @@
+{
+  "number": 6,
+  "title": "Restaurant carriage",
+  "socketA": -9.83,
+  "socketB": 9.83,
+  "boxes": [
+    {
+      "name": "Coach floor",
+      "parent": "",
+      "center": [
+        0,
+        1.329,
+        0
+      ],
+      "size": [
+        2.96,
+        0.102,
+        18.02
+      ]
+    },
+    {
+      "name": "Side Port",
+      "parent": "",
+      "center": [
+        1.473,
+        2.48,
+        0
+      ],
+      "size": [
+        0.082,
+        2.21,
+        18.0
+      ]
+    },
+    {
+      "name": "Side Starboard",
+      "parent": "",
+      "center": [
+        -1.473,
+        2.48,
+        0
+      ],
+      "size": [
+        0.082,
+        2.21,
+        18.0
+      ]
+    },
+    {
+      "name": "Coach ceiling",
+      "parent": "",
+      "center": [
+        0,
+        3.686,
+        0
+      ],
+      "size": [
+        2.91,
+        0.1,
+        18.0
+      ]
+    },
+    {
+      "name": "A bulkhead -1",
+      "parent": "",
+      "center": [
+        1.055,
+        2.47,
+        -8.994
+      ],
+      "size": [
+        0.76,
+        2.16,
+        0.11
+      ]
+    },
+    {
+      "name": "A bellows -1",
+      "parent": "",
+      "center": [
+        0.708,
+        2.43,
+        -9.35
+      ],
+      "size": [
+        0.11,
+        2.11,
+        0.65
+      ]
+    },
+    {
+      "name": "A bulkhead 1",
+      "parent": "",
+      "center": [
+        -1.055,
+        2.47,
+        -8.994
+      ],
+      "size": [
+        0.76,
+        2.16,
+        0.11
+      ]
+    },
+    {
+      "name": "A bellows 1",
+      "parent": "",
+      "center": [
+        -0.708,
+        2.43,
+        -9.35
+      ],
+      "size": [
+        0.11,
+        2.11,
+        0.65
+      ]
+    },
+    {
+      "name": "Connection A",
+      "parent": "",
+      "center": [
+        0,
+        1.362,
+        -9.34
+      ],
+      "size": [
+        1.275,
+        0.057,
+        0.98
+      ]
+    },
+    {
+      "name": "Open end leaf A",
+      "parent": "EndDoor_A",
+      "center": [
+        -0.68,
+        2.43,
+        -8.335
+      ],
+      "size": [
+        0.076,
+        2.06,
+        1.15
+      ]
+    },
+    {
+      "name": "B bulkhead -1",
+      "parent": "",
+      "center": [
+        1.055,
+        2.47,
+        8.994
+      ],
+      "size": [
+        0.76,
+        2.16,
+        0.11
+      ]
+    },
+    {
+      "name": "B bellows -1",
+      "parent": "",
+      "center": [
+        0.708,
+        2.43,
+        9.35
+      ],
+      "size": [
+        0.11,
+        2.11,
+        0.65
+      ]
+    },
+    {
+      "name": "B bulkhead 1",
+      "parent": "",
+      "center": [
+        -1.055,
+        2.47,
+        8.994
+      ],
+      "size": [
+        0.76,
+        2.16,
+        0.11
+      ]
+    },
+    {
+      "name": "B bellows 1",
+      "parent": "",
+      "center": [
+        -0.708,
+        2.43,
+        9.35
+      ],
+      "size": [
+        0.11,
+        2.11,
+        0.65
+      ]
+    },
+    {
+      "name": "Connection B",
+      "parent": "",
+      "center": [
+        0,
+        1.362,
+        9.34
+      ],
+      "size": [
+        1.275,
+        0.057,
+        0.98
+      ]
+    },
+    {
+      "name": "Open end leaf B",
+      "parent": "EndDoor_B",
+      "center": [
+        -0.68,
+        2.43,
+        8.335
+      ],
+      "size": [
+        0.076,
+        2.06,
+        1.15
+      ]
+    },
+    {
+      "name": "Chefs_Galley_Galley_corridor_wall",
+      "parent": "",
+      "center": [
+        0.405,
+        2.496,
+        -4.913
+      ],
+      "size": [
+        0.077,
+        2.228,
+        4.51
+      ]
+    },
+    {
+      "name": "Chefs_Galley_Partition_Port",
+      "parent": "",
+      "center": [
+        0.1315,
+        2.494,
+        -2.66
+      ],
+      "size": [
+        0.623,
+        2.224,
+        0.081
+      ]
+    },
+    {
+      "name": "Chefs_Galley_Hatch_Lower",
+      "parent": "",
+      "center": [
+        -0.8075,
+        1.886,
+        -2.66
+      ],
+      "size": [
+        1.2550000000000001,
+        1.008,
+        0.081
+      ]
+    },
+    {
+      "name": "Chefs_Galley_Hatch_Upper",
+      "parent": "",
+      "center": [
+        -0.8075,
+        3.377,
+        -2.66
+      ],
+      "size": [
+        1.2550000000000001,
+        0.456,
+        0.081
+      ]
+    },
+    {
+      "name": "Chefs_Galley_Hatch_post_0.217",
+      "parent": "",
+      "center": [
+        -0.217,
+        2.776,
+        -2.66
+      ],
+      "size": [
+        0.073,
+        0.775,
+        0.1
+      ]
+    },
+    {
+      "name": "Chefs_Galley_Hatch_post_1.395",
+      "parent": "",
+      "center": [
+        -1.395,
+        2.776,
+        -2.66
+      ],
+      "size": [
+        0.073,
+        0.775,
+        0.1
+      ]
+    },
+    {
+      "name": "Chefs_Galley_Serving_ledge",
+      "parent": "",
+      "center": [
+        -0.809,
+        2.391,
+        -2.601
+      ],
+      "size": [
+        1.294,
+        0.065,
+        0.316
+      ]
+    },
+    {
+      "name": "Chefs_Galley_Passage_lintel",
+      "parent": "",
+      "center": [
+        0.936,
+        3.47,
+        -2.66
+      ],
+      "size": [
+        0.994,
+        0.281,
+        0.085
+      ]
+    },
+    {
+      "name": "Chefs_Galley_Worktop",
+      "parent": "",
+      "center": [
+        -1.117,
+        2.241,
+        -5.038
+      ],
+      "size": [
+        0.592,
+        0.061,
+        3.93
+      ]
+    },
+    {
+      "name": "Chefs_Galley_Cupboards",
+      "parent": "",
+      "center": [
+        -1.153,
+        1.806,
+        -5.038
+      ],
+      "size": [
+        0.502,
+        0.849,
+        3.871
+      ]
+    },
+    {
+      "name": "Chefs_Galley_Servery_return",
+      "parent": "",
+      "center": [
+        -0.497,
+        1.808,
+        -3.106
+      ],
+      "size": [
+        1.262,
+        0.852,
+        0.627
+      ]
+    },
+    {
+      "name": "Chefs_Galley_Servery_counter",
+      "parent": "",
+      "center": [
+        -0.486,
+        2.242,
+        -3.105
+      ],
+      "size": [
+        1.29,
+        0.061,
+        0.654
+      ]
+    },
+    {
+      "name": "Dining_seats_1_1_-1",
+      "parent": "",
+      "center": [
+        -0.87,
+        1.93,
+        -1.61
+      ],
+      "size": [
+        1.045,
+        1.095,
+        0.61
+      ]
+    },
+    {
+      "name": "Dining_seats_1_1_1",
+      "parent": "",
+      "center": [
+        -0.87,
+        1.93,
+        0.010000000000000009
+      ],
+      "size": [
+        1.045,
+        1.095,
+        0.61
+      ]
+    },
+    {
+      "name": "Dining_table_1_1",
+      "parent": "",
+      "center": [
+        -0.87,
+        1.765,
+        -0.8
+      ],
+      "size": [
+        1.045,
+        0.765,
+        0.967
+      ]
+    },
+    {
+      "name": "Dining_seats_1_-1_-1",
+      "parent": "",
+      "center": [
+        1.092,
+        1.93,
+        -1.61
+      ],
+      "size": [
+        0.638,
+        1.095,
+        0.61
+      ]
+    },
+    {
+      "name": "Dining_seats_1_-1_1",
+      "parent": "",
+      "center": [
+        1.092,
+        1.93,
+        0.010000000000000009
+      ],
+      "size": [
+        0.638,
+        1.095,
+        0.61
+      ]
+    },
+    {
+      "name": "Dining_table_1_-1",
+      "parent": "",
+      "center": [
+        1.092,
+        1.765,
+        -0.8
+      ],
+      "size": [
+        0.638,
+        0.765,
+        0.967
+      ]
+    },
+    {
+      "name": "Dining_seats_2_1_-1",
+      "parent": "",
+      "center": [
+        -0.87,
+        1.93,
+        1.27
+      ],
+      "size": [
+        1.045,
+        1.095,
+        0.61
+      ]
+    },
+    {
+      "name": "Dining_seats_2_1_1",
+      "parent": "",
+      "center": [
+        -0.87,
+        1.93,
+        2.89
+      ],
+      "size": [
+        1.045,
+        1.095,
+        0.61
+      ]
+    },
+    {
+      "name": "Dining_table_2_1",
+      "parent": "",
+      "center": [
+        -0.87,
+        1.765,
+        2.08
+      ],
+      "size": [
+        1.045,
+        0.765,
+        0.967
+      ]
+    },
+    {
+      "name": "Dining_seats_2_-1_-1",
+      "parent": "",
+      "center": [
+        1.092,
+        1.93,
+        1.27
+      ],
+      "size": [
+        0.638,
+        1.095,
+        0.61
+      ]
+    },
+    {
+      "name": "Dining_seats_2_-1_1",
+      "parent": "",
+      "center": [
+        1.092,
+        1.93,
+        2.89
+      ],
+      "size": [
+        0.638,
+        1.095,
+        0.61
+      ]
+    },
+    {
+      "name": "Dining_table_2_-1",
+      "parent": "",
+      "center": [
+        1.092,
+        1.765,
+        2.08
+      ],
+      "size": [
+        0.638,
+        0.765,
+        0.967
+      ]
+    },
+    {
+      "name": "Dining_seats_3_1_-1",
+      "parent": "",
+      "center": [
+        -0.87,
+        1.93,
+        4.15
+      ],
+      "size": [
+        1.045,
+        1.095,
+        0.61
+      ]
+    },
+    {
+      "name": "Dining_seats_3_1_1",
+      "parent": "",
+      "center": [
+        -0.87,
+        1.93,
+        5.77
+      ],
+      "size": [
+        1.045,
+        1.095,
+        0.61
+      ]
+    },
+    {
+      "name": "Dining_table_3_1",
+      "parent": "",
+      "center": [
+        -0.87,
+        1.765,
+        4.96
+      ],
+      "size": [
+        1.045,
+        0.765,
+        0.967
+      ]
+    },
+    {
+      "name": "Dining_seats_3_-1_-1",
+      "parent": "",
+      "center": [
+        1.092,
+        1.93,
+        4.15
+      ],
+      "size": [
+        0.638,
+        1.095,
+        0.61
+      ]
+    },
+    {
+      "name": "Dining_seats_3_-1_1",
+      "parent": "",
+      "center": [
+        1.092,
+        1.93,
+        5.77
+      ],
+      "size": [
+        0.638,
+        1.095,
+        0.61
+      ]
+    },
+    {
+      "name": "Dining_table_3_-1",
+      "parent": "",
+      "center": [
+        1.092,
+        1.765,
+        4.96
+      ],
+      "size": [
+        0.638,
+        0.765,
+        0.967
+      ]
+    },
+    {
+      "name": "Restaurant_Service_Cabinet_Buffet",
+      "parent": "",
+      "center": [
+        -1.106,
+        1.841,
+        6.789
+      ],
+      "size": [
+        0.59,
+        0.918,
+        0.713
+      ]
+    }
+  ],
+  "doors": [],
+  "lights": [
+    {
+      "name": "Vestibule ceiling A",
+      "center": [
+        0,
+        3.37,
+        -8.05
+      ],
+      "color": [
+        1,
+        0.77,
+        0.53
+      ],
+      "range": 3,
+      "intensity": 0.924
+    },
+    {
+      "name": "Vestibule ceiling B",
+      "center": [
+        0,
+        3.37,
+        8.05
+      ],
+      "color": [
+        1,
+        0.77,
+        0.53
+      ],
+      "range": 3,
+      "intensity": 0.924
+    },
+    {
+      "name": "Galley opal light",
+      "center": [
+        -0.29,
+        3.309,
+        -5.46
+      ],
+      "color": [
+        1,
+        0.81,
+        0.61
+      ],
+      "range": 3.5,
+      "intensity": 2.706
+    },
+    {
+      "name": "Service corridor opal light",
+      "center": [
+        0.928,
+        3.309,
+        -4.9
+      ],
+      "color": [
+        1,
+        0.81,
+        0.61
+      ],
+      "range": 3.3,
+      "intensity": 1.584
+    },
+    {
+      "name": "Restaurant pendant 1",
+      "center": [
+        0.22,
+        3.309,
+        -0.8
+      ],
+      "color": [
+        1,
+        0.81,
+        0.61
+      ],
+      "range": 4.1,
+      "intensity": 3.168
+    },
+    {
+      "name": "Restaurant pendant 2",
+      "center": [
+        0.22,
+        3.309,
+        2.08
+      ],
+      "color": [
+        1,
+        0.81,
+        0.61
+      ],
+      "range": 4.1,
+      "intensity": 3.168
+    },
+    {
+      "name": "Restaurant pendant 3",
+      "center": [
+        0.22,
+        3.309,
+        4.96
+      ],
+      "color": [
+        1,
+        0.81,
+        0.61
+      ],
+      "range": 4.1,
+      "intensity": 3.168
+    }
+  ],
+  "routes": [
+    {
+      "name": "Restaurant passenger passage",
+      "points": [
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": 8.65
+        },
+        {
+          "x": 0.25,
+          "y": 1.395,
+          "z": 7.25
+        },
+        {
+          "x": 0.26,
+          "y": 1.395,
+          "z": -2.08
+        },
+        {
+          "x": 0.906,
+          "y": 1.395,
+          "z": -2.35
+        },
+        {
+          "x": 0.906,
+          "y": 1.395,
+          "z": -7.5
+        },
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": -8.68
+        }
+      ]
+    },
+    {
+      "name": "Crew vestibule to range sink and pass",
+      "points": [
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": -8.63
+        },
+        {
+          "x": -0.265,
+          "y": 1.395,
+          "z": -7.56
+        },
+        {
+          "x": -0.34,
+          "y": 1.395,
+          "z": -6.8
+        },
+        {
+          "x": -0.47,
+          "y": 1.395,
+          "z": -5.88
+        },
+        {
+          "x": -0.47,
+          "y": 1.395,
+          "z": -4.35
+        },
+        {
+          "x": -0.415,
+          "y": 1.395,
+          "z": -3.73
+        }
+      ]
+    },
+    {
+      "name": "Waiter from serving hatch to three table bays",
+      "points": [
+        {
+          "x": -0.72,
+          "y": 1.395,
+          "z": -2.155
+        },
+        {
+          "x": -0.02,
+          "y": 1.395,
+          "z": -2.145
+        },
+        {
+          "x": 0.205,
+          "y": 1.395,
+          "z": -2.08
+        },
+        {
+          "x": 0.205,
+          "y": 1.395,
+          "z": -0.8
+        },
+        {
+          "x": 0.205,
+          "y": 1.395,
+          "z": 2.08
+        },
+        {
+          "x": 0.205,
+          "y": 1.395,
+          "z": 4.96
+        },
+        {
+          "x": 0.205,
+          "y": 1.395,
+          "z": 6.45
+        }
+      ]
+    }
+  ],
+  "view": {
+    "position": [
+      0.22,
+      2.993,
+      6.72
+    ],
+    "target": [
+      -0.02,
+      2.5,
+      -2.68
+    ],
+    "lens": 23
+  },
+  "meshes": 66,
+  "triangles": 194810
+}

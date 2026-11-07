@@ -299,7 +299,7 @@ def roof_fittings(g):
         g.cyl(group,"brass",(x-.024,y,z),(x+.024,y,z),.041,12)
 
 
-def open_end_door(g, sign):
+def open_end_door(g, sign, number):
     """Panelled door at ninety degrees, hinged inward along the vestibule wall."""
     group = 'EndDoor_A' if sign < 0 else 'EndDoor_B'
     pivot_x, pivot_y = sign * 8.91, .68
@@ -338,7 +338,7 @@ def open_end_door(g, sign):
         mould('brass',.027,.032,clipped(.186,2.262,2.455,.031))
         mould('ink',.032,.036,clipped(.171,2.274,2.443,.024))
         rotation = (pi/2,0,0 if face < 0 else pi)
-        g.text(group,'gilt','07',(x(0),pivot_y+face*.039,2.302),rotation,.145)
+        g.text(group,'gilt',number,(x(0),pivot_y+face*.039,2.302),rotation,.145)
         y = pivot_y+face*.030
         cx = x(-.459)
         g.cyl(group,'brass',(cx,y,2.461),(cx,y+face*.012,2.461),.048,16)
@@ -350,7 +350,7 @@ def open_end_door(g, sign):
         g.box(group,'brass',(x(.534),pivot_y-.027,z),(.087,.016,.106),.006)
 
 
-def end(g, sign):
+def end(g, sign, number="07"):
     group = "Gangway_A" if sign < 0 else "Gangway_B"
 
     def box(mat, dist, y, z, dims, bevel=0):
@@ -403,7 +403,7 @@ def end(g, sign):
             panel('brass',8.951,8.965,clipped(.349,base,top,.036,cy))
             panel('wood',8.942,8.952,clipped(.332,base+.017,top-.017,.032,cy))
         box('brass',8.938,cy,2.30,(.022,.748,.027),.005)
-    open_end_door(g,sign)
+    open_end_door(g,sign,number)
 
     # Moulded gangway flanges form a hollow tunnel. The clear bore is constant.
     bellows = []
@@ -446,10 +446,10 @@ def end(g, sign):
         disc("brass",9.122,9.147,y,2.598,0.040,12)
 
 
-def build(g):
+def build(g, number="07"):
     shell(g)
     winter_roof(g)
     clerestory(g)
     roof_fittings(g)
-    end(g, -1)
-    end(g, 1)
+    end(g, -1, number)
+    end(g, 1, number)

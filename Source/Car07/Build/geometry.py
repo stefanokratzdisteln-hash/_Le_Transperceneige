@@ -89,8 +89,8 @@ class Geometry:
         bpy.data.objects.remove(obj, do_unlink=True)
         bpy.data.curves.remove(curve)
 
-    def finish(self, material, collection):
-        tile = {key: i for i, key in enumerate(FINISHES)}
+    def finish(self, material, collection, palette=FINISHES):
+        tile = {key: i for i, key in enumerate(palette)}
         objects = []
         for name, (verts, faces, paints, smooths) in self.batches.items():
             mesh = bpy.data.meshes.new(name)

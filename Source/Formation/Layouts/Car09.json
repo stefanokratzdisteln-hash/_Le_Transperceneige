@@ -1,0 +1,547 @@
+{
+  "number": 9,
+  "title": "Guard's brake van",
+  "socketA": -9.83,
+  "socketB": 9.83,
+  "boxes": [
+    {
+      "name": "Coach floor",
+      "parent": "",
+      "center": [
+        0,
+        1.329,
+        0
+      ],
+      "size": [
+        2.96,
+        0.102,
+        18.02
+      ]
+    },
+    {
+      "name": "Side Port",
+      "parent": "",
+      "center": [
+        1.473,
+        2.48,
+        0
+      ],
+      "size": [
+        0.082,
+        2.21,
+        18.0
+      ]
+    },
+    {
+      "name": "Side Starboard",
+      "parent": "",
+      "center": [
+        -1.473,
+        2.48,
+        0
+      ],
+      "size": [
+        0.082,
+        2.21,
+        18.0
+      ]
+    },
+    {
+      "name": "Coach ceiling",
+      "parent": "",
+      "center": [
+        0,
+        3.686,
+        0
+      ],
+      "size": [
+        2.91,
+        0.1,
+        18.0
+      ]
+    },
+    {
+      "name": "A bulkhead -1",
+      "parent": "",
+      "center": [
+        1.055,
+        2.47,
+        -8.994
+      ],
+      "size": [
+        0.76,
+        2.16,
+        0.11
+      ]
+    },
+    {
+      "name": "A bellows -1",
+      "parent": "",
+      "center": [
+        0.708,
+        2.43,
+        -9.35
+      ],
+      "size": [
+        0.11,
+        2.11,
+        0.65
+      ]
+    },
+    {
+      "name": "A bulkhead 1",
+      "parent": "",
+      "center": [
+        -1.055,
+        2.47,
+        -8.994
+      ],
+      "size": [
+        0.76,
+        2.16,
+        0.11
+      ]
+    },
+    {
+      "name": "A bellows 1",
+      "parent": "",
+      "center": [
+        -0.708,
+        2.43,
+        -9.35
+      ],
+      "size": [
+        0.11,
+        2.11,
+        0.65
+      ]
+    },
+    {
+      "name": "Connection A",
+      "parent": "",
+      "center": [
+        0,
+        1.362,
+        -9.34
+      ],
+      "size": [
+        1.275,
+        0.057,
+        0.98
+      ]
+    },
+    {
+      "name": "Open end leaf A",
+      "parent": "EndDoor_A",
+      "center": [
+        -0.68,
+        2.43,
+        -8.335
+      ],
+      "size": [
+        0.076,
+        2.06,
+        1.15
+      ]
+    },
+    {
+      "name": "B bulkhead -1",
+      "parent": "",
+      "center": [
+        1.055,
+        2.47,
+        8.994
+      ],
+      "size": [
+        0.76,
+        2.16,
+        0.11
+      ]
+    },
+    {
+      "name": "B bellows -1",
+      "parent": "",
+      "center": [
+        0.708,
+        2.43,
+        9.35
+      ],
+      "size": [
+        0.11,
+        2.11,
+        0.65
+      ]
+    },
+    {
+      "name": "B bulkhead 1",
+      "parent": "",
+      "center": [
+        -1.055,
+        2.47,
+        8.994
+      ],
+      "size": [
+        0.76,
+        2.16,
+        0.11
+      ]
+    },
+    {
+      "name": "B bellows 1",
+      "parent": "",
+      "center": [
+        -0.708,
+        2.43,
+        9.35
+      ],
+      "size": [
+        0.11,
+        2.11,
+        0.65
+      ]
+    },
+    {
+      "name": "Connection B",
+      "parent": "",
+      "center": [
+        0,
+        1.362,
+        9.34
+      ],
+      "size": [
+        1.275,
+        0.057,
+        0.98
+      ]
+    },
+    {
+      "name": "Open end leaf B",
+      "parent": "EndDoor_B",
+      "center": [
+        -0.68,
+        2.43,
+        8.335
+      ],
+      "size": [
+        0.076,
+        2.06,
+        1.15
+      ]
+    },
+    {
+      "name": "Checked baggage -1",
+      "parent": "",
+      "center": [
+        1.109,
+        2.145,
+        -4.79
+      ],
+      "size": [
+        0.6,
+        1.6100000000000003,
+        4.68
+      ]
+    },
+    {
+      "name": "Checked baggage 1",
+      "parent": "",
+      "center": [
+        -1.109,
+        2.145,
+        -4.79
+      ],
+      "size": [
+        0.6,
+        1.6100000000000003,
+        4.68
+      ]
+    },
+    {
+      "name": "Parcel dispatch",
+      "parent": "",
+      "center": [
+        -1.15,
+        2.126,
+        0.21
+      ],
+      "size": [
+        0.44,
+        1.572,
+        3.73
+      ]
+    },
+    {
+      "name": "Parcels weighing machine",
+      "parent": "",
+      "center": [
+        0.96,
+        1.668,
+        1.03
+      ],
+      "size": [
+        0.76,
+        0.55,
+        1.12
+      ]
+    },
+    {
+      "name": "Guard partition-1",
+      "parent": "",
+      "center": [
+        1.008,
+        2.485,
+        3.1
+      ],
+      "size": [
+        0.886,
+        2.19,
+        0.087
+      ]
+    },
+    {
+      "name": "Guard partition1",
+      "parent": "",
+      "center": [
+        -1.008,
+        2.485,
+        3.1
+      ],
+      "size": [
+        0.886,
+        2.19,
+        0.087
+      ]
+    },
+    {
+      "name": "Guard partition lintel",
+      "parent": "",
+      "center": [
+        0,
+        3.516,
+        3.1
+      ],
+      "size": [
+        1.25,
+        0.195,
+        0.09
+      ]
+    },
+    {
+      "name": "Guard duty room desk",
+      "parent": "",
+      "center": [
+        -1.1,
+        1.807,
+        5.39
+      ],
+      "size": [
+        0.6,
+        0.848,
+        2.245
+      ]
+    },
+    {
+      "name": "Duty bench",
+      "parent": "",
+      "center": [
+        1.21,
+        1.694,
+        4.99
+      ],
+      "size": [
+        0.42,
+        0.619,
+        1.46
+      ]
+    },
+    {
+      "name": "Brake stand",
+      "parent": "",
+      "center": [
+        0.954,
+        1.95,
+        6.64
+      ],
+      "size": [
+        0.49,
+        1.13,
+        0.6
+      ]
+    }
+  ],
+  "doors": [],
+  "lights": [
+    {
+      "name": "Vestibule ceiling A",
+      "center": [
+        0,
+        3.37,
+        -8.05
+      ],
+      "color": [
+        1,
+        0.77,
+        0.53
+      ],
+      "range": 3,
+      "intensity": 0.924
+    },
+    {
+      "name": "Vestibule ceiling B",
+      "center": [
+        0,
+        3.37,
+        8.05
+      ],
+      "color": [
+        1,
+        0.77,
+        0.53
+      ],
+      "range": 3,
+      "intensity": 0.924
+    },
+    {
+      "name": "Luggage ceiling",
+      "center": [
+        0,
+        3.37,
+        -5.5
+      ],
+      "color": [
+        1,
+        0.77,
+        0.53
+      ],
+      "range": 3,
+      "intensity": 1.1880000000000002
+    },
+    {
+      "name": "Consignment ceiling",
+      "center": [
+        0,
+        3.37,
+        -1.8
+      ],
+      "color": [
+        1,
+        0.77,
+        0.53
+      ],
+      "range": 3,
+      "intensity": 1.1880000000000002
+    },
+    {
+      "name": "Scale ceiling",
+      "center": [
+        0,
+        3.37,
+        1.82
+      ],
+      "color": [
+        1,
+        0.77,
+        0.53
+      ],
+      "range": 3,
+      "intensity": 1.1880000000000002
+    },
+    {
+      "name": "Guard ceiling",
+      "center": [
+        0,
+        3.37,
+        5.3
+      ],
+      "color": [
+        1,
+        0.77,
+        0.53
+      ],
+      "range": 3,
+      "intensity": 1.1880000000000002
+    }
+  ],
+  "routes": [
+    {
+      "name": "Luggage and guard through route",
+      "points": [
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": -9.65
+        },
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": -7.11
+        },
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": -1.92
+        },
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": 3.1
+        },
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": 7.24
+        },
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": 9.65
+        }
+      ]
+    },
+    {
+      "name": "Bag to scale and guard journal",
+      "points": [
+        {
+          "x": -0.54,
+          "y": 1.395,
+          "z": -5.31
+        },
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": -2.25
+        },
+        {
+          "x": 0.291,
+          "y": 1.395,
+          "z": 1.04
+        },
+        {
+          "x": 0,
+          "y": 1.395,
+          "z": 3.12
+        },
+        {
+          "x": -0.49,
+          "y": 1.395,
+          "z": 5.37
+        }
+      ]
+    }
+  ],
+  "view": {
+    "position": [
+      -0.21,
+      2.966,
+      2.77
+    ],
+    "target": [
+      0.02,
+      2.24,
+      -2.64
+    ],
+    "lens": 22
+  },
+  "meshes": 64,
+  "triangles": 144410
+}

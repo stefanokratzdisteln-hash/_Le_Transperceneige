@@ -2,7 +2,8 @@
 from math import cos, pi, sin
 
 
-def build(g):
+def build(g, *, number=7, coach_name='W I N T E R B O U R N E', service='S L E E P I N G   C A R   C O.',
+          door_number='1', door_class='FIRST'):
     for side, flank in ((-1, 'Port'), (1, 'Starboard')):
         group = 'Coachwork_signwriting_' + flank
         rotation = (pi/2, 0, 0 if side == -1 else pi)
@@ -63,14 +64,14 @@ def build(g):
             points.append((radius*cos(ang),3.248+radius*sin(ang)))
         panel('gilt',points,1.575)
         text('NORTH FELL',0,2.216,.37)
-        text('S L E E P I N G   C A R   C O.',0,1.979,.144)
+        text(service,0,1.979,.144)
         for hand in (-1,1):
             rail('brass',[(hand*.23,1.844),(hand*.86,1.844)],.012)
         text('Nº  7',0,1.793,.15)
 
         # Both carriage nameboards occupy the same physical bay on the coach.
         lettering_centre = -side*4.44
-        text('W I N T E R B O U R N E',lettering_centre,1.768,.39,1.576)
+        text(coach_name,lettering_centre,1.768,.39,1.576)
         for end in (-1,1):
             u = lettering_centre + end*2.29
             panel('gilt',[(u-.08,1.879),(u,1.902),(u+.08,1.879),(u,1.856)],1.576)
@@ -84,5 +85,5 @@ def build(g):
             u = board+end*1.088
             g.cyl(group,'gilt',(-side*u,side*1.600,1.862),(-side*u,side*1.613,1.862),.014,8)
         for end in (-1,1):
-            text('1',end*8.82,2.701,.34,1.556)
-            text('FIRST',end*8.82,2.567,.097,1.556)
+            text(door_number,end*8.82,2.701,.34,1.556)
+            text(door_class,end*8.82,2.567,.097,1.556)
