@@ -64,9 +64,9 @@ namespace Winterbourne.Editor
         {
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
             var scene = EditorSceneManager.OpenScene(FleetImport.ScenePath, OpenSceneMode.Single);
-            Check(EditorSceneManager.SaveScene(scene, ScenePath), "Could not make independent route scene");
             var roots = scene.GetRootGameObjects();
-            var player = roots.Single(g => g.GetComponent<Car07Walker>());
+            var player = roots.SingleOrDefault(g => g.GetComponent<Car07Walker>());
+            Check(player, "Walkthrough player missing in "+scene.path+"; roots: "+string.Join(", ",roots.Select(g=>g.name)));
             var walker = player.GetComponent<Car07Walker>();
             var originalDecoration = roots.Single(g => g.name == "Winter valley and permanent way");
             Object.DestroyImmediate(originalDecoration);
@@ -89,6 +89,7 @@ namespace Winterbourne.Editor
             PassFittings.Build(consist, cars);
             var route = new GameObject("Winterbourne Pass journey").AddComponent<PassJourney>();
             route.consist = consist;
+            route.platformFloor = GameObject.Find("Fellbridge Station/Platform structure/Platform floor").GetComponent<BoxCollider>();
             route.walker = walker;
             route.chaseGrip = Anchor(cars[8].transform, "ChaseGrip");
             route.chaseArrival = Anchor(cars[8].transform, "ChaseArrival");
@@ -97,7 +98,9 @@ namespace Winterbourne.Editor
             route.canopy.SetActive(false);
             SetHud(route);
             AssetDatabase.SaveAssets();
-            Check(EditorSceneManager.SaveScene(scene, ScenePath), "Could not save WinterbournePass scene");
+            Check(EditorSceneManager.SaveScene(scene, ScenePath, true), "Could not save WinterbournePass scene");
+            // The edits belong to the saved route copy. Leave the source walkthrough on disk untouched.
+            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             CheckSavedScene();
         }
 
@@ -112,9 +115,20 @@ namespace Winterbourne.Editor
             Check(document && document.visualTreeAsset && document.panelSettings &&
                 document.GetComponent<PassHUD>().journey == route, "HUD is not linked to the journey");
             var doors = route.consist.GetComponentsInChildren<PassDoor>(true);
-            Check(doors.Count(d => d.kind == PassDoorKind.Passenger) == 9 &&
-                doors.Count(d => d.kind == PassDoorKind.Chase) == 1 && doors.Count(d => d.kind == PassDoorKind.Escape) == 1,
-                "Expect nine passenger doors and two distinct guard exits");
+            Check(doors.Count(d => d.kind == PassDoorKind.Passenger) == 18 &&
+                doors.Count(d => d.kind == PassDoorKind.Service) == 9 &&
+                doors.Count(d => d.kind == PassDoorKind.Chase) == 1 &&
+                doors.Count(d => d.kind == PassDoorKind.Escape) == 1 &&
+                doors.Count(d => d.kind == PassDoorKind.Gangway) == 13 &&
+                doors.Count(d => d.kind == PassDoorKind.Lavatory) == 1 &&
+                doors.Count(d => d.kind == PassDoorKind.Galley) == 1 &&
+                doors.Count(d => d.kind == PassDoorKind.Cargo) == 8,
+                "Missing a vestibule, loading, gangway or lavatory door");
+            var pulls=route.consist.GetComponentsInChildren<PassDoorTarget>(true);
+            var sliders=route.consist.GetComponentsInChildren<Car07SlidingDoor>(true);
+            Check(sliders.Length==13 && pulls.Length==doors.Length+sliders.Length &&
+                doors.All(d=>pulls.Count(p=>p.hinge==d)==1) && sliders.All(d=>pulls.Count(p=>p.slider==d)==1),
+                "Every door must have a registered fixed pull");
             Check(route.consist.GetComponentsInChildren<PassPickup>(true).Any(p => p.itemId == "parachute"),
                 "Missing movable parachute bag");
             var cars=Enumerable.Range(1,9).Select(n => route.consist.Cast<Transform>().Single(t =>
@@ -133,7 +147,7 @@ namespace Winterbourne.Editor
             Check(Physics.Raycast(new Vector3(-3.3f,4,-1000),Vector3.down,out var platform,4) &&
                 Mathf.Abs(platform.point.y-1.375f)<.13f,"Platform walking surface must meet carriage floors");
             Check(!Physics.Raycast(new Vector3(0,2,-2135),Vector3.down,5f),"Visually broken bridge still has a deck collider");
-            Debug.Log("PASS SAVED SCENE VERIFIED: nine linked vehicles, eight aligned gangways, nine platform doors, two tail exits, parcel rack and HUD.");
+            Debug.Log("PASS SAVED SCENE VERIFIED: nine vehicles, eight gangways, 65 independently operable leaves, parcel rack and HUD.");
         }
 
         public static void Export()

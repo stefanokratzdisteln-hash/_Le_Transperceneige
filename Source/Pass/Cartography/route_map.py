@@ -263,8 +263,9 @@ def station_detail(d,x,y,w):
                             fill=GREEN if i<=2 else '#6a7666',outline=WHITE,width=1)
         label(d,((a+b)/2,py+15),f'{i:02d}','num',16,'#fff4d6','mm')
         p-=length
-    for i in (4,5,6,7,8):
-        for off in ((-8.04,) if i==6 else (-8.04,8.04)):
+    for i in range(3,10):
+        offsets = (-8.04, 0, 8.04) if i in (3,9) else (-8.04,8.04)
+        for off in offsets:
             a=sx(mid[i]+off)
             d.polygon([(a,py+1),(a-5,py-8),(a+5,py-8)],fill=GREEN)
     grip=sx(mid[9]-8.04)
@@ -272,7 +273,7 @@ def station_detail(d,x,y,w):
     d.ellipse((grip-5,py-12,grip+5,py-2),fill=RED)
     label(d,(grip+29,py+65),'09 侧门：最后登车踏板','cn',20,RED)
     label(d,(x+27,y+352),'停站 60 秒，余 15 秒鸣哨。','cnb',25)
-    label(d,(x+27,y+397),'三角标为乘降门。发车后，车尾仍在站台范围时可抓扶手跃上。','cn',23,MUTED)
+    label(d,(x+27,y+397),'三角标为登车处。对准站台旁的车门按 E，按住 Shift 追平，再按空格斜跳。','cn',23,MUTED)
 
 
 def bridge_detail(d,x,y,w):

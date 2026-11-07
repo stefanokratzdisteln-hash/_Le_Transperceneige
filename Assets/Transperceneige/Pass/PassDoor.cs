@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Winterbourne.Pass
 {
-    public enum PassDoorKind { Passenger, Chase, Escape }
+    public enum PassDoorKind { Passenger, Chase, Escape, Gangway, Lavatory, Service, Cargo, Galley }
 
     /// <summary>Hinged rolling-stock leaf. The fixed threshold remains in the carriage frame.</summary>
     [DisallowMultipleComponent]
@@ -17,13 +17,16 @@ namespace Winterbourne.Pass
         [SerializeField, Min(.1f)] float travelTime = .62f;
         [SerializeField, Range(0,1)] float fraction;
         [SerializeField] bool targetOpen;
+        [SerializeField] int exteriorSide;
         CharacterController passenger;
         public bool IsOpen => fraction >= .97f;
         public bool TargetOpen => targetOpen;
         public float Openness => fraction;
+        public int ExteriorSide => exteriorSide;
+        public bool Interior => kind == PassDoorKind.Gangway || kind == PassDoorKind.Lavatory || kind == PassDoorKind.Galley;
 
         public void Configure(PassDoorKind usage, Transform body, Transform jamb,
-                              Quaternion closed, Quaternion open, BoxCollider solid)
+                              Quaternion closed, Quaternion open, BoxCollider solid, int side = 0)
         {
             kind = usage;
             car = body;
@@ -31,6 +34,7 @@ namespace Winterbourne.Pass
             closedPose = closed;
             openPose = open;
             panel = solid;
+            exteriorSide = side;
             Restore(0, false);
         }
 

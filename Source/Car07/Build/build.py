@@ -56,6 +56,7 @@ def build():
     objects = g.finish(material, collection) + glazing.build(collection, textures)
     frames = {o.name:o for o in objects if o.name.startswith('Bogie_')}
     door_pivots={name:Vector(start) for name,start,_,_ in cabins.door_poses()}
+    door_pivots['LavatoryDoor']=Vector((1.55,-.302,1.385))
     for sign,tag in [(-1,'A'),(1,'B')]:
         door_pivots['EndDoor_'+tag]=Vector((sign*8.91,.68,1.39))
         for side,flank in [(-1,'Port'),(1,'Starboard')]:

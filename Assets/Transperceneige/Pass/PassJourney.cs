@@ -11,13 +11,13 @@ namespace Winterbourne.Pass
     public enum JourneyPhase { Running, Dwell, Chase, Freezing, Jumping, UnderCanopy, Won, Frozen, Fell, Crashed }
 
     [DefaultExecutionOrder(-90)]
-    public sealed class PassJourney : MonoBehaviour
+    public sealed partial class PassJourney : MonoBehaviour
     {
         public Transform consist, chaseGrip, chaseArrival, escapeLaunch;
         public Car07Walker walker;
         public GameObject canopy;
         public const float NoseDatum = 110.67f, TrainLength = 159.82f, Stop = 1095f;
-        public const float PlatformEnd = 1110f, Bridge = 1400f, Break = 2120f;
+        public const float PlatformStart = 920f, PlatformEnd = 1110f, Bridge = 1400f, Break = 2120f;
         public float Distance { get; private set; }
         public float Speed { get; private set; }
         public float StationSeconds { get; private set; }
@@ -83,7 +83,7 @@ namespace Winterbourne.Pass
             if(air) air.train=consist;
             if(chaseGrip) gripLamp=chaseGrip.GetComponentInChildren<Light>(true);
             var vehicles=new List<Transform>();
-            foreach(Transform t in consist) if(t!=walker.transform) vehicles.Add(t);
+            foreach(Transform t in consist) if(t!=walker.transform && t.name.StartsWith("Car",StringComparison.Ordinal)) vehicles.Add(t);
             rollingStock=vehicles.ToArray();
             restPosition=new Vector3[rollingStock.Length];
             restRotation=new Quaternion[rollingStock.Length];
@@ -92,7 +92,9 @@ namespace Winterbourne.Pass
                 restPosition[i]=t.localPosition; restRotation[i]=t.localRotation;
             }
             walker.automaticRespawn=false;
-            walker.runningSpeed=4.5f;
+            walker.interactionDistance=2.25f;
+            walker.runningSpeed=5.8f;
+            walker.jumpOverride=TryJump;
             walker.useOverride=UseLookedAtDoor;
             walker.transform.SetParent(consist,true);
             if(canopy) canopy.SetActive(false);
@@ -105,7 +107,7 @@ namespace Winterbourne.Pass
 
         void OnDestroy()
         {
-            if(walker) walker.useOverride=null;
+            if(walker){ walker.useOverride=null; walker.jumpOverride=null; }
             if(whistle) Destroy(whistle);
             if(bell) Destroy(bell);
         }
@@ -122,7 +124,6 @@ namespace Winterbourne.Pass
                 Started |= walker.HasMouse || InventoryOpen;
                 if(walker.HasMouse && !InventoryOpen){
                     if(Key('F')) TryPick(LookedAt<PassPickup>());
-                    if(Key(' ')) TryJump();
                 }
             }
             if(Started) Advance(Time.deltaTime);
@@ -179,29 +180,44 @@ namespace Winterbourne.Pass
 
         bool UseLookedAtDoor()
         {
-            var door=LookedAt<PassDoor>();
-            if(!door) return false;
-            TryDoor(door);
+            if (!Terminal && !InventoryOpen && TryLookAtDoor(out var door, out var slider))
+            {
+                if (door) TryDoor(door);
+                else slider.Toggle(body);
+            }
+            // The journey owns both types of door, including an empty or obstructed aim.
             return true;
+        }
+
+        bool TryLookAtDoor(out PassDoor door, out Car07SlidingDoor slider)
+        {
+            return PassDoorTarget.Resolve(walker.eyeCamera, walker.interactionDistance, out door, out slider);
+        }
+
+        public bool DoorAvailable(PassDoor door)
+        {
+            if (!door || Terminal || Phase == JourneyPhase.Jumping || Phase == JourneyPhase.UnderCanopy) return false;
+            if (door.Interior) return true;
+            if (door.kind == PassDoorKind.Escape) return EscapeReady && Aboard && Phase == JourneyPhase.Running;
+            if (Phase == JourneyPhase.Dwell) return true;
+            if (Phase != JourneyPhase.Chase || door.ExteriorSide != -1) return false;
+            // Compute from chainage so accelerated simulation and normal frames agree,
+            // including between the physics transform updates of a multi-step advance.
+            float chainage = Distance - NoseDatum - (door.threshold.position.z - consist.position.z);
+            return chainage >= PlatformStart && chainage < PlatformEnd;
         }
 
         public bool TryDoor(PassDoor door)
         {
-            if(!door || Terminal || Vector3.Distance(walker.eyeCamera.transform.position,door.threshold.position)>2.6f) return false;
-            bool allowed=door.kind==PassDoorKind.Passenger ? Phase==JourneyPhase.Dwell :
-                door.kind==PassDoorKind.Escape && EscapeReady && Aboard && Phase==JourneyPhase.Running;
-            if(!allowed){Tell(door.kind==PassDoorKind.Escape ? "尾门封闭 · 等候车尾进入峡谷" : "运行中门锁闭"); return false;}
-            if(door.TargetOpen && door.Occupied(body)){ Tell("请先离开门槛"); return false; }
+            if (!door || Terminal || InventoryOpen) return false;
+            if (!DoorAvailable(door))
+            {
+                Tell(door.kind == PassDoorKind.Escape ? "车尾进入峡谷后解锁" : "车门已锁闭");
+                return false;
+            }
+            if (door.TargetOpen && door.Occupied(body)) { Tell("请先离开门槛"); return false; }
             door.SetOpen(!door.TargetOpen);
             return true;
-        }
-
-        public void ReconcileBoarding()
-        {
-            if(boardingAge>=0 || (Phase!=JourneyPhase.Dwell && Phase!=JourneyPhase.Chase)) return;
-            float x=walker.transform.position.x;
-            if(Aboard && x< -1.77f) Board(false);
-            else if(!Aboard && Phase==JourneyPhase.Dwell && x> -1.52f && x<1.45f) Board(true);
         }
 
         void Board(bool board)
@@ -211,48 +227,22 @@ namespace Winterbourne.Pass
             Physics.SyncTransforms();
         }
 
-        public bool TryJump()
-        {
-            if(Terminal || InventoryOpen) return false;
-            if(Phase==JourneyPhase.Chase && !Aboard && Distance-TrainLength<PlatformEnd &&
-               Vector3.Distance(walker.transform.position+Vector3.up*.76f,chaseGrip.position)<2.65f){
-                boardingStart=consist.InverseTransformPoint(walker.transform.position);
-                walker.externalMotion=true;
-                body.enabled=false;
-                Board(true);
-                boardingAge=0;
-                Tell("已抓住扶手 · 返回列车");
-                return true;
-            }
-            if(Phase!=JourneyPhase.Running || !Aboard || !EscapeReady || !rear || !rear.IsOpen ||
-               Vector3.Distance(walker.transform.position,escapeLaunch.position)>1.65f) return false;
-            jumpStart=escapeLaunch.position+Vector3.up*.04f;
-            Board(false);
-            walker.externalMotion=true;
-            body.enabled=false;
-            walker.transform.position=jumpStart;
-            Phase=JourneyPhase.Jumping; flightAge=0;
-            return true;
-        }
-
         public string ActionPrompt()
         {
-            if(Terminal || InventoryOpen || !walker || !walker.eyeCamera) return "";
-            if(!walker.HasMouse && !walker.externalMotion)
-                return Started ? "单击画面继续" : "单击开始行程    ·    WASD 行走";
-            var p=walker.transform.position;
-            if(!Aboard && Phase==JourneyPhase.Chase && Vector3.Distance(p+Vector3.up*.76f,chaseGrip.position)<2.65f)
-                return "空格   抓住车尾扶手";
-            if(EscapeReady && rear && rear.IsOpen && Vector3.Distance(p,escapeLaunch.position)<1.65f)
-                return HasParachute ? "空格   跃入峡谷 · 伞包已就绪" : "空格   跃入峡谷 · 未携带伞包";
-            var item=LookedAt<PassPickup>();
-            if(item) return "F   拾取"+item.label;
-            var d=LookedAt<PassDoor>();
-            if(d && (d.kind==PassDoorKind.Passenger && Phase==JourneyPhase.Dwell ||
-                     d.kind==PassDoorKind.Escape && EscapeReady))
-                return d.TargetOpen ? "E   关门" : "E   开门";
-            if(LookedAt<Car07SlidingDoor>()) return "E   推拉包厢门";
-            return "";
+            if (Terminal || InventoryOpen || !walker || !walker.eyeCamera) return "";
+            if (!walker.HasMouse && !walker.externalMotion)
+                return Started ? "单击画面继续" : "单击开始行程";
+            var item = LookedAt<PassPickup>();
+            if (item) return "F   拾取" + item.label;
+            if (TryLookAtDoor(out var door, out var slider))
+            {
+                if (slider) return slider.TargetClosed ? "E   开门" : "E   关门";
+                if (!DoorAvailable(door)) return door.kind == PassDoorKind.Escape ? "车尾进入峡谷后解锁" : "车门已锁闭";
+                if (!door.TargetOpen) return "E   开门";
+                string action = MovementPrompt();
+                return string.IsNullOrEmpty(action) ? "E   关门" : action + "    ·    E 关门";
+            }
+            return MovementPrompt();
         }
 
         public void Advance(float seconds)
@@ -272,19 +262,7 @@ namespace Winterbourne.Pass
                 }
             }
             SyncTrain();
-        }
-
-        void StepAboard(float dt)
-        {
-            boardingAge+=dt;
-            float t=Mathf.Clamp01(boardingAge/.54f);
-            var landing=consist.InverseTransformPoint(chaseArrival.position);
-            walker.transform.localPosition=Vector3.Lerp(boardingStart,landing,Mathf.SmoothStep(0,1,t))+
-                Vector3.up*(4*t*(1-t)*.24f);
-            if(t>=1){
-                walker.Place(consist,landing,walker.transform.localRotation,walker.ViewPitch);
-                walker.externalMotion=false; boardingAge=-1;
-            }
+            if (Distance >= Stop && Phase != JourneyPhase.Dwell) CloseDepartedDoors();
         }
 
         void Drive(float dt)
@@ -307,7 +285,7 @@ namespace Winterbourne.Pass
             Speed=Mathf.MoveTowards(Speed,target,.66f*dt);
             Distance=Mathf.Min(Break,Distance+Speed*dt);
             if(Phase==JourneyPhase.Chase && Distance>=PlatformEnd+TrainLength){
-                if(chase) chase.SetOpen(false);
+
                 Phase=Aboard ? JourneyPhase.Running : JourneyPhase.Freezing;
                 ColdSeconds=8;
             }
@@ -321,24 +299,18 @@ namespace Winterbourne.Pass
 
         void Depart()
         {
-            // Move a straddling passenger onto the nearest safe surface before latching.
             ReconcileBoarding();
-            foreach(var d in doors){
-                if(d.kind!=PassDoorKind.Passenger) continue;
-                if(d.NeedsDepartureClearance(body)){
-                    Vector3 pos=walker.transform.position;
-                    bool inside=pos.x> -1.64f;
-                    pos.x=inside ? -1.11f : -2.90f;
-                    pos.y=1.399f;
-                    var support=inside ? consist : null;
-                    walker.Place(support,inside ? consist.InverseTransformPoint(pos) : pos,
-                        walker.transform.localRotation,walker.ViewPitch);
-                    Aboard=inside;
-                }
-                d.SetOpen(false);
+            Phase = JourneyPhase.Chase;
+        }
+
+        void CloseDepartedDoors()
+        {
+            foreach (var door in doors)
+            {
+                if (door.ExteriorSide == 0 || !door.TargetOpen || DoorAvailable(door)) continue;
+                // The leaf waits for an occupied threshold or swing arc to clear.
+                door.SetOpen(false);
             }
-            if(chase) chase.SetOpen(true);
-            Phase=JourneyPhase.Chase;
         }
 
         void Fly(float dt)
@@ -438,6 +410,7 @@ namespace Winterbourne.Pass
             Array.Copy(c.inventory,slots,8);
             if(canopy) canopy.SetActive(false);
             walker.Place(Aboard ? consist : null,c.position,c.rotation,c.pitch);
+            ResetLocomotion();
             walker.externalMotion=false; SetInventory(false);
             Physics.SyncTransforms(); Tell("已回到检查点");
         }
@@ -455,10 +428,10 @@ namespace Winterbourne.Pass
                 case 'F':return k.fKey.wasPressedThisFrame;
                 case 'L':return k.lKey.wasPressedThisFrame;
                 case 'R':return k.rKey.wasPressedThisFrame;
-                default:return k.spaceKey.wasPressedThisFrame;
+                default:return false;
             }
 #elif ENABLE_LEGACY_INPUT_MANAGER
-            return Input.GetKeyDown(key==' ' ? KeyCode.Space : (KeyCode)((int)KeyCode.A+key-'A'));
+            return Input.GetKeyDown((KeyCode)((int)KeyCode.A+key-'A'));
 #else
             return false;
 #endif

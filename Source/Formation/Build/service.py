@@ -145,26 +145,25 @@ def stores(g,l):
                 folded_linen(g,group,xx,y,z+.028,.52,.403,('linen','bone','ivory')[(j+k)%3],3+(k+j)%3)
         notice(g,group,'CLEAN LINEN' if side>0 else 'BLANKETS',center,y-side*.275,3.220,1.29,.105,-side)
     group='Lamp stores'
-    shelf(g,l,group,-.19,1.15,3.38,.47,[1.62,2.154,2.724,3.226])
+    shelf(g,l,group,-2.02,1.15,.82,.47,[1.62,2.154,2.724,3.226])
     for j,z in enumerate((1.649,2.183,2.753)):
-        for k in range(7-j):
-            signal_lamp(g,group,-1.52+k*.448,1.11,z,(k+j)%3==1)
-    notice(g,group,'LAMP STORES',-.19,.898,3.27,1.22,.102)
+        for k in range(2):
+            signal_lamp(g,group,-2.22+k*.40,1.11,z,(k+j)%3==1)
+    notice(g,group,'LAMP STORES',-2.02,.898,3.27,.80,.087)
     group='Wet locker'
-    g.box(group,'steel',(.33,-1.14,1.416),(2.99,.50,.055),.016)
-    l.box(group,(.33,-1.17,2.05),(3.01,.43,1.33))
-    g.box(group,'ink',(.34,-1.378,2.363),(2.97,.06,1.76),.014)
-    for j in range(4):
-        x=-.75+j*.54
+    g.box(group,'steel',(2.0,-1.14,1.416),(.88,.50,.055),.016)
+    l.box(group,(2.0,-1.17,2.05),(.88,.43,1.33))
+    g.box(group,'ink',(2.0,-1.378,2.363),(.88,.06,1.76),.014)
+    for j in range(2):
+        x=1.72+j*.28
         g.cyl(group,'wood',(x,-1.068,1.535),(x+.089,-1.316,3.021-j*.057),.016,10)
         g.box(group,'wood',(x,-1.082,1.506),(.237,.083,.055),.012)
         for k in range(7):
             g.beam(group,'linen' if j%2 else 'brass',(x+(k-3)*.031,-1.08,1.492),
                    (x+(k-3)*.037,-1.065,1.421),.024,.042)
-    for xx in (.96,1.35):
-        turned(g,group,'steel',xx,-1.01,[(1.446,.102),(1.461,.110),(1.704,.147),
-               (1.719,.145),(1.721,.134),(1.464,.095)],20)
-    notice(g,group,'WET LOCKER',.33,-1.328,3.295,1.12,.106,1)
+    turned(g,group,'steel',2.277,-1.01,[(1.446,.102),(1.461,.110),(1.704,.147),
+           (1.719,.145),(1.721,.134),(1.464,.095)],20)
+    notice(g,group,'WET LOCKER',2.0,-1.328,3.295,.82,.086,1)
     bench(g,l)
     group='Workshop bins'
     shelf(g,l,group,4.83,-1.13,2.72,.51,[1.56,2.04,2.47])
@@ -181,7 +180,7 @@ def stores(g,l):
 
 def scale(g,l):
     group='Parcels weighing machine'
-    x,y=1.03,-.96
+    x,y=2.26,-.96
     l.box(group,(x,y,1.668),(1.12,.76,.55))
     g.box(group,'ink',(x,y,1.457),(1.11,.76,.142),.037)
     g.box(group,'steel',(x,y,1.549),(1.05,.713,.052),.022)
@@ -262,17 +261,17 @@ def brake_van(g,l):
                           ('hide','wood','ink')[(j+row)%3])
         notice(g,group,'CHECKED LUGGAGE',-4.81,y-side*.306,2.948,1.60,.116,-side)
     group='Parcel dispatch'
-    shelf(g,l,group,.21,1.15,3.73,.44,[1.63,2.285,2.872])
-    for j in range(6):
+    shelf(g,l,group,-2.0,1.15,.78,.44,[1.63,2.285,2.872])
+    for j in range(1):
         for k,z in enumerate((1.658,2.313)):
-            x=-1.32+j*.592
+            x=-2.0
             w=.448+.056*((j+k)%2)
             g.box(group,'paper',(x,1.133,z+.149),(w,.342,.292),.010)
             for mx in (-1,1):
                 g.box(group,'hide',(x+mx*w*.25,1.133,z+.148),(.010,.346,.298),.003)
             g.box(group,'hide',(x,1.133,z+.148),(w+.002,.012,.298),.002)
             g.box(group,'ivory',(x+.02,.956,z+.134),(.125,.009,.079))
-    notice(g,group,'PARCELS FOR FELLBRIDGE',.20,.918,2.921,2.04,.116)
+    notice(g,group,'FELLBRIDGE',-2.0,.918,2.921,.76,.083)
     scale(g,l)
     guard_room(g,l)
     l.view((2.77,.21,2.966),(-2.64,-.02,2.24),22)

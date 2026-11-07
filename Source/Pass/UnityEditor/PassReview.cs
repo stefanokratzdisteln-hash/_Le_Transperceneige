@@ -33,7 +33,7 @@ namespace Winterbourne.Editor
         static PassDoor[] gates;
         static Transform[] cars;
         static UIDocument hud;
-        static string Output => Path.Combine(FleetImport.Checkout,"Previews","Pass");
+        static string Output => FleetImport.Argument("-passPhotoDir") ?? Path.Combine(FleetImport.Checkout,"Previews","Pass");
 
         static PassReview(){ EditorApplication.update+=Tick; }
         public static void Run()
@@ -242,17 +242,77 @@ namespace Winterbourne.Editor
                 PassBuild.Check(d.IsOpen,"Leaf animation stalled on "+d.car.name+"/"+d.name+" at "+d.Openness);
                 Cross(d,true); Cross(d,false);
             }
-            Debug.Log("PASS STATION: physically crossed all nine platform-side thresholds in both directions with the live .22m capsule, including 05 and 07");
+            Debug.Log("PASS STATION: physically crossed the fourteen vestibule thresholds in both directions with the live .22m capsule, including 05 and 07");
         }
         static void ExitToPlatform()
         {
-            var d=gates.First(t=>t.car==cars[6]);
+            var d=gates.First(t=>t.car==cars[6] && t.ExteriorSide<0);
             if(!d.TargetOpen){
                 At(new Vector3(-.94f,1.4f,d.threshold.position.z)); HomeEye();
                 PassBuild.Check(journey.TryDoor(d),"07 exterior locked at the platform");
             }
             d.SetOpen(true,true);
             Cross(d,true);
+        }
+
+        static void WalkOpening(PassDoor door, Vector3 axis, float approach, float beyond)
+        {
+            Vector3 centre = door.threshold.position;
+            centre.y = 1.405f;
+            foreach (int direction in new[]{1,-1})
+            {
+                Vector3 from=centre+axis*(direction==1 ? -approach : beyond);
+                Vector3 to=centre+axis*(direction==1 ? beyond : -approach);
+                At(from);
+                for (int i=1;i<=24;i++)
+                {
+                    Vector3 delta=Vector3.Lerp(from,to,i/24f)-body.transform.position;
+                    delta.y=-.007f;
+                    body.Move(delta);
+                }
+                Vector3 error=body.transform.position-to;
+                PassBuild.Check(Mathf.Abs(Vector3.Dot(error,axis))<.08f && body.transform.position.y>1.28f,
+                    $"Open {door.car.name}/{door.name} passage physically blocked going {direction}: {body.transform.position:F2} for {to:F2}");
+            }
+        }
+
+        static void ServicePassages(PassDoor[] doors)
+        {
+            foreach(var door in doors.Where(d=>d.kind==PassDoorKind.Cargo || d.kind==PassDoorKind.Lavatory || d.kind==PassDoorKind.Galley))
+            {
+                door.SetOpen(true,true); Physics.SyncTransforms();
+                if (door.kind==PassDoorKind.Cargo)
+                    WalkOpening(door,door.ExteriorSide*door.car.right,.51f,door.ExteriorSide<0?.83f:.13f);
+                else if (door.kind==PassDoorKind.Lavatory) WalkOpening(door,-door.car.right,.55f,.55f);
+                else WalkOpening(door,door.car.forward,.69f,.69f);
+            }
+            Debug.Log("PASS PASSAGES: cargo openings on both flanks, 07 lavatory and 06 galley physically crossed in both directions");
+        }
+
+        static IEnumerator ProgressiveDoorLock()
+        {
+            var front=gates.First(t=>t.car==cars[4]);
+            var last=gates.Single(t=>t.kind==PassDoorKind.Chase);
+            At(new Vector3(-1.1f,1.405f,front.threshold.position.z));
+            front.SetOpen(true,true); Physics.SyncTransforms();
+            float remaining=PassJourney.PlatformEnd+front.threshold.position.z;
+            RideTo(journey.Distance+remaining-.24f);
+            At(new Vector3(-1.39f,1.405f,front.threshold.position.z));
+            journey.ReconcileBoarding();
+            PassBuild.Check(journey.Aboard && front.Occupied(body),"Threshold safety fixture needs occupied moving 05");
+            RideTo(journey.Distance+.43f);
+            float until=Time.time+1;
+            while(Time.time<until)yield return null;
+            PassBuild.Check(!journey.DoorAvailable(front) && journey.DoorAvailable(last) && !front.TargetOpen && front.IsOpen,
+                "05 must wait on the occupied threshold while 09 still opens");
+            At(new Vector3(-.85f,1.405f,front.threshold.position.z));
+            until=Time.time+1;
+            while(Time.time<until)yield return null;
+            PassBuild.Check(front.Openness<.01f && !journey.TryDoor(front),"Cleared 05 should latch and decline E beyond platform end");
+            At(new Vector3(-1.01f,1.405f,front.threshold.position.z));
+            for (int i=0;i<18;i++) body.Move(Vector3.left*.055f);
+            PassBuild.Check(body.transform.position.x>-1.47f,"Closed 05 leaf failed to physically block the capsule");
+            Debug.Log("PASS PROGRESSIVE LOCK: 05 waited on its occupied sill, then physically latched; 09 still available at the same instant");
         }
         static void PickBag(int destination)
         {
@@ -268,14 +328,18 @@ namespace Winterbourne.Editor
         }
         static IEnumerator JumpFromRear()
         {
-            At(journey.escapeLaunch.position-Vector3.forward*.98f); HomeEye(); Look(rear.threshold.position);
+            At(journey.escapeLaunch.position-Vector3.forward*1.99f); HomeEye(); Look(rear.threshold.position);
             PassBuild.Check(journey.TryDoor(rear),"Escape door would not unlock with entire formation over the canyon");
-            // Stand aft of the swing plane until the latch has opened.
-            At(journey.escapeLaunch.position+Vector3.forward*.12f);
+            // Open it from inside the guard van and walk onto the plate after it clears.
             float until=Time.time+1.2f;
             while(Time.time<until)yield return null;
             PassBuild.Check(rear.IsOpen,"Rear leaf obstructed at "+rear.Openness);
-            PassBuild.Check(journey.TryJump(),"Space did not launch from the rear footplate");
+            for(int i=0;i<41;i++) body.Move(journey.consist.forward*.05f+Vector3.down*.009f);
+            PassBuild.Check(Vector3.Distance(body.transform.position,journey.escapeLaunch.position)<.38f,
+                "Open tail could not be walked through from the guard van: "+body.transform.position);
+            body.transform.rotation=Quaternion.LookRotation(journey.consist.forward);
+            HomeEye();
+            PassBuild.Check(journey.TryJump() && journey.Phase==JourneyPhase.Jumping,"Space did not launch from the rear footplate");
             PassBuild.Check(!journey.Aboard,"Jump did not leave the moving train frame");
         }
         static IEnumerator Evaluate()
@@ -288,11 +352,11 @@ namespace Winterbourne.Editor
             atmosphere=Object.FindFirstObjectByType<PassAtmosphere>();
             hud=Object.FindFirstObjectByType<UIDocument>();
             var doors=journey.consist.GetComponentsInChildren<PassDoor>();
-            gates=doors.Where(d=>d.kind==PassDoorKind.Passenger).ToArray();
+            gates=doors.Where(d=>d.ExteriorSide<0 && d.kind!=PassDoorKind.Cargo).ToArray();
             rear=doors.Single(d=>d.kind==PassDoorKind.Escape);
             bag=journey.consist.GetComponentInChildren<PassPickup>();
             cars=Enumerable.Range(1,9).Select(n=>journey.consist.Find(FleetImport.Id(n))).ToArray();
-            PassBuild.Check(cars.All(t=>t) && hud && atmosphere && gates.Length==9 && bag, "Missing gameplay references");
+            PassBuild.Check(cars.All(t=>t) && hud && atmosphere && gates.Length==14 && bag, "Missing gameplay references");
             var ep=eye.transform.localPosition;
             var er=eye.transform.localRotation;
             var start=body.transform.localPosition;
@@ -320,6 +384,7 @@ namespace Winterbourne.Editor
             Window(0); Photo("Fellbridge"); WindowMatrix("Station");
             HomeEye();
             var motion=ExerciseDoors(); while(motion.MoveNext())yield return null;
+            ServicePassages(doors);
             PassBuild.Check((stopped-journey.consist.position).sqrMagnitude<.0001f,"Dwell creep");
             ExitToPlatform(); At(new Vector3(-4.18f,1.4f,-973));
             eye.transform.localPosition=new Vector3(0,1.54f,0); Look(new Vector3(-3.7f,2.52f,-995));
@@ -327,29 +392,18 @@ namespace Winterbourne.Editor
             journey.Advance(45.3f);
             PassBuild.Check(journey.Phase==JourneyPhase.Dwell && journey.StationSeconds<15,"Whistle interval missing");
             var occupiedGate=gates.First(d=>d.car==cars[6]);
-            At(new Vector3(-1.70f,1.40f,occupiedGate.threshold.position.z));
-            journey.ReconcileBoarding();
             AdvanceTo(JourneyPhase.Chase);
             Vector3 fixedPlatform=body.transform.position;
-            PassBuild.Check(!journey.Aboard && fixedPlatform.x< -2.7f && !occupiedGate.TargetOpen,"Straddling passenger failed to clear the door at departure");
-            float latched=Time.time+1.22f;while(Time.time<latched)yield return null;
-            PassBuild.Check(occupiedGate.Openness<.005f && !journey.TryDoor(occupiedGate),"07 leaf could not close and lock with a passenger on the threshold at departure");
-            Debug.Log("PASS DEPARTURE SAFETY: 07 straddling capsule transferred to outer platform, leaf physically latched and locked");
+            PassBuild.Check(journey.DoorAvailable(occupiedGate),"07 door locked while alongside the platform");
             journey.Advance(2);
             PassBuild.Check(Vector3.Distance(fixedPlatform,body.transform.position)<.005f && !journey.Aboard,"Station carried departing player");
             AdvanceTo(JourneyPhase.Freezing);
-            PassBuild.Check(!journey.TryJump() && journey.Distance-PassJourney.TrainLength>=PassJourney.PlatformEnd,"Catch available beyond platform");
+            PassBuild.Check(!journey.DoorAvailable(occupiedGate) && journey.Distance-PassJourney.TrainLength>=PassJourney.PlatformEnd,"Door unlocked beyond platform");
             AdvanceTo(JourneyPhase.Frozen); journey.Retry();
             PassBuild.Check(journey.Phase==JourneyPhase.Running && journey.Aboard && Mathf.Abs(journey.Distance-880)<2 && bag.gameObject.activeSelf,"Station checkpoint restore failed");
-            RideTo(PassJourney.Stop); ExitToPlatform(); AdvanceTo(JourneyPhase.Chase);
-            At(new Vector3(-2.65f,1.395f,journey.chaseGrip.position.z));
-            PassBuild.Check(journey.TryJump(),"Last-footboard catch failed");
-            journey.Advance(1.5f);
-            PassBuild.Check(journey.Aboard && Vector3.Distance(body.transform.position,journey.chaseArrival.position)<.2,"Footboard landing missed moving train");
-            Debug.Log("PASS DWELL AND CHASE: 60s stop, whistle, platform freeze, retry and last-footboard catch verified");
-            float closeTime=Time.time+1.06f;
-            while(Time.time<closeTime)yield return null;
-            PassBuild.Check(gates.All(d=>d.Openness<.01f),"Exterior passenger leaves remained open after departure");
+            RideTo(PassJourney.Stop); AdvanceTo(JourneyPhase.Chase);
+            var clearance=ProgressiveDoorLock(); while(clearance.MoveNext())yield return null;
+            Debug.Log("PASS DWELL: 60s stop, whistle, progressive door locking, missed boarding and station checkpoint verified");
             RideTo(1390);
             At(journey.escapeLaunch.position-Vector3.forward*.9f);HomeEye();
             PassBuild.Check(!journey.TryDoor(rear),"Tail door unlocked before bridge entry");
@@ -402,7 +456,7 @@ namespace Winterbourne.Editor
             journey=Object.FindFirstObjectByType<PassJourney>();journey.ManualClock=true;
             body=journey.walker.GetComponent<CharacterController>();eye=journey.walker.eyeCamera;journey.walker.enabled=false;
             atmosphere=Object.FindFirstObjectByType<PassAtmosphere>();hud=Object.FindFirstObjectByType<UIDocument>();
-            bag=journey.consist.GetComponentInChildren<PassPickup>();gates=journey.consist.GetComponentsInChildren<PassDoor>().Where(d=>d.kind==PassDoorKind.Passenger).ToArray();
+            bag=journey.consist.GetComponentInChildren<PassPickup>();gates=journey.consist.GetComponentsInChildren<PassDoor>().Where(d=>d.ExteriorSide<0 && d.kind!=PassDoorKind.Cargo).ToArray();
             cars=Enumerable.Range(1,9).Select(n=>journey.consist.Find(FleetImport.Id(n))).ToArray();
             PickBag(0);journey.SetInventory(true);
             float uiReady=Time.unscaledTime+.18f;while(Time.unscaledTime<uiReady)yield return null;

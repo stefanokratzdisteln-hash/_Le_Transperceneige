@@ -19,12 +19,19 @@ namespace Winterbourne.Demo
         Vector3 spawnLocal;
         Quaternion spawnRotation;
         float yaw, pitch, targetYaw, targetPitch, fallSpeed;
+        Vector3 planarVelocity, inheritedVelocity;
+        float groundGrace, jumpBuffer;
+        const float Gravity = 16f, JumpHeight = .68f;
         bool ownsCursor;
         // Optional hooks for a journey scene; the standalone carriage keeps its original controls.
         public System.Func<bool> useOverride;
+        public System.Func<bool> jumpOverride;
         public bool automaticRespawn = true;
         public bool externalMotion;
         public float runningSpeed;
+        public float JumpAge { get; private set; } = float.PositiveInfinity;
+        public Vector3 MoveIntent { get; private set; }
+        public Vector3 PlanarVelocity => planarVelocity + inheritedVelocity;
         public bool HasMouse => ownsCursor;
         public float ViewPitch => pitch;
         bool overlayOpen;
@@ -44,6 +51,7 @@ namespace Winterbourne.Demo
             yaw = targetYaw = localRotation.eulerAngles.y;
             pitch = targetPitch = eyePitch;
             fallSpeed = 0;
+            ClearMovement();
             if (eyeCamera) eyeCamera.transform.localRotation = Quaternion.Euler(eyePitch, 0, 0);
             controller.enabled = true;
         }
@@ -60,7 +68,8 @@ namespace Winterbourne.Demo
 
         void Update()
         {
-            ReadInput(out Vector2 walk, out Vector2 look, out bool click, out bool escape, out bool useDoor);
+            ReadInput(out Vector2 walk, out Vector2 look, out bool click, out bool escape, out bool useDoor,
+                      out bool sprint, out bool jump);
 
             if (escape || !Application.isFocused || overlayOpen)
                 ReleaseCursor();
@@ -86,30 +95,81 @@ namespace Winterbourne.Demo
                 transform.localRotation = Quaternion.Euler(0f, yaw, 0f);
                 if (eyeCamera)
                     eyeCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
-                if (useDoor)
+                if (useDoor && !externalMotion)
                     Interact();
             }
             else
                 walk = Vector2.zero;
 
-            if (externalMotion || !controller.enabled)
-                return;
-            float speed = walkingSpeed;
-            if (runningSpeed > walkingSpeed && ownsCursor)
-            {
-#if ENABLE_INPUT_SYSTEM
-                if (Keyboard.current != null && Keyboard.current.shiftKey.isPressed) speed = runningSpeed;
-#elif ENABLE_LEGACY_INPUT_MANAGER
-                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) speed = runningSpeed;
-#endif
-            }
-            Vector3 planar = transform.right * walk.x + transform.forward * walk.y;
-            fallSpeed = controller.isGrounded && fallSpeed <= 0f
-                ? -1.2f : Mathf.Max(fallSpeed - 15f * dt, -25f);
-            controller.Move((Vector3.ClampMagnitude(planar, 1f) * speed + Vector3.up * fallSpeed) * dt);
+            MoveCharacter(walk, ownsCursor && sprint, dt, ownsCursor && jump);
             float spawnHeight = transform.parent ? transform.parent.TransformPoint(spawnLocal).y : spawnLocal.y;
             if (automaticRespawn && transform.position.y < spawnHeight - 3.5f)
                 Respawn();
+        }
+
+        // Both input backends and the fixed-step route walkthrough drive the same capsule.
+        public void MoveCharacter(Vector2 axes, bool sprint, float dt, bool jump = false)
+        {
+            if (externalMotion || !controller.enabled || dt <= 0) return;
+            MoveIntent = Vector3.ClampMagnitude(transform.right * axes.x + transform.forward * axes.y, 1f);
+            bool grounded = controller.isGrounded && fallSpeed <= 0;
+            if (grounded) groundGrace = .10f;
+            else groundGrace = Mathf.Max(0, groundGrace - dt);
+            if (jump)
+            {
+                if (jumpOverride != null) jumpOverride();
+                else TryGroundJump();
+            }
+            // A contextual jump may just have switched to a scripted landing or flight.
+            if (externalMotion || !controller.enabled) return;
+            if (jumpBuffer > 0 && grounded && fallSpeed <= 0) Launch();
+            jumpBuffer = Mathf.Max(0, jumpBuffer - dt);
+            float speed = sprint ? Mathf.Max(walkingSpeed, runningSpeed) : walkingSpeed;
+            bool buildingSprint = sprint && speed > walkingSpeed && planarVelocity.magnitude >= walkingSpeed * .95f &&
+                                  Vector3.Dot(planarVelocity.normalized, MoveIntent) > .86f;
+            float acceleration = grounded ? (buildingSprint ? 6.67f : 16f) : 6f;
+            planarVelocity = Vector3.MoveTowards(planarVelocity, MoveIntent * speed, acceleration * dt);
+            if (grounded)
+                inheritedVelocity = Vector3.MoveTowards(inheritedVelocity, Vector3.zero, 20f * dt);
+            float next = grounded && fallSpeed <= 0 ? -1.2f : Mathf.Max(fallSpeed - Gravity * dt, -30f);
+            float vertical = (next + fallSpeed) * .5f;
+            fallSpeed = next;
+            var collision = controller.Move((PlanarVelocity + Vector3.up * vertical) * dt);
+            if ((collision & CollisionFlags.Above) != 0) fallSpeed = Mathf.Min(fallSpeed, 0f);
+            if ((collision & CollisionFlags.Below) != 0 && fallSpeed <= 0)
+            {
+                fallSpeed = -1.2f;
+                if (JumpAge > .1f) JumpAge = float.PositiveInfinity;
+            }
+            JumpAge += dt;
+        }
+
+        public bool TryGroundJump()
+        {
+            if (externalMotion || !controller.enabled || overlayOpen) return false;
+            if (fallSpeed > 0 || (!controller.isGrounded && groundGrace <= 0))
+            {
+                jumpBuffer = .11f;
+                return false;
+            }
+            Launch();
+            return true;
+        }
+
+        void Launch()
+        {
+            fallSpeed = Mathf.Sqrt(2f * Gravity * JumpHeight);
+            JumpAge = 0;
+            groundGrace = jumpBuffer = 0;
+        }
+
+        public void LeaveMovingSupport(Vector3 velocity) => inheritedVelocity = velocity;
+
+        void ClearMovement()
+        {
+            planarVelocity = inheritedVelocity = MoveIntent = Vector3.zero;
+            groundGrace = jumpBuffer = 0;
+            JumpAge = float.PositiveInfinity;
         }
 
         void Interact()
@@ -135,6 +195,7 @@ namespace Winterbourne.Demo
             controller.enabled = true;
             yaw = targetYaw = spawnRotation.eulerAngles.y;
             pitch = targetPitch = fallSpeed = 0f;
+            ClearMovement();
             if (eyeCamera)
                 eyeCamera.transform.localRotation = Quaternion.identity;
         }
@@ -156,10 +217,11 @@ namespace Winterbourne.Demo
 
         void OnDisable() => ReleaseCursor();
 
-        static void ReadInput(out Vector2 walk, out Vector2 look, out bool click, out bool escape, out bool useDoor)
+        static void ReadInput(out Vector2 walk, out Vector2 look, out bool click, out bool escape, out bool useDoor,
+                              out bool sprint, out bool jump)
         {
             walk = look = Vector2.zero;
-            click = escape = useDoor = false;
+            click = escape = useDoor = sprint = jump = false;
 #if ENABLE_INPUT_SYSTEM
             var keys = Keyboard.current;
             if (keys != null)
@@ -170,6 +232,8 @@ namespace Winterbourne.Demo
                 if (keys.aKey.isPressed || keys.leftArrowKey.isPressed) walk.x -= 1;
                 escape = keys.escapeKey.wasPressedThisFrame;
                 useDoor = keys.eKey.wasPressedThisFrame;
+                sprint = keys.shiftKey.isPressed;
+                jump = keys.spaceKey.wasPressedThisFrame;
             }
             var mouse = Mouse.current;
             if (mouse != null)
@@ -184,6 +248,8 @@ namespace Winterbourne.Demo
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) walk.x -= 1;
             escape = Input.GetKeyDown(KeyCode.Escape);
             useDoor = Input.GetKeyDown(KeyCode.E);
+            sprint = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            jump = Input.GetKeyDown(KeyCode.Space);
             click = Input.GetMouseButtonDown(0);
             look = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 10f;
 #endif

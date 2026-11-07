@@ -168,9 +168,11 @@ def lavatory(g):
     g.box(group,'ink',(1.048,-.372,3.502),(.60,.011,.098),.004)
     g.text(group,'gilt','LAVATORY',(1.048,-.379,3.480),(pi/2,0,0),.076)
     # W.C. door parked inside the right jamb, leaving the central opening clear.
-    g.box(group,'wood',(1.55,.147,2.39),(.055,.898,2.01),.011)
-    g.box(group,'wallcloth',(1.516,.147,2.649),(.015,.740,.866),.006)
-    g.box(group,'gilt',(1.507,.489,2.357),(.015,.075,.038),.005)
+    leaf='LavatoryDoor'
+    g.box(leaf,'wood',(1.55,.147,2.39),(.055,.898,2.01),.011)
+    for face in (-1,1):
+        g.box(leaf,'wallcloth',(1.55+face*.034,.147,2.649),(.015,.740,.866),.006)
+        g.box(leaf,'gilt',(1.55+face*.046,.489,2.357),(.023,.090,.050),.009)
     # High cistern, pull chain, flush tube, pedestal and horseshoe seat.
     g.box(group,'enamel',(1.065,1.322,2.895),(.595,.180,.35),.035)
     g.box(group,'wood',(1.065,1.317,3.081),(.624,.205,.034),.009)

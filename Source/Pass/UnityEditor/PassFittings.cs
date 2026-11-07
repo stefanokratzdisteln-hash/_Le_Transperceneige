@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Winterbourne.Pass;
+using Winterbourne.Demo;
 using static Winterbourne.Editor.StationFabrication;
 
 namespace Winterbourne.Editor
@@ -12,7 +13,9 @@ namespace Winterbourne.Editor
     {
         const float DoorZ=8.04f;
         const float ThresholdY=2.42f;
-        const float RailSide=-1.475f;
+        // An open side leaf parks along the coach flank, clear of a runner coming
+        // alongside it. The approach remains blocked while the leaf sweeps through it.
+        const float SideOpeningAngle=166f;
         public const float PlatformFirst=920f,PlatformLast=1110f,PlatformTop=1.375f;
 
         sealed class Finishes
@@ -73,97 +76,216 @@ namespace Winterbourne.Editor
             if(!consist||cars==null||cars.Length!=9)throw new ArgumentException("Need a nine-unit formation.");
             var mat=new Finishes();
             MakeStation(mat);
-            foreach(int n in new[]{4,5,6,7,8,9})
+            MakeGangways(cars, mat);
+            for(int n=3;n<=9;n++)
             {
                 var car=cars[n-1].transform;
-                var structure=Child(car,"Pass entrance fittings",Vector3.zero).transform;
-                int[] ends=(n==6||n==9)?new[]{1}:new[]{-1,1};
-                CutSideWall(car,structure,ends);
-                foreach(int sign in ends)
+                var hardware=Child(car,"Pass entrance fittings",Vector3.zero).transform;
+                bool loading=n==3 || n==9;
+                for(int side=-1;side<=1;side+=2)
                 {
-                    if(n!=9)
+                    CutSideWall(car,hardware,side,loading);
+                    for(int end=-1;end<=1;end+=2)
                     {
-                        // Originally parked on the platform side, the end leaf obstructs
-                        // the turn across the vestibule. Its open pose fits the opposite wing.
-                        var parked=Find(car,sign<0?"EndDoor_A":"EndDoor_B");
-                        var local=car.InverseTransformPoint(parked.position);
-                        local.x=Mathf.Abs(local.x);
-                        parked.position=car.TransformPoint(local);
-                        Recorded(parked);
+                        var kind=loading || (n==6 && end<0) ? PassDoorKind.Service : PassDoorKind.Passenger;
+                        if(n==9 && side==-1 && end==1) kind=PassDoorKind.Chase;
+                        SideDoor(car,hardware,side,end,kind,mat);
+                        if(loading) CargoDoor(car,hardware,side,end,mat);
                     }
-                    SideDoor(car,structure,sign,n==9,mat);
                 }
-                if(n==9) Rescue(car,structure,mat);
+                for(int end=-1;end<=1;end+=2)
+                    EndDoor(car,hardware,end,n==9 && end==1,mat);
+                foreach(var slider in car.GetComponentsInChildren<Car07SlidingDoor>())
+                {
+                    Vector3 travel=car.InverseTransformVector(slider.transform.parent.TransformVector(slider.closedOffset));
+                    var centre=car.InverseTransformPoint(slider.transform.position)+travel;
+                    centre.x=n==7?.31f:.368f;
+                    centre.y=2.44f;
+                    centre.z-=Mathf.Sign(travel.z)*.47f;
+                    Grip(car,hardware,centre,Quaternion.identity,null,slider,mat);
+                }
+                if(n==6) GalleyDoor(car,hardware,mat);
+                if(n==7) LavatoryDoor(car,hardware,mat);
+                if(n==9) Rescue(car,hardware,mat);
             }
             AssetDatabase.SaveAssets();
         }
 
-        static void CutSideWall(Transform car,Transform parent,int[] signs)
+        static string Flank(int side) => side<0?"Starboard":"Port";
+
+        static void CutSideWall(Transform car,Transform parent,int side,bool loading)
         {
-            var old=Find(car,"Side Starboard").GetComponent<BoxCollider>();
-            if(!old) throw new InvalidOperationException("Starboard wall collider missing on "+car.name);
+            string flank=Flank(side);
+            var old=Find(car,"Side "+flank).GetComponent<BoxCollider>();
             old.enabled=false;
             Recorded(old);
-            float last=-9;
-            foreach(int side in signs)
-            {
-                float z=side*DoorZ;
-                Cut(last,z-.502f);
-                // The floor remains continuous. Only the wood above the lintel is solid here.
-                Box(parent,"Door header "+side,new Vector3(-1.473f,3.569f,z),new Vector3(.082f,.035f,1.004f));
-                last=z+.502f;
-            }
-            Cut(last,9);
-            void Cut(float a,float b)
-            {
-                if(b<=a)return;
-                Box(parent,"Starboard wall section",new Vector3(-1.473f,2.48f,(a+b)/2),new Vector3(.082f,2.21f,b-a));
-            }
+            float x=side*1.473f;
+            void Segment(float a,float b) => Box(parent,flank+" wall",new Vector3(x,2.48f,(a+b)/2),
+                new Vector3(.082f,2.21f,b-a));
+            Segment(-9f,-DoorZ-.502f);
+            if(loading) {
+                Segment(-DoorZ+.502f,-1.47f);
+                Segment(1.47f,DoorZ-.502f);
+                Box(parent,"Loading lintel "+flank,new Vector3(x,3.55f,0),new Vector3(.12f,.072f,2.94f));
+            } else Segment(-DoorZ+.502f,DoorZ-.502f);
+            Segment(DoorZ+.502f,9f);
+            for(int end=-1;end<=1;end+=2)
+                Box(parent,"Door header "+flank+end,new Vector3(x,3.569f,end*DoorZ),new Vector3(.082f,.035f,1.004f));
         }
 
-        static void SideDoor(Transform car,Transform hardware,int sign,bool chase,Finishes mat)
+        static BoxCollider Panel(Transform car,Transform leaf,string name,Vector3 centre,Vector3 size)
         {
-            string suffix=sign<0?"A":"B";
-            var leaf=Find(car,"Door_Starboard_"+suffix);
-            float z=sign*DoorZ;
-            var jamb=Child(hardware,"Station threshold "+suffix,new Vector3(RailSide,ThresholdY,z)).transform;
-            var solid=Box(leaf,"Passenger door panel",Vector3.zero,new Vector3(.074f,2.16f,.975f));
-            solid.transform.SetPositionAndRotation(car.TransformPoint(new Vector3(RailSide,2.468f,z)),car.rotation);
-            Quaternion openWorld=Quaternion.AngleAxis(-sign*88,car.up)*leaf.rotation;
-            var door=leaf.gameObject.AddComponent<PassDoor>();
-            door.Configure(chase?PassDoorKind.Chase:PassDoorKind.Passenger,car,jamb,leaf.localRotation,
-                           Quaternion.Inverse(leaf.parent.rotation)*openWorld,solid);
+            var panel=Box(leaf,name,Vector3.zero,size);
+            panel.transform.SetPositionAndRotation(car.TransformPoint(centre),car.rotation);
+            return panel;
+        }
 
-            // This narrow running board closes the gap from the wooden floor to a
-            // high platform. It travels with the stock and is level in both directions.
-            var landing=Child(hardware,"Level boarding plate "+suffix,new Vector3(-1.607f,1.355f,z)).transform;
+        static Quaternion Turn(Transform car,Transform leaf,float degrees)
+            => Quaternion.Inverse(leaf.parent.rotation)*Quaternion.AngleAxis(degrees,car.up)*leaf.rotation;
+
+        static void Grip(Transform car,Transform hardware,Vector3 centre,Quaternion angle,PassDoor hinge,Car07SlidingDoor slider,Finishes mat)
+        {
+            var grip=Child(hardware,"Jamb pull "+(hinge?hinge.name:slider.name),centre);
+            grip.transform.localRotation=angle;
+            var fitting=new StationFabrication();
+            for(int side=-1;side<=1;side+=2)
+            {
+                fitting.Box(mat.bronze,new Vector3(side*.111f,0,0),new Vector3(.014f,.18f,.065f));
+                fitting.Ring(mat.bronze,new Vector3(side*.138f,-.049f,0),new Vector3(side*.138f,.049f,0),.010f,.010f);
+                for(int end=-1;end<=1;end+=2)
+                    fitting.Box(mat.bronze,new Vector3(side*.123f,end*.047f,0),new Vector3(.032f,.018f,.020f));
+            }
+            fitting.Finish(grip.transform,"Vestibule brass pull");
+            var volume=AddBox(grip.transform,new Vector3(.33f,.53f,.20f));
+            volume.isTrigger=true;
+            grip.layer=2;
+            var target=grip.AddComponent<PassDoorTarget>();
+            target.hinge=hinge;
+            target.slider=slider;
+        }
+
+        static void BoardingPlate(Transform parent,float x,float z,float length,Finishes mat)
+        {
+            var landing=Child(parent,"Level boarding plate",new Vector3(x,1.355f,z)).transform;
             var step=new StationFabrication();
-            step.Box(mat.soot,Vector3.zero,new Vector3(.31f,.045f,.964f));
+            step.Box(mat.soot,Vector3.zero,new Vector3(.43f,.045f,length));
             for(int i=-4;i<=4;i++)
-                step.Box(mat.bronze,new Vector3(0,.024f,.094f*i),new Vector3(.278f,.004f,.009f));
-            step.Finish(landing,"Brass boarding threshold");
-            AddBox(landing,new Vector3(.31f,.045f,.964f));
-            var signAnchor=Child(hardware,"Entrance notice "+suffix,new Vector3(-1.411f,3.57f,z)).transform;
+                step.Box(mat.bronze,new Vector3(0,.024f,length*.098f*i),new Vector3(.40f,.004f,.009f));
+            step.Finish(landing,length>1?"Loading threshold":"Brass boarding threshold");
+            AddBox(landing,new Vector3(.43f,.045f,length));
+        }
+
+        static void SideDoor(Transform car,Transform hardware,int side,int end,PassDoorKind kind,Finishes mat)
+        {
+            string name=Flank(side)+(end<0?"_A":"_B");
+            var leaf=Find(car,"Door_"+name);
+            float x=side*1.475f,z=end*DoorZ;
+            var jamb=Child(hardware,"Station threshold "+name,new Vector3(x,ThresholdY,z)).transform;
+            var solid=Panel(car,leaf,"Passenger door panel",new Vector3(x,2.468f,z),new Vector3(.074f,2.16f,.975f));
+            var door=leaf.gameObject.AddComponent<PassDoor>();
+            door.Configure(kind,car,jamb,leaf.localRotation,Turn(car,leaf,side*end*SideOpeningAngle),solid,side);
+            Grip(car,hardware,new Vector3(x,2.43f,z+end*.535f),Quaternion.identity,door,null,mat);
+            BoardingPlate(hardware,side*1.62f,z,.964f,mat);
+            var signAnchor=Child(hardware,"Entrance notice "+name,new Vector3(side*1.411f,3.57f,z)).transform;
+            if(side>0)signAnchor.localRotation=Quaternion.Euler(0,180,0);
             var plate=new StationFabrication();
             plate.Box(mat.bronze,Vector3.zero,new Vector3(.013f,.102f,.610f));
-            plate.Sign(mat.screen,new Vector3(.009f,0,0),.595f,.089f,chase?5:4);
-            plate.Finish(signAnchor,chase?"Guards boarding notice":"Way out notice");
+            bool service=kind!=PassDoorKind.Passenger;
+            plate.Sign(mat.screen,new Vector3(.009f,0,0),.595f,.089f,service?5:4);
+            plate.Finish(signAnchor,service?"Guards boarding notice":"Way out notice");
+        }
+
+        static void CargoDoor(Transform car,Transform hardware,int side,int end,Finishes mat)
+        {
+            string name=Flank(side)+(end<0?"_A":"_B");
+            var leaf=Find(car,"LoadingDoor_"+name);
+            var centre=new Vector3(side*1.555f,2.454f,end*.725f);
+            var jamb=Child(hardware,"Loading threshold "+name,centre).transform;
+            var solid=Panel(car,leaf,"Loading door panel",centre,new Vector3(.14f,2.125f,1.45f));
+            var door=leaf.gameObject.AddComponent<PassDoor>();
+            door.Configure(PassDoorKind.Cargo,car,jamb,leaf.localRotation,Turn(car,leaf,-side*end*SideOpeningAngle),solid,side);
+            Grip(car,hardware,new Vector3(side*1.52f,2.44f,end*1.49f),Quaternion.identity,door,null,mat);
+            if(end==1) BoardingPlate(hardware,side*1.62f,0,2.92f,mat);
+        }
+
+        static void EndDoor(Transform car,Transform hardware,int end,bool escape,Finishes mat)
+        {
+            string tag=end<0?"A":"B";
+            var leaf=Find(car,"EndDoor_"+tag);
+            var solid=Find(leaf,"Open end leaf "+tag).GetComponent<BoxCollider>();
+            // Each leaf parks against its own side of the bellows. This frees both vestibule exits.
+            var hinge=car.InverseTransformPoint(leaf.position);
+            hinge.x=-end*.68f;
+            leaf.position=car.TransformPoint(hinge);
+            var open=Turn(car,leaf,180);
+            var closed=Turn(car,leaf,-90);
+            var jamb=Child(hardware,"End threshold "+tag,new Vector3(-end*.10f,2.425f,end*8.91f)).transform;
+            jamb.localRotation=Quaternion.Euler(0,90,0);
+            var door=leaf.gameObject.AddComponent<PassDoor>();
+            door.Configure(escape?PassDoorKind.Escape:PassDoorKind.Gangway,car,jamb,closed,open,solid);
+            door.SetOpen(!escape,true);
+            Recorded(leaf);
+            Grip(car,hardware,new Vector3(end*.524f,2.43f,end*8.91f),jamb.localRotation,door,null,mat);
+            if(escape) return;
+            var stile=Child(hardware,"End strike "+tag,new Vector3(end*.577f,2.435f,end*8.913f)).transform;
+            var trim=new StationFabrication();
+            trim.Box(mat.wood,Vector3.zero,new Vector3(.214f,2.06f,.083f));
+            trim.Finish(stile,"Gangway strike stile");
+            AddBox(stile,new Vector3(.214f,2.06f,.083f));
+        }
+
+        static void GalleyDoor(Transform car,Transform hardware,Finishes mat)
+        {
+            // The pantry entrance opens from the front vestibule. The separate passenger
+            // passage runs along the other side of the kitchen's longitudinal partition.
+            const float z=-7.16f, pivotX=.34f, width=.98f;
+            var frame=new StationFabrication();
+            var jamb=Child(hardware,"Galley pantry threshold",new Vector3(pivotX-width/2,2.43f,z)).transform;
+            jamb.localRotation=Quaternion.Euler(0,90,0);
+            Vector3 fixedCentre=new Vector3(-1.035f,2.465f,z);
+            Vector3 fixedSize=new Vector3(.79f,2.17f,.076f);
+            frame.Box(mat.wood,fixedCentre,fixedSize);
+            Box(hardware,"Pantry partition",fixedCentre,fixedSize);
+            frame.Box(mat.cream,fixedCentre+Vector3.up*.24f,new Vector3(.69f,1.23f,.091f));
+            frame.Box(mat.wood,new Vector3(-.15f,3.48f,z),new Vector3(width,.17f,.09f));
+            Box(hardware,"Pantry lintel",new Vector3(-.15f,3.48f,z),new Vector3(width,.17f,.09f));
+            frame.Finish(hardware,"Pantry partition and transom");
+            var leaf=Child(hardware,"Galley pantry door",new Vector3(pivotX,1.39f,z)).transform;
+            var panel=new StationFabrication();
+            panel.Box(mat.wood,new Vector3(-width/2,.58f,0),new Vector3(width,1.16f,.054f));
+            panel.Box(mat.cream,new Vector3(-width/2,.56f,0),new Vector3(width-.14f,.87f,.060f));
+            panel.Box(mat.wood,new Vector3(-width/2,1.93f,0),new Vector3(width,.15f,.054f));
+            foreach (float x in new[]{-.055f,-width+.055f})
+                panel.Box(mat.wood,new Vector3(x,1.51f,0),new Vector3(.11f,.71f,.054f));
+            var glass=AssetDatabase.LoadAssetAtPath<Material>("Assets/Transperceneige/Car07/Car07_CabinGlass.mat");
+            panel.Box(glass,new Vector3(-width/2,1.51f,0),new Vector3(width-.22f,.71f,.012f));
+            for(int side=-1;side<=1;side+=2)
+                panel.Box(mat.bronze,new Vector3(-.83f,1.04f,side*.055f),new Vector3(.15f,.025f,.064f));
+            panel.Finish(leaf,"Glazed pantry door");
+            var solid=Box(leaf,"Pantry leaf panel",new Vector3(-width/2,1,0),new Vector3(width,2,.056f));
+            var door=leaf.gameObject.AddComponent<PassDoor>();
+            door.Configure(PassDoorKind.Galley,car,jamb,Quaternion.identity,Quaternion.Euler(0,90,0),solid);
+            door.SetOpen(true,true);
+            Grip(car,hardware,new Vector3(-.654f,2.43f,z),jamb.localRotation,door,null,mat);
+        }
+
+        static void LavatoryDoor(Transform car,Transform hardware,Finishes mat)
+        {
+            var leaf=Find(car,"LavatoryDoor");
+            var parked=Find(car,"Lavatory open leaf").GetComponent<BoxCollider>();
+            parked.enabled=false;
+            Recorded(parked);
+            var solid=Panel(car,leaf,"Lavatory door panel",new Vector3(-.147f,2.39f,1.55f),new Vector3(.898f,2.01f,.055f));
+            var jamb=Child(hardware,"Lavatory threshold",new Vector3(.302f,2.39f,1.10f)).transform;
+            var door=leaf.gameObject.AddComponent<PassDoor>();
+            door.Configure(PassDoorKind.Lavatory,car,jamb,Turn(car,leaf,-90),leaf.localRotation,solid);
+            door.SetOpen(true,true);
+            Recorded(leaf);
+            Grip(car,hardware,new Vector3(.31f,2.43f,.605f),Quaternion.identity,door,null,mat);
         }
 
         static void Rescue(Transform car,Transform hardware,Finishes mat)
         {
-            var leaf=Find(car,"EndDoor_B");
-            var solid=Find(leaf,"Open end leaf B").GetComponent<BoxCollider>();
-            if(!solid)throw new InvalidOperationException("Missing aft gangway door collision.");
-            // Builder supplied the tall rear leaf open along -Z. Turning it -90°
-            // about the true vertical hinge closes the portal from -X toward +X.
-            var open=leaf.localRotation;
-            var closed=Quaternion.Inverse(leaf.parent.rotation)*Quaternion.AngleAxis(-90,car.up)*leaf.rotation;
-            var jamb=Child(hardware,"Tail escape sill",new Vector3(-.1f,2.425f,8.91f)).transform;
-            jamb.localRotation=Quaternion.Euler(0,90,0);
-            var exit=leaf.gameObject.AddComponent<PassDoor>();
-            exit.Configure(PassDoorKind.Escape,car,jamb,closed,open,solid);
-            Recorded(leaf);
             Child(hardware,"EscapeLaunch",new Vector3(0,1.40f,9.53f));
             var grip=Child(hardware,"ChaseGrip",new Vector3(-1.90f,2.13f,8.04f)).transform;
             Child(hardware,"ChaseArrival",new Vector3(-.98f,1.40f,8.04f));

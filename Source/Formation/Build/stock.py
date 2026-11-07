@@ -9,16 +9,16 @@ import runninggear
 
 
 def van_doors(g,number):
-    """The locked double loading doors are distinct from the two end gangways."""
+    """Pairs of genuinely separate doors with hinges at the outer jambs."""
     for side,flank in [(-1,'Port'),(1,'Starboard')]:
         group='Loading_doors_'+flank
         rot=(pi/2,0,0 if side<0 else pi)
         def box(mat,x,depth,z,size,bevel=0):
             g.box(group,mat,(x,side*depth,z),size,bevel)
-        box('dark',0,1.572,2.464,(2.94,.040,2.14),.016)
         for hand in [-1,1]:
+            group='LoadingDoor_'+flank+('_A' if hand<0 else '_B')
             x=hand*.725
-            box('wood',x,1.604,2.466,(1.427,.042,2.04),.016)
+            box('wood',x,1.553,2.454,(1.45,.126,2.125),.012)
             for index in range(6):
                 box('ink' if number==3 else 'petrol',x+(index-2.5)*.221,1.629,2.481,
                     (.214,.011,1.81),.003)
@@ -30,10 +30,12 @@ def van_doors(g,number):
                     xx=x+hand*.43+bolt
                     g.cyl(group,'brass',(xx,side*1.689,z),(xx,side*1.699,z),.012,8)
             box('brass',hand*.14,1.668,2.461,(.048,.044,.164),.009)
+            box('brass',hand*.14,1.472,2.461,(.054,.048,.164),.009)
+            g.text(group,'gilt',('STORES' if hand<0 else 'DEPARTMENT') if number==3 else ('LUGGAGE' if hand<0 else 'OFFICE'),
+                   (x,side*1.690,2.836),rot,.14)
+            box('ink',x,1.674,2.893,(1.33,.025,.31),.012)
+        group='Loading_doors_'+flank
         box('dark',0,1.655,3.551,(3.01,.110,.068),.012)
-        box('ink',0,1.674,2.893,(2.62,.025,.31),.012)
-        g.text(group,'gilt','STORES DEPARTMENT' if number==3 else 'LUGGAGE OFFICE',
-               (0,side*1.690,2.836),rot,.182)
         for end in (-1,1):
             x=end*8.82
             g.text(group,'gilt',f'{number:02}',(x,side*1.556,2.68),rot,.23)
@@ -56,7 +58,7 @@ def build(g,l):
     van=n in (3,9)
     # The galley worktop has clear, washable sashes above the range and drainboard.
     curtains=(lambda side,wing,i: not (side==1 and wing==-1 and i>0)) if n==6 else not van
-    carbody.build(g,window_desks=False,curtains=curtains)
+    carbody.build(g,window_desks=False,curtains=curtains,loading=van)
     # Different stock descriptions retain a common fleet identity, including
     # the lamps, gangway profile and door furniture already used by Winterbourne.
     accents={3:{'petrol':'ink','gilt':'brass'},4:{'petrol_light':'hide'},
@@ -74,6 +76,8 @@ def build(g,l):
     if van:
         van_doors(g,n)
         for flank,side in [('Port',-1),('Starboard',1)]:
+            for suffix,hand in [('A',-1),('B',1)]:
+                l.pivots['LoadingDoor_'+flank+'_'+suffix]=(hand*1.45,side*1.555,1.39)
             g.text('Fleet_'+flank,'gilt','NORTH FELL RAILWAY',(-side*4.44,side*1.578,1.78),
                    (pi/2,0,0 if side<0 else pi),.261)
     else:

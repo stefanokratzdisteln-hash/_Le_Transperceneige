@@ -148,8 +148,8 @@ namespace Winterbourne.Pass
             if(!Mathf.Approximately(cold,frostAmount)){frostAmount=cold;frost.MarkDirtyRepaint();}
             string line="";
             switch(journey.Phase){
-                case JourneyPhase.Dwell: line="停车  "+Clock(journey.StationSeconds)+"    靠站侧按 E 开门";break;
-                case JourneyPhase.Chase: line=journey.Aboard?"列车离站":"列车已发车！追向末节亮灯踏板";break;
+                case JourneyPhase.Dwell: line="停车  "+Clock(journey.StationSeconds)+"    对准车门按 E";break;
+                case JourneyPhase.Chase: line=journey.Aboard?"列车正在离站":"对准身边的车门按 E\n按住 Shift 追平，空格跳进门";break;
                 case JourneyPhase.Freezing: line="列车已离开   ·   失温  "+Clock(journey.ColdSeconds);break;
                 case JourneyPhase.Jumping: line="正在下落"; break;
                 case JourneyPhase.UnderCanopy: line="伞已展开   ·   向谷底降落";break;
@@ -157,6 +157,7 @@ namespace Winterbourne.Pass
                     if(d>=1400) line="前方断桥  "+Clock(journey.SecondsToBreak)+"\n"+
                         (!journey.HasParachute ? "去 09 号行李架取伞包" : journey.EscapeReady ? "去 09 号尾门跳伞" : "到车尾准备跳伞");
                     else if(d>=880 && d<1095) line="即将停靠   ·   费尔桥站";
+                    else if(d<90) line="WASD 移动   ·   Shift 加速\n空格 跳跃   ·   E 开关门";
                     break;
             }
             task.text=line;Show(task,line.Length>0&&!end);

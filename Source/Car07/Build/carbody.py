@@ -295,7 +295,7 @@ def _cladding(g,side,wing,group,window_desks,curtains):
         _cabin(g,'Cabin_windows_'+('Port' if side<0 else 'Starboard'),side,wing,i,window_desks,curtains)
 
 
-def _inner_panelling(g,side):
+def _inner_panelling(g,side,loading):
     group = 'Interior_' + ('Corridor_lining' if side < 0 else 'Cabin_lining')
     # These solid sections meet the return around each individual window or
     # door. The continuous chair rail, cornice and skirting stop at the jamb.
@@ -314,10 +314,16 @@ def _inner_panelling(g,side):
                 ('gilt',3.569,.013,1.390,.046)):
             panel_box(mat,x,z,width,height,inner,thickness,.002)
 
-    panel_box('wood',0,1.896,14.810,1.048)
+    wall_runs=((-7.405,-1.47),(1.47,7.405)) if loading else ((-7.405,7.405),)
+    for a,b in wall_runs:
+        panel_box('wood',(a+b)/2,1.896,b-a,1.048)
+        rails(a,b)
     panel_box('wallcloth',0,3.610,14.810,.140)
-    panel_box('wallcloth',0,2.980,3.36,1.120)
-    rails(-7.405,7.405)
+    if not loading:
+        panel_box('wallcloth',0,2.980,3.36,1.120)
+    else:
+        for hand in (-1,1):
+            panel_box('wood',hand*1.575,2.980,.210,1.120)
 
     for wing in (-1,1):
         panel_box('wallcloth',wing*7.3025,2.980,.205,1.120)
@@ -339,7 +345,7 @@ def _inner_panelling(g,side):
 
     # The central blind panels retain the decorative field on the exterior
     # and finish its back as a substantial walnut partition between rooms.
-    for x in (-1.115,0,1.115):
+    for x in (() if loading else (-1.115,0,1.115)):
         _framed_panel(g,group,-side,x,1.921,1.015,.735,-1.426,False)
         outer = _rounded(x,2.980,1.019,.935,.086)
         edge = _rounded(x,2.980,.987,.903,.077)
@@ -349,16 +355,21 @@ def _inner_panelling(g,side):
         _plate(g,group,'wallcloth',-side,-1.425,inner)
 
 
-def build(g, *, window_desks=True, curtains=True):
+def build(g, *, window_desks=True, curtains=True, loading=False):
     g.box('Floorpan','dark',(0,0,1.326),(18.0,2.991,.092),.025)
     for side in (-1,1):
         flank = 'Port' if side == -1 else 'Starboard'
-        _inner_panelling(g,side)
+        _inner_panelling(g,side,loading)
         group = 'Side_panels_'+flank
-        g.box(group,'petrol',(0,side*1.517,2.48),(3.36,.078,2.40))
-        g.box(group,'wood',(0,side*1.555,1.449),(3.36,.028,.126),.008)
-        g.box(group,'gilt',(0,side*1.570,1.482),(3.36,.008,.012),.002)
-        g.box(group,'gilt',(0,side*1.563,1.354),(3.36,.015,.018),.004)
+        if loading:
+            for hand in (-1,1):
+                g.box(group,'petrol',(hand*1.575,side*1.517,2.48),(.210,.078,2.40))
+            g.box(group,'petrol',(0,side*1.517,3.597),(2.94,.078,.166))
+        else:
+            g.box(group,'petrol',(0,side*1.517,2.48),(3.36,.078,2.40))
+            g.box(group,'wood',(0,side*1.555,1.449),(3.36,.028,.126),.008)
+            g.box(group,'gilt',(0,side*1.570,1.482),(3.36,.008,.012),.002)
+            g.box(group,'gilt',(0,side*1.563,1.354),(3.36,.015,.018),.004)
         for wing in (-1,1):
             _cladding(g,side,wing,group,window_desks,curtains)
             _door(g,side,wing,flank+('_A' if wing<0 else '_B'))
