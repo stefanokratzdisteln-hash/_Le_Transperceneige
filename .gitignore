@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+*.blend[0-9]
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Uu]ser[Ss]ettings/
+[Ll]ogs/

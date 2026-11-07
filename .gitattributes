@@ -1,0 +1,11 @@
+*.blend binary
+*.fbx binary
+*.png binary
+*.unitypackage binary
+*.py text eol=lf
+*.cs text eol=lf
+# Unity serializes empty YAML values with one trailing space.
+*.meta text eol=lf whitespace=-blank-at-eol
+*.mat text eol=lf whitespace=-blank-at-eol
+*.prefab text eol=lf whitespace=-blank-at-eol
+*.unity text eol=lf whitespace=-blank-at-eol
