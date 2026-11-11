@@ -68,7 +68,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951576
-    m_Localized: "Esc \xB7 Use room buttons"
+    m_Localized: "Hold RMB  Orbit   \xB7   V  View   \xB7   Esc  Room controls"
     m_Metadata:
       m_Items: []
   - m_Id: 1420951581
@@ -124,7 +124,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1420951559
-    m_Localized: "F  Search / use    \xB7    Tab  Inventory"
+    m_Localized: "F  Search / use   \xB7   Tab  Inventory   \xB7   V  View"
     m_Metadata:
       m_Items: []
   - m_Id: 1420951558
@@ -205,7 +205,8 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 1420951560
     m_Localized: "WASD  Move   \xB7   Shift  Sprint\nSpace  Jump   \xB7   Ctrl  Crouch
-      / stand\nF  Search / use   \xB7   Tab  Inventory"
+      / stand\nF  Search / use   \xB7   Tab  Inventory\nHold RMB  Orbit    \xB7   
+      V  Change view"
     m_Metadata:
       m_Items: []
   - m_Id: 20641230225413
@@ -563,6 +564,50 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 53173002829843
     m_Localized: Empty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67352799608834
+    m_Localized: Tidal nautilus cup
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67352749277184
+    m_Localized: Crystal falcon dagger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67352799608832
+    m_Localized: Snowfell gilt ephemeris
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67352799608835
+    m_Localized: Winter tour violin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67352799608833
+    m_Localized: Frostbridge mystery clock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67352799608840
+    m_Localized: Banded parcel chest
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67352799608836
+    m_Localized: Gilt strongbox
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67352799608839
+    m_Localized: "Tap F or left-click  \xB7  {0}/{1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67352799608837
+    m_Localized: "Opening\u2026"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67352799608838
+    m_Localized: "Ctrl  Crouch / stand  \xB7  Esc  Cancel"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 72245916598272
+    m_Localized: Move close to the front of the chest
     m_Metadata:
       m_Items: []
   references:

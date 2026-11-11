@@ -20,7 +20,7 @@ namespace Winterbourne.Editor
     // Follows the player's normal movement, aim, F, jump, open-parachute, gate and
     // settlement entry points. No fixture places the player, opens a door or supplies an item.
     [InitializeOnLoad]
-    internal static class PassExtractionReview
+    internal static partial class PassExtractionReview
     {
         const string Flag="Winterbourne.ExtractionReview";
         const float Dt=1f/30;
@@ -232,6 +232,55 @@ namespace Winterbourne.Editor
             yield return Straight(()=>house.TransformPoint(new Vector3(-7.88f,(up?3.42f:0)+.025f,up?4.68f:-3.10f)));
             Check(Mathf.Abs(house.InverseTransformPoint(Feet).y-(up?3.42f:0))<.19f,"staircase did not change floor");
         }
+        static IEnumerator ApproachChestFront(PassLootContainer box, Transform frame, float floor)
+        {
+            // The latch and the two hand sockets are on the front. A ray from
+            // the narrow end can identify a case but cannot operate its lock.
+            var workSpot = new Vector3(0,0,box.otherDoor ? -.805f : -.74f);
+            bool AtFront(Vector3 feet)
+            {
+                Vector3 local = box.transform.InverseTransformPoint(feet);
+                return Mathf.Abs(local.x)<.22f && Mathf.Abs(local.z-workSpot.z)<.15f;
+            }
+            yield return Walk(frame,floor,AtFront,"lock face of "+box.name);
+            yield return Straight(()=>box.transform.TransformPoint(workSpot));
+            for(int i=0;i<12;i++) Step(Vector3.zero);
+            Vector3 contact=box.transform.TransformPoint(box.gripLocal);
+            Aim(contact);
+            Physics.SyncTransforms();
+            Debug.Log("CHEST APPROACH "+box.name+" at "+box.transform.InverseTransformPoint(Feet).ToString("F2"));
+        }
+#if ENABLE_INPUT_SYSTEM
+        static IEnumerator CheckTravellingChestPosture(PassLootContainer box)
+        {
+            // Temporarily hand control back to the normal player Update so the
+            // physical Ctrl press is read by the same walker as in a live game.
+            walker.enabled=true;
+            walker.ResumeLook();
+            Check(walker.IsCrouched && route.WorkingChest,"a live front latch must crouch on F");
+            yield return Press();
+            int retained=route.ChestStrokes;
+            Check(retained==1,"first click did not seat the latch");
+            var feet=box.transform.InverseTransformPoint(Feet);
+            foreach(var key in new[]{Key.RightCtrl,Key.LeftCtrl})
+            {
+                InputSystem.QueueStateEvent(keyboard,new KeyboardState(key));
+                yield return null; yield return null;
+                InputSystem.QueueStateEvent(keyboard,new KeyboardState());
+                for(int i=0;i<13;i++)
+                {
+                    route.AdvanceExpedition(Dt);route.Advance(Dt);yield return null;
+                }
+                Check(walker.IsCrouched==(key==Key.LeftCtrl) && route.OpenContainer==box &&
+                    route.WorkingChest && route.ChestStrokes==retained && box.HandsVisible,
+                    "native Ctrl did not preserve the working latch at "+box.name);
+                Vector3 shift=box.transform.InverseTransformPoint(Feet)-feet;
+                Check(new Vector2(shift.x,shift.z).magnitude<.07f,"stance moved the passenger across the cabin");
+            }
+            walker.enabled=false;
+            Debug.Log("TREASURY NATIVE CTRL: both postures worked the same lock and kept "+retained+" stroke at "+box.name);
+        }
+#endif
         static IEnumerator Collect(string id)
         {
             var item=Object.FindObjectsByType<PassPickup>(FindObjectsSortMode.None).FirstOrDefault(p=>p.itemId==id);
@@ -254,16 +303,18 @@ namespace Winterbourne.Editor
                 walker.SetCrouched(true);
                 for(int i=0;i<12;i++)Step(Vector3.zero);
             }
-            var eyeHeight=Eye.position.y-Feet.y;
+            // A previous low-berth search can leave the camera in its transition
+            // to standing height. Sample its current offset at each waypoint.
+            Vector3 EyeFrom(Vector3 feet) => feet + (Eye.position - Feet);
             bool Ready(Vector3 p)
             {
                 return Horizontal(p-fixture.transform.position).sqrMagnitude<7 &&
-                    Sees(p+Vector3.up*eyeHeight,colliders,fixture,out _);
+                    Sees(EyeFrom(p),colliders,fixture,out _);
             }
             bool ClearView(Vector3 p)
             {
                 if(!Ready(p))return false;
-                var eye=p+Vector3.up*eyeHeight;
+                var eye=EyeFrom(p);
                 // Avoid a ray that just grazes a shelf or a bunk edge on one
                 // exact lattice point. Shoes and head settle a few mm in play.
                 return Sees(eye+frame.right*.035f,colliders,fixture,out _) &&
@@ -271,15 +322,30 @@ namespace Winterbourne.Editor
                     Sees(eye+Vector3.up*.025f,colliders,fixture,out _) &&
                     Sees(eye-Vector3.up*.025f,colliders,fixture,out _);
             }
-            for(int attempt=0;attempt<4;attempt++)
+            if(container && container.TapChest)
+                yield return ApproachChestFront(container,frame,aboard?1.405f:upstairs?3.445f:.025f);
+            else
             {
-                yield return Walk(frame,aboard?1.405f:upstairs?3.445f:.025f,Ready,id+" at "+item.siteId,ClearView);
-                for(int i=0;i<14;i++)Step(Vector3.zero);
-                if(Ready(Feet))break;
+                for(int attempt=0;attempt<4;attempt++)
+                {
+                    yield return Walk(frame,aboard?1.405f:upstairs?3.445f:.025f,Ready,id+" at "+item.siteId,ClearView);
+                    for(int i=0;i<14;i++)Step(Vector3.zero);
+                    if(Ready(Feet))break;
+                }
             }
             action="taking "+item.siteId;
-            Check(Sees(Eye.position,colliders,fixture,out var where),"No actual pickup sightline to "+item.siteId);
-            Aim(where);
+            if(FleetImport.Argument("-extractionCase")=="portraits")
+                yield return PhotographArticle(item);
+            if (!Sees(Eye.position,colliders,fixture,out var where))
+            {
+                var target=container && container.TapChest ? container.transform.TransformPoint(container.gripLocal) : fixture.transform.position;
+                var ray=target-Eye.position;
+                var obstructions=Physics.RaycastAll(Eye.position,ray.normalized,ray.magnitude+.05f,
+                    Physics.DefaultRaycastLayers,QueryTriggerInteraction.Collide).OrderBy(hit=>hit.distance)
+                    .Select(hit=>$"{hit.collider.name} at {hit.distance:F2} m");
+                throw new InvalidOperationException($"No pickup sightline to {item.siteId}. Lock ray from {Eye.position:F2}: {string.Join(", ",obstructions)}");
+            }
+            Aim(container && container.TapChest ? container.transform.TransformPoint(container.gripLocal) : where);
             Physics.Raycast(Eye.position,Eye.forward,out var aimHit,walker.interactionDistance,
                 Physics.DefaultRaycastLayers,QueryTriggerInteraction.Collide);
             int previous=route.CarriedValue;
@@ -288,6 +354,17 @@ namespace Winterbourne.Editor
             {
                 Check(route.OpenContainer==container,"F did not open "+fixture.name+"; aimed at "+
                     (aimHit.collider?aimHit.collider.name:"none")+" from "+Eye.position.ToString("F2")+"; "+route.Notice);
+#if ENABLE_INPUT_SYSTEM
+                if(container.TapChest && keyboard!=null && FleetImport.Argument("-extractionCase")=="treasuries")
+                    yield return CheckTravellingChestPosture(container);
+#endif
+                double chestDeadline=Time.realtimeSinceStartupAsDouble+15;
+                while(route.WorkingChest && Time.realtimeSinceStartupAsDouble<chestDeadline)
+                {
+                    if(!route.RevealingChest)yield return Press();
+                    else { Step(Vector3.zero);yield return null; }
+                }
+                Check(!route.WorkingChest,"Chest did not finish its physical reveal");
                 double unlockDeadline=Time.realtimeSinceStartupAsDouble+10;
                 while(route.PickingLock && Time.realtimeSinceStartupAsDouble<unlockDeadline)
                 {
@@ -344,7 +421,9 @@ namespace Winterbourne.Editor
                 .Where(d=>d.kind==PassDoorKind.Passenger && d.ExteriorSide<0)
                 .OrderBy(d=>Mathf.Abs(-d.threshold.position.z+PassJourney.Stop-route.Distance-PassFittings.StationHouseChainage)).First();
             var pos=route.consist.InverseTransformPoint(door.threshold.position);
-            yield return WalkPoint(route.consist,new Vector3(-.94f,1.405f,pos.z),$"{car:00} platform vestibule");
+            // Stand beside the sill before the physical door crossing. Allow
+            // the width of a navigation cell plus the capsule's settling skin.
+            yield return WalkPoint(route.consist,new Vector3(-.94f,1.405f,pos.z),$"{car:00} platform vestibule",.22f);
             action="waiting for Fellbridge";yield return WaitFor(()=>route.Phase==JourneyPhase.Dwell);
             yield return UseDoor(door);
             yield return Straight(()=>new Vector3(PassJourney.PlatformEdge-.54f,1.405f,door.threshold.position.z));
@@ -399,6 +478,26 @@ namespace Winterbourne.Editor
             }
 #endif
             string only=FleetImport.Argument("-extractionCase");
+            if(only=="detective")
+            {
+                yield return DetectivePortraits();
+                yield break;
+            }
+            if(only=="chestPhotos")
+            {
+                yield return WalkChestPhotos();
+                yield break;
+            }
+            if(only=="portraits")
+            {
+                yield return CabinetPortraits();
+                yield break;
+            }
+            if(only=="treasuries")
+            {
+                yield return TreasuryJourneys();
+                yield break;
+            }
             if(only=="passage"||only=="landing")
             {
                 route.NewGame();
@@ -418,8 +517,13 @@ namespace Winterbourne.Editor
                 string wanted=FleetImport.Argument("-extractionRequireSite");
                 if(!string.IsNullOrEmpty(wanted))
                 {
-                    bool HasSite()=>Object.FindObjectsByType<PassPickup>(FindObjectsSortMode.None).Any(p=>p.siteId==wanted);
-                    for(int roll=0;!HasSite() && roll<64;roll++)route.NewGame();
+                    var requiredSites=wanted.Split('|');
+                    bool HasSite()
+                    {
+                        var active=Object.FindObjectsByType<PassPickup>(FindObjectsSortMode.None);
+                        return requiredSites.All(site=>active.Any(p=>p.siteId==site));
+                    }
+                    for(int roll=0;!HasSite() && roll<256;roll++)route.NewGame();
                     Check(HasSite(),"Could not roll requested placement "+wanted);
                 }
                 yield return EnterGate(route.hubGate,()=>route.Aboard);
@@ -444,13 +548,18 @@ namespace Winterbourne.Editor
                     }
                 }
                 int target=name=="shortfall"?239999:name=="station"?242000:248000;
-                Check(route.CarriedValue==target&&route.InsideCottage&&route.RunSeconds>0,"arrived with incorrect value or time");
-                for(int i=0;i<7;i++){Step(Vector3.zero);yield return null;}
-                var button=Object.FindAnyObjectByType<UIDocument>().rootVisualElement.Q<Button>("endGame");
-                using(var submit=NavigationSubmitEvent.GetPooled()){submit.target=button;button.SendEvent(submit);}
-                Check(route.HasSettlement&&route.SettledSuccessfully==(target>=PassJourney.TargetValue),"wrong settlement");
-                Debug.Log($"EXTRACTION RESULT: {name}, {target}, remaining {route.RunSeconds:F1}s, success={route.SettledSuccessfully}");
+                yield return SettleAtHome(name,target);
             }
+        }
+
+        static IEnumerator SettleAtHome(string name,int target)
+        {
+            Check(route.CarriedValue==target&&route.InsideCottage&&route.RunSeconds>0,"arrived with incorrect value or time");
+            for(int i=0;i<7;i++){Step(Vector3.zero);yield return null;}
+            var button=Object.FindAnyObjectByType<UIDocument>().rootVisualElement.Q<Button>("endGame");
+            using(var submit=NavigationSubmitEvent.GetPooled()){submit.target=button;button.SendEvent(submit);}
+            Check(route.HasSettlement&&route.SettledSuccessfully==(target>=PassJourney.TargetValue),"wrong settlement");
+            Debug.Log($"EXTRACTION RESULT: {name}, {target}, remaining {route.RunSeconds:F1}s, success={route.SettledSuccessfully}");
         }
     }
 }

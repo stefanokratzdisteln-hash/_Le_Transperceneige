@@ -7,23 +7,38 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Cobalt
-    second: {fileID: 2100000, guid: 515467e1cd405b92812bb9fb791c879a, type: 2}
+      name: Blued
+    second: {fileID: 2100000, guid: be84959ac52658f1b45ae960b4c535d5, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Crystal
-    second: {fileID: 2100000, guid: c69708072b845d7097e99aa7a0fff93b, type: 2}
+      name: Cabinet antique gold
+    second: {fileID: 2100000, guid: faaa493bee86526ea0ea590c5a5a2453, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Emerald
-    second: {fileID: 2100000, guid: b3a3788101b1521b9970acef9d939bab, type: 2}
+      name: Cabinet chased gold
+    second: {fileID: 2100000, guid: b2c285264efe53bcbf3bf19fa96200dc, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Gold
-    second: {fileID: 2100000, guid: 15f8b33863db5a7bb7d9c60b587c0b75, type: 2}
+      name: Cabinet garnet
+    second: {fileID: 2100000, guid: b24b5ed942cf5649a632097f019883a1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cabinet rose cut diamond
+    second: {fileID: 2100000, guid: 39601f2ac3fe5ce08b159a73dcc6d137, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cabinet velvet
+    second: {fileID: 2100000, guid: 7029e831fa1653b2ac7299ec59053abb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Geneva flinque enamel
+    second: {fileID: 2100000, guid: 57ceeaa713db5c5cbffa2d0355553213, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -32,38 +47,23 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Ivory
-    second: {fileID: 2100000, guid: 488029c317f7cd74da7c1ba1896ea643, type: 2}
+      name: Kingfisher cerulean
+    second: {fileID: 2100000, guid: 6611abb650ad5877bad0c8bb323a2f47, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Miniature
-    second: {fileID: 2100000, guid: b0851761c5255a1290e3709f65dd1e2a, type: 2}
+      name: Kingfisher rust
+    second: {fileID: 2100000, guid: 1e011196fc8b53dda227c1efb96a8d54, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Peacock
-    second: {fileID: 2100000, guid: 2fa4d568a5115c73b6653ddb3ebb664f, type: 2}
+      name: Lake enamel miniature
+    second: {fileID: 2100000, guid: 6adf3a46cd53516d9004b16bad96fdcb, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Pearl
     second: {fileID: 2100000, guid: 6c25ab441ace52fc8cac962678d722b1, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Rose
-    second: {fileID: 2100000, guid: fe1fadc12d36597cbb6e310fa53d60af, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Sapphire
-    second: {fileID: 2100000, guid: 0687a62479c25e499467d1833450b3f2, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Turquoise
-    second: {fileID: 2100000, guid: ff92a666731755e6b1fb3f65a8b88adb, type: 2}
   materials:
     materialImportMode: 1
     materialName: 0

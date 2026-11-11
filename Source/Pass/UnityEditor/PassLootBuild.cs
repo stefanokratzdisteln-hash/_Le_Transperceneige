@@ -68,7 +68,7 @@ namespace Winterbourne.Editor
 
             Case(Car(5),"singing_bird_box","05 reading desk",P(-.70f,2.207f,-9.06f),-90,"trunk");
             Case(Car(5),"singing_bird_box","05 passenger luggage sideboard",P(-1.95f,2.287f,10.46f),-90,"trunk");
-            Put(Car(5),"singing_bird_box","05 luggage recess middle shelf",P(1.54f,2.113f,9.38f),-90);
+            Put(Car(5),"singing_bird_box","05 luggage recess middle shelf",P(1.48f,2.113f,9.38f),76);
             Put(Car(5),"jewelled_fan","05 low luggage shelf",P(1.54f,1.544f,10.13f),-90);
             Put(Car(5),"silver_nef","05 forwarding room upper shelf",P(1.54f,2.664f,9.68f),-90);
 
@@ -102,7 +102,7 @@ namespace Winterbourne.Editor
 
             Case(Car(9),"rose_egg","09 bonded cabinet",P(-1.95f,2.287f,-8.72f),-90,"cabinet",true);
             Case(Car(9),"rose_egg","09 sorting room dispatch trunk",P(-1.94f,2.287f,10.66f),-90,"trunk");
-            Put(Car(9),"rose_egg","09 guard's writing desk",P(-1.07f,2.234f,4.56f),75);
+            Put(Car(9),"rose_egg","09 guard's writing desk",P(-.94f,2.234f,4.55f),-42);
             Put(Car(9),"silver_nef","09 consigned silver shelf",P(1.55f,2.114f,-9.95f),-90);
 
             // Passenger-facing side of the parcels office: the wall of tagged
@@ -118,6 +118,84 @@ namespace Winterbourne.Editor
             Case(house,"emerald_tiara","FB unclaimed luggage valise",P(-8.10f,.017f,-4.89f),-90,"trunk",true);
             Put(house,"cloisonne_vase","FB stationmaster's desk corner",P(-1.88f,4.239f,-5.54f),36);
             PassBuild.Check(sites.Count>=36 && types.Count==16,"Incomplete searchable luggage layout");
+
+            // Additional deposits have their own instance identities. Original
+            // high-value route manifests still roll at their established sites.
+            void Parcel(Transform room,string site,Vector3 pos,float angle,string article)
+            {
+                var tray=fittings.Case(room,site,pos,angle,"parcelChest",true);
+                PassLootFixtures.Item(tray,article,site+" parcel",string.Empty,Vector3.zero);
+            }
+            void Treasury(Transform room,string site,Vector3 pos,float angle,string ordinary)
+            {
+                var tray=fittings.Case(room,site,pos,angle,"treasuryChest",true);
+                foreach(var article in PassLootCatalogue.GrandTreasures)
+                {
+                    var option=PassLootFixtures.Item(tray,article,site+" "+article,PassLootCatalogue.TreasuryGroup,Vector3.zero);
+                    SeatInVelvetBay(option);
+                    option.gameObject.SetActive(false);
+                }
+                PassLootFixtures.Item(tray,ordinary,site+" registered parcel",PassLootCatalogue.TreasuryGroup,Vector3.zero);
+            }
+            Parcel(Car(3),"03 linen dispatch chest",P(-1.98f,1.382f,-10.97f),-90,"scent_flacon");
+            Parcel(Car(5),"05 forwarded passenger chest",P(-1.99f,1.382f,8.45f),-90,"diptych_dial");
+            Parcel(house,"FB parcels office chest",P(-6.05f,.017f,-4.51f),0,"jewelled_fan");
+            Treasury(Car(4),"04 drawing room treasury",P(2.01f,1.382f,10.65f),90,"silver_nef");
+            Treasury(Car(9),"09 bonded freight treasury",P(-2.01f,1.382f,-11.03f),-90,"cloisonne_vase");
+            Treasury(house,"FB parcels office treasury",P(-4.19f,.017f,-4.53f),0,"diptych_dial");
+        }
+
+        // The fixed lock escutcheon splits the front into two narrow openings.
+        // Align the instrument neck into the deep case and bed its lower bout
+        // on the velvet. Preserve real scale and keep both leaves clear.
+        static void SeatInVelvetBay(PassPickup article)
+        {
+            var holder=article.transform;
+            var vertices=new List<Vector3>();
+            foreach(var filter in holder.GetComponentsInChildren<MeshFilter>())
+            {
+                var toHolder=holder.worldToLocalMatrix*filter.transform.localToWorldMatrix;
+                foreach(var point in filter.sharedMesh.vertices)
+                    vertices.Add(toHolder.MultiplyPoint3x4(point));
+            }
+            Quaternion pose=Quaternion.identity;
+            if(article.itemId=="touring_violin" || article.itemId=="falcon_dagger")
+            {
+                float angle=article.itemId=="touring_violin"?60:48;
+                float radians=angle*Mathf.Deg2Rad;
+                pose=Quaternion.LookRotation(Vector3.left,new Vector3(0,Mathf.Cos(radians),-Mathf.Sin(radians)));
+                if(article.itemId=="touring_violin" && NarrowEndIsNegative(vertices))
+                    pose*=Quaternion.Euler(0,180,0);
+            }
+            else if(article.itemId=="gilt_ephemeris")
+                pose=Quaternion.Euler(-55,0,0);
+            var bounds=new Bounds(pose*vertices[0],Vector3.zero);
+            foreach(var point in vertices) bounds.Encapsulate(pose*point);
+            PassBuild.Check(bounds.size.x<.281f && bounds.size.y<.552f && bounds.size.z<.40f,
+                article.itemId+" does not fit the treasury's velvet bay: "+bounds.size.ToString("F3"));
+            holder.SetLocalPositionAndRotation(new Vector3(-bounds.center.x,.008f-bounds.min.y,-bounds.center.z),pose);
+        }
+
+        static bool NarrowEndIsNegative(List<Vector3> vertices)
+        {
+            var bounds=new Bounds(vertices[0],Vector3.zero);
+            foreach(var p in vertices)bounds.Encapsulate(p);
+            var negative=new Bounds();var positive=new Bounds();
+            bool left=false,right=false;
+            foreach(var point in vertices)
+            {
+                if(point.x<bounds.min.x+.15f*bounds.size.x)
+                {
+                    if(left) negative.Encapsulate(point); else negative=new Bounds(point,Vector3.zero);
+                    left=true;
+                }
+                if(point.x>bounds.max.x-.15f*bounds.size.x)
+                {
+                    if(right) positive.Encapsulate(point); else positive=new Bounds(point,Vector3.zero);
+                    right=true;
+                }
+            }
+            return negative.size.z<positive.size.z;
         }
     }
 }

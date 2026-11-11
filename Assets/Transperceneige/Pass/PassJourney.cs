@@ -15,6 +15,8 @@ namespace Winterbourne.Pass
     {
         public Transform consist, chaseGrip, chaseArrival, escapeLaunch;
         public Car07Walker walker;
+        PassDetectivePlayer detectiveView;
+        public bool ViewingCharacter=>detectiveView && detectiveView.ViewingCharacter;
         public GameObject canopy;
         public float NoseDatum { get; private set; }
         public float TrainLength { get; private set; }
@@ -74,6 +76,7 @@ namespace Winterbourne.Pass
 
         void Start()
         {
+            detectiveView=walker?walker.GetComponent<PassDetectivePlayer>():null;
             body=walker.GetComponent<CharacterController>();
             ladders=consist.GetComponentsInChildren<PassRoofLadder>();
             tunnelZones=FindObjectsByType<PassTunnelClearance>(FindObjectsSortMode.None);
@@ -151,7 +154,12 @@ namespace Winterbourne.Pass
             if(InStartMenu) return;
             if(Terminal){ if(Key('R')) Retry(); }
             else {
-                if(InventoryOpen && Key((char)27)) SetInventory(false);
+                if(WorkingChest)
+                {
+                    if(Key((char)27) || Key('B') || !CabinetStillInReach()) CloseSearch();
+                    else if(Key('F') || ChestClick()) TapFocusedChest();
+                }
+                else if(InventoryOpen && Key((char)27)) SetInventory(false);
                 else if(Key('B') && !Airborne) SetInventory(!InventoryOpen);
                 else if(SearchOpen)
                 {
@@ -175,6 +183,7 @@ namespace Winterbourne.Pass
             // Test F against the pin shown on the previous frame. A slow frame
             // can then neither skip the green band nor move the pin mid-press.
             if(PickingLock) lockTravel+=.78f*Mathf.Min(Time.unscaledDeltaTime,.065f);
+            AdvanceChestReveal();
             PollPortals();
             ReconcileBoarding();
             CheckTunnelImpact();
@@ -203,6 +212,8 @@ namespace Winterbourne.Pass
 
         bool TryUsePassage()
         {
+            if(ViewingCharacter)return false;
+            if(WorkingChest)return false;
             if (TryTargetLadder(out var ladder,out bool descend))
             {
                 StartLadder(ladder,descend);
@@ -262,6 +273,7 @@ namespace Winterbourne.Pass
 
         public string ActionPrompt()
         {
+            if(ViewingCharacter)return string.Empty;
             if (Terminal || InventoryOpen || InStartMenu || !walker || !walker.eyeCamera) return "";
             if (ClimbingRoofLadder) return PassText.Get("roof.climbing");
             if (walker.HasMouse && LootPrompt(out string loot)) return loot;
@@ -458,6 +470,17 @@ namespace Winterbourne.Pass
 
         public void Tell(string text){ notice=text; noticeItem=null; noticeUntil=Time.unscaledTime+2.4f; }
         void Sound(AudioClip clip){ if(signal && clip) signal.PlayOneShot(clip,.53f); }
+
+        static bool ChestClick()
+        {
+#if ENABLE_INPUT_SYSTEM
+            return Mouse.current!=null && Mouse.current.leftButton.wasPressedThisFrame;
+#elif ENABLE_LEGACY_INPUT_MANAGER
+            return Input.GetMouseButtonDown(0);
+#else
+            return false;
+#endif
+        }
 
         static bool Key(char key)
         {

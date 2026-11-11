@@ -10,7 +10,7 @@ hub.returned	Back at the cottage	已返回小屋
 hub.restarted	A new journey	新一趟旅程
 station.returned	Back at Fellbridge	已返回费尔桥站
 landing.safe	Safe landing · Walk through the return gate or enter the cottage through its lit door.	安全着陆 · 穿过回程书柜，或从亮灯的外门走进桥下小屋。
-hub.controls	Esc · Use room buttons	Esc · 使用小屋按钮
+hub.controls	Hold RMB  Orbit   ·   V  View   ·   Esc  Room controls	按住右键 环绕   ·   V 视角   ·   Esc 小屋按钮
 hub.ready	Walk through the blue light in the bookcase to board coach 07.	穿过书柜中央的蓝光，登上 07 号卧铺。
 hub.chase	The train is leaving. The gate still leads to Fellbridge.	列车正在离站，仍可经传送门返回费尔桥站。
 hub.wait	Fellbridge departs in {0}	费尔桥站还有 {0} 发车
@@ -24,7 +24,7 @@ inventory.choose	Select an item, then its destination slot.	选中物品，再�
 inventory.move	{0} · Choose a destination slot	{0} · 请选择目标格
 inventory.close	Tab   Close inventory	Tab   收起背包
 inventory.empty	Empty slot	空格位
-controls.shortcuts	F  Search / use    ·    Tab  Inventory	F  搜查与交互    ·    Tab  背包
+controls.shortcuts	F  Search / use   ·   Tab  Inventory   ·   V  View	F 搜查与交互   ·   Tab 背包   ·   V 视角
 controls.retry	R   Retry checkpoint	R   从检查点重试
 mountain	Fell mountains	雪岭山地
 tunnel	Mountain tunnel	山腰隧道
@@ -43,7 +43,7 @@ bridge.pack	Collect the parachute in van 09	去 09 号行李架取伞包
 bridge.ready	Van 09: F / E at the rear door. Space to jump, then press Space again to open the parachute.	09 号尾门：按 F / E 开门。空格跳出，离车后再按一次空格开伞。
 bridge.wait	Get to the rear of van 09. In the air, press Space again to deploy.	到 09 号车尾准备。跳出后，再按一次空格开伞。
 station.approach	Approaching Fellbridge	即将停靠费尔桥站
-controls.walk	WASD  Move   ·   Shift  Sprint\nSpace  Jump   ·   Ctrl  Crouch / stand\nF  Search / use   ·   Tab  Inventory	WASD 移动   ·   Shift 加速\n空格 跳跃   ·   Ctrl 蹲下 / 站起\nF 搜查与交互   ·   Tab 背包
+controls.walk	WASD  Move   ·   Shift  Sprint\nSpace  Jump   ·   Ctrl  Crouch / stand\nF  Search / use   ·   Tab  Inventory\nHold RMB  Orbit    ·    V  Change view	WASD 移动   ·   Shift 加速\n空格 跳跃   ·   Ctrl 蹲下 / 站起\nF 搜查与交互   ·   Tab 背包\n按住鼠标右键 环绕    ·    V 切换视角
 roof.up	F / E   Climb to the roof	F / E   沿梯子爬上车顶
 roof.down	F / E   Climb down into the van	F / E   沿梯子返回车内
 roof.climbing	On the ladder	正在爬梯子
@@ -132,3 +132,14 @@ search.close	Esc   Close	Esc   收起
 search.exchange	Bag full · Click the bag slot to leave here in exchange.	背包已满，点选一格，将原物留在此处交换。
 search.select	Click a row or use ↑ / ↓ to select.	点击物品或按 ↑ / ↓ 选择。
 search.empty	Empty	已搜空
+item.nautilus_cup	Tidal nautilus cup	潮汐鹦鹉螺珍宝杯
+item.falcon_dagger	Crystal falcon dagger	红隼水晶礼匕
+item.gilt_ephemeris	Snowfell gilt ephemeris	雪岭金装星历
+item.touring_violin	Winter tour violin	冬季巡演名琴
+item.mystery_clock	Frostbridge mystery clock	霜桥悬针钟
+search.woodChest	Banded parcel chest	旧木行李箱
+search.goldChest	Gilt strongbox	鎏金珍宝柜
+search.tapChest	Tap F or left-click  ·  {0}/{1}	连按 F 或鼠标左键  ·  {0}/{1}
+search.revealing	Opening…	正在开启…
+search.tapCancel	Ctrl  Crouch / stand  ·  Esc  Cancel	Ctrl 蹲下／站起  ·  Esc 取消
+search.approachFront	Move close to the front of the chest	走到宝箱正面并靠近

@@ -46,9 +46,75 @@ namespace Winterbourne.Demo
         public Vector3 PlanarVelocity => planarVelocity + inheritedVelocity;
         public float VerticalSpeed => fallSpeed;
         public bool HasMouse => ownsCursor;
+        public System.Func<Vector2,bool> consumeOrbitLook;
         public float ViewPitch => pitch;
         bool overlayOpen;
         int resumeFrame = -1;
+        Transform chestFrame;
+        Vector3 chestLookPoint;
+        Vector2 chestLookOffset;
+        float chestFov, ordinaryFov;
+        bool restoreFov, stanceBeforeChest;
+
+        public void BeginChestInspection(Transform relativeTo, Vector3 localFocus, float targetFov)
+        {
+            if (!relativeTo || !eyeCamera || !controller.enabled) return;
+            if (!chestFrame)
+            {
+                stanceBeforeChest = CrouchSelected;
+                if (!restoreFov) ordinaryFov = eyeCamera.fieldOfView;
+            }
+            restoreFov = false;
+            chestFrame = relativeTo;
+            chestLookPoint = localFocus;
+            chestLookOffset = Vector2.zero;
+            chestFov = Mathf.Clamp(targetFov, 28f, Mathf.Max(ordinaryFov,84f));
+            yaw = transform.localEulerAngles.y;
+            pitch = Mathf.DeltaAngle(0f, eyeCamera.transform.localEulerAngles.x);
+            SetCrouched(true);
+            eyeChangingHeight = true;
+        }
+
+        public void EndChestInspection()
+        {
+            if (!chestFrame) return;
+            chestFrame = null;
+            restoreFov = true;
+            // A shelf or low ceiling can keep the passenger crouched until clear.
+            SetCrouched(stanceBeforeChest);
+            eyeChangingHeight = true;
+            targetYaw = yaw;
+            targetPitch = pitch;
+        }
+
+        public void SetChestInspectionFocus(Vector3 localFocus) => chestLookPoint = localFocus;
+
+        void UpdateChestView(float dt)
+        {
+            if (!eyeCamera || (!chestFrame && !restoreFov)) return;
+            float blend = 1f - Mathf.Exp(-13f * dt);
+            float field = chestFrame ? chestFov : ordinaryFov;
+            eyeCamera.fieldOfView = Mathf.Lerp(eyeCamera.fieldOfView, field, blend);
+            if (!chestFrame)
+            {
+                if (Mathf.Abs(eyeCamera.fieldOfView - field) < .05f)
+                {
+                    eyeCamera.fieldOfView = field;
+                    restoreFov = false;
+                }
+                return;
+            }
+            Vector3 aim = chestFrame.TransformPoint(chestLookPoint) - eyeCamera.transform.position;
+            if (transform.parent) aim = transform.parent.InverseTransformDirection(aim);
+            if (aim.sqrMagnitude < .0001f) return;
+            targetYaw = Mathf.Atan2(aim.x, aim.z) * Mathf.Rad2Deg + chestLookOffset.x;
+            float slope = -Mathf.Asin(Mathf.Clamp(aim.normalized.y, -1f, 1f)) * Mathf.Rad2Deg;
+            targetPitch = Mathf.Clamp(slope + chestLookOffset.y, -82f, 82f);
+            yaw = Mathf.LerpAngle(yaw, targetYaw, blend);
+            pitch = Mathf.Lerp(pitch, targetPitch, blend);
+            transform.localRotation = Quaternion.Euler(0f, yaw, 0f);
+            eyeCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+        }
 
         public void ResumeLook()
         {
@@ -113,14 +179,20 @@ namespace Winterbourne.Demo
             float dt = Time.deltaTime;
             if (ownsCursor)
             {
-                targetYaw = Mathf.Repeat(targetYaw + look.x * lookSensitivity, 360f);
-                targetPitch = Mathf.Clamp(targetPitch - look.y * lookSensitivity, -82f, 82f);
-                float blend = 1f - Mathf.Exp(-27f * dt);
-                yaw = Mathf.LerpAngle(yaw, targetYaw, blend);
-                pitch = Mathf.Lerp(pitch, targetPitch, blend);
-                transform.localRotation = Quaternion.Euler(0f, yaw, 0f);
-                if (eyeCamera)
-                    eyeCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+                if(consumeOrbitLook!=null && consumeOrbitLook(look)) look=Vector2.zero;
+                if (chestFrame)
+                    chestLookOffset += new Vector2(look.x, -look.y) * lookSensitivity;
+                else
+                {
+                    targetYaw = Mathf.Repeat(targetYaw + look.x * lookSensitivity, 360f);
+                    targetPitch = Mathf.Clamp(targetPitch - look.y * lookSensitivity, -82f, 82f);
+                    float blend = 1f - Mathf.Exp(-27f * dt);
+                    yaw = Mathf.LerpAngle(yaw, targetYaw, blend);
+                    pitch = Mathf.Lerp(pitch, targetPitch, blend);
+                    transform.localRotation = Quaternion.Euler(0f, yaw, 0f);
+                    if (eyeCamera)
+                        eyeCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+                }
                 if (useDoor && !externalMotion)
                     Interact();
             }
@@ -141,6 +213,7 @@ namespace Winterbourne.Demo
             {
                 if (toggleCrouch && !overlayOpen && (canCrouchDuringExternalMotion?.Invoke() ?? false)) ToggleCrouch();
                 UpdateEyeHeight(dt);
+                UpdateChestView(dt);
                 externalInput?.Invoke(axes,jump);
                 return;
             }
@@ -189,6 +262,7 @@ namespace Winterbourne.Demo
                 ApplyStance(false);
             }
             UpdateEyeHeight(dt);
+            UpdateChestView(dt);
             JumpAge += dt;
         }
 
@@ -260,6 +334,8 @@ namespace Winterbourne.Demo
             if (!eyeChangingHeight || !eyeCamera) return;
             Vector3 eye = eyeCamera.transform.localPosition;
             float target = standingEyeHeight - (StandingHeight - controller.height);
+            if (chestFrame && IsCrouched)
+                target = Mathf.Max(controller.radius + .08f, target - .20f);
             eye.y = Mathf.MoveTowards(eye.y, target, 5f * dt);
             eyeCamera.transform.localPosition = eye;
             eyeChangingHeight = eye.y != target;

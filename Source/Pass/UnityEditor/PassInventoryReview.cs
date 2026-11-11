@@ -35,9 +35,9 @@ namespace Winterbourne.Editor
             EditorSceneManager.OpenScene(PassBuild.ScenePath);
             var route=Object.FindAnyObjectByType<PassJourney>();
             var house=GameObject.Find("Fellbridge Station/Fellbridge station house").transform;
-            var articles=Object.FindObjectsByType<PassPickup>(FindObjectsSortMode.None)
+            var articles=Object.FindObjectsByType<PassPickup>(FindObjectsInactive.Include,FindObjectsSortMode.None)
                 .Where(p=>PassLootCatalogue.Value(p.itemId)>0).ToArray();
-            Check(articles.Length>=36 && articles.Select(p=>p.itemId).Distinct().Count()==16,"incomplete exhibit list");
+            Check(articles.Length>=36 && articles.Select(p=>p.itemId).Distinct().Count()==21,"incomplete exhibit list");
             var capsule=route.walker.GetComponent<CharacterController>();
             float eyeHeight=route.walker.eyeCamera.transform.localPosition.y;
             Physics.SyncTransforms();
@@ -51,9 +51,9 @@ namespace Winterbourne.Editor
                     room=p.transform;
                     while(room.parent!=route.consist) room=room.parent;
                 }
-                var container=p.GetComponentInParent<PassLootContainer>();
+                var container=p.GetComponentInParent<PassLootContainer>(true);
                 var shape=p.GetComponentInChildren<Collider>();
-                var centre=shape.bounds.center;
+                var centre=container && container.TapChest ? container.transform.TransformPoint(container.gripLocal) : shape.bounds.center;
                 bool InReach(Vector3 eye, Vector3 aim)
                 {
                     var ray=aim-eye;
@@ -68,7 +68,7 @@ namespace Winterbourne.Editor
                     if(!InReach(p.bedsideArrival.position+Vector3.up*eyeHeight,centre))
                         failed.Add(p.siteId+" (initial view)");
                 }
-                var targets=container ? container.GetComponentsInChildren<Collider>().Select(c=>c.bounds.center).ToArray() :
+                var targets=container && !container.TapChest ? container.GetComponentsInChildren<Collider>().Select(c=>c.bounds.center).ToArray() :
                     new[]{centre};
                 float floorY=room==house ? house.TransformPoint(Vector3.up*(house.InverseTransformPoint(centre).y>3.42f?3.42f:0)).y :
                     room.TransformPoint(Vector3.up*1.382f).y;
@@ -92,7 +92,8 @@ namespace Winterbourne.Editor
                 if(!reachable) failed.Add(p.siteId);
             }
             Check(beds==3 && failed.Count==0,"no view from standing or crouched room floor: "+string.Join(", ",failed));
-            Debug.Log($"PASS SEARCH SITES: {articles.Length} authored alternatives, 16 articles, {beds} initial bedside sightlines");
+            PassChestAccessReview.Check(route,house,articles);
+            Debug.Log($"PASS SEARCH SITES: {articles.Length} authored alternatives, 21 articles, {beds} initial bedside sightlines");
         }
 
         public static void Run()

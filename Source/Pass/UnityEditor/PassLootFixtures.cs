@@ -11,7 +11,7 @@ namespace Winterbourne.Editor
 {
     // All positions refer to the supporting furniture or the lining of a case.
     // A drawer carries its contents; a hinged lid leaves them in the bottom half.
-    public sealed class PassLootFixtures : IDisposable
+    public sealed partial class PassLootFixtures : IDisposable
     {
         const string Art="Assets/Transperceneige/Pass/Valuables/";
         readonly GameObject workshop=new GameObject("Unpacked case patterns");
@@ -56,12 +56,14 @@ namespace Winterbourne.Editor
             go.name=name;
             go.transform.SetLocalPositionAndRotation(local,Quaternion.Euler(0,yaw,0));
             var interaction=go.GetComponent<PassLootContainer>();
-            if(interaction) interaction.locked=locked;
+            if(interaction) interaction.locked=locked || interaction.TapChest;
+            if(style=="parcelChest") IlluminateParcel(parent,go.transform);
             return go.GetComponentsInChildren<Transform>(true).Single(t=>t.name=="Contents");
         }
 
         GameObject BuildPattern(string style)
         {
+            if(style=="parcelChest" || style=="treasuryChest") return TapChest(style);
             var root=Child(workshop.transform,"Case "+style,Vector3.zero);
             var fixedMesh=new StationFabrication();
             var movingMesh=new StationFabrication();
@@ -164,6 +166,7 @@ namespace Winterbourne.Editor
             var root=Child(parent,siteId,local);
             root.transform.localRotation=Quaternion.Euler(0,yaw,0);
             var instance=(GameObject)PrefabUtility.InstantiatePrefab(model,root.transform);
+            if(itemId=="mystery_clock") root.AddComponent<PassMysteryClock>().Bind(instance.transform);
             var renderers=instance.GetComponentsInChildren<MeshRenderer>();
             PassBuild.Check(renderers.Length>0,"No visible jewellery for "+itemId);
             // Compute the interaction volume from the imported mesh in the site's own

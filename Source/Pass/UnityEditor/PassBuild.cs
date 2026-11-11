@@ -99,6 +99,8 @@ namespace Winterbourne.Editor
             route.canopy.SetActive(false);
             PassPortalBuild.Build(route);
             PassLootBuild.Build(cars,GameObject.Find("Fellbridge Station/Fellbridge station house").transform);
+            AntiqueCabinetLighting.Build(cars);
+            AddDetective(route);
             SetHud(route);
             AssetDatabase.SaveAssets();
             Check(EditorSceneManager.SaveScene(scene, ScenePath, true), "Could not save WinterbournePass scene");
@@ -107,12 +109,46 @@ namespace Winterbourne.Editor
             CheckSavedScene();
         }
 
+        static void AddDetective(PassJourney route)
+        {
+            var prefab=DetectiveBuild.BuildPrefab();
+            Check(prefab,"Missing detective character prefab");
+            var walker=route.walker;
+            var avatar=(GameObject)PrefabUtility.InstantiatePrefab(prefab,walker.transform);
+            avatar.name="Sherlock Holmes";
+            foreach(var node in avatar.GetComponentsInChildren<Transform>(true))
+                node.gameObject.layer=PassDetectivePlayer.BodyLayer;
+            var pose=avatar.AddComponent<PassDetectivePose>();
+            pose.walker=walker;pose.journey=route;
+            var rig=walker.gameObject.AddComponent<PassDetectivePlayer>();
+            rig.avatar=avatar.transform;rig.journey=route;
+            var host=new GameObject("Following camera");
+            host.transform.SetParent(walker.transform,false);
+            var follow=host.AddComponent<Camera>();
+            follow.CopyFrom(walker.eyeCamera);
+            follow.nearClipPlane=.045f;
+            follow.enabled=false;
+            var data=follow.GetUniversalAdditionalCameraData();
+            var source=walker.eyeCamera.GetUniversalAdditionalCameraData();
+            data.renderPostProcessing=source.renderPostProcessing;
+            data.antialiasing=source.antialiasing;
+            data.volumeLayerMask=source.volumeLayerMask;
+            rig.followingCamera=follow;
+            walker.eyeCamera.cullingMask&=~(1<<PassDetectivePlayer.BodyLayer);
+            follow.cullingMask=walker.eyeCamera.cullingMask|(1<<PassDetectivePlayer.BodyLayer);
+        }
+
         public static void CheckSavedScene()
         {
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             var route = Object.FindFirstObjectByType<PassJourney>();
             Check(route && route.walker && route.consist && route.canopy && route.chaseGrip && route.chaseArrival &&
                 route.escapeLaunch, "Missing a route or passenger reference in the saved scene");
+            var detective=route.walker.GetComponent<PassDetectivePlayer>();
+            Check(detective && detective.Avatar && detective.followingCamera &&
+                detective.Avatar.GetComponentsInChildren<SkinnedMeshRenderer>(true).Length>0 &&
+                detective.Avatar.GetComponentsInChildren<Collider>(true).Length==0,
+                "The player needs one visible, rigged detective and the original movement collider");
             Check(route.hubGate && route.stationGate && route.returnGate && route.hubSpawn && route.stationSpawn &&
                 route.sleeperSpawn && route.sleeperSpawn.IsChildOf(route.consist), "Missing portal or destination");
             Check(!route.walker.transform.IsChildOf(route.consist) && !route.canopy.activeSelf &&
@@ -157,10 +193,15 @@ namespace Winterbourne.Editor
             var valuables=scene.GetRootGameObjects().SelectMany(root=>root.GetComponentsInChildren<PassPickup>(true))
                 .Where(p=>p.itemId!="parachute").ToArray();
             Check(valuables.Length>=36 && valuables.Select(p=>p.siteId).Distinct().Count()==valuables.Length &&
-                valuables.Select(p=>p.itemId).Distinct().Count()==16 &&
-                valuables.All(p=>p.GetComponent<Collider>() && p.GetComponentInChildren<MeshRenderer>() &&
+                valuables.Select(p=>p.itemId).Distinct().Count()==21 &&
+                valuables.All(p=>p.GetComponent<Collider>() && p.GetComponentInChildren<MeshRenderer>(true) &&
                     Resources.Load<Texture2D>("WinterbourneLootIcons/"+p.itemId)),
                 "An antique, interaction site or inventory portrait is missing");
+            var consignments=valuables.Where(p=>p.rollGroup==PassLootCatalogue.TreasuryGroup)
+                .GroupBy(p=>p.GetComponentInParent<PassLootContainer>()).ToArray();
+            Check(consignments.Length==3 && consignments.All(g=>g.Key && g.Count()==6 &&
+                PassLootCatalogue.GrandTreasures.All(id=>g.Count(p=>p.itemId==id)==1)),
+                "Each treasury cabinet needs all five possible prizes and one ordinary deposit");
             var cars=Enumerable.Range(1,9).Select(n => route.consist.Cast<Transform>().Single(t =>
                 PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(t.gameObject) == FleetImport.PrefabPath(n))).ToArray();
             foreach (int number in new[]{3,9}) {

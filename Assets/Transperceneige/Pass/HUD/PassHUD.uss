@@ -115,3 +115,10 @@
     font-size:12px; white-space:normal; -unity-text-align:middle-center; color:#33291b; }
 .bag-slot .slot-price { bottom:3px; font-size:13px; }
 .glyph { -unity-background-scale-mode:scale-to-fit; }
+
+.chest-work { position:absolute; left:63%; top:42%; align-items:center; }
+.chest-dial { width:60px; height:60px; justify-content:center; align-items:center; }
+.chest-key { color:#fff0c6; font-size:24px; -unity-font-style:bold; }
+.chest-hint, .chest-cancel { color:#f4ead4; background-color:rgba(18,28,32,.88); padding:2px 7px; }
+.chest-hint { margin-top:4px; font-size:15px; }
+.chest-cancel { margin-top:2px; font-size:13px; }

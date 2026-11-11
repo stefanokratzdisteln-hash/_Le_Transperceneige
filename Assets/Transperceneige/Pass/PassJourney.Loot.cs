@@ -100,6 +100,11 @@ namespace Winterbourne.Pass
                 if(!groups.TryGetValue(group,out var options)) groups[group]=options=new List<int>();
                 options.Add(i);
             }
+            if(groups.TryGetValue(PassLootCatalogue.TreasuryGroup,out var treasury))
+            {
+                FillTreasuryCabinets(treasury,random);
+                groups.Remove(PassLootCatalogue.TreasuryGroup);
+            }
             foreach(var options in groups.Values)
             {
                 int index=options[random.Next(options.Count)];
@@ -124,6 +129,32 @@ namespace Winterbourne.Pass
             if(groups.Count>0 && !RoutesAvailable())
                 Debug.LogError("The authored loot roll cannot supply both extraction manifests.",this);
             LootRevision++;
+        }
+
+        // The five possible articles share one consignment across three cabinets.
+        // Each other cabinet holds its own ordinary article. The physical instance
+        // and its originating site participate in the normal bag/checkpoint logic.
+        void FillTreasuryCabinets(List<int> candidates,System.Random random)
+        {
+            var fixtures=new List<PassLootContainer>(3);
+            foreach(int index in candidates)
+            {
+                var cabinet=sites[index].container;
+                if(!cabinet) throw new InvalidOperationException("Treasury site requires a cabinet.");
+                if(!fixtures.Contains(cabinet)) fixtures.Add(cabinet);
+            }
+            if(fixtures.Count!=3) throw new InvalidOperationException("A consignment requires three treasury cabinets.");
+            string prize=PassLootCatalogue.GrandTreasureForTicket(random.Next(100));
+            var chosen=fixtures[random.Next(fixtures.Count)];
+            foreach(var cabinet in fixtures)
+            {
+                int match=candidates.FindIndex(i=>sites[i].container==cabinet &&
+                    (cabinet==chosen ? items[i].itemId==prize : !PassLootCatalogue.GrandTreasures.Contains(items[i].itemId)));
+                if(match<0)
+                    throw new InvalidOperationException("Incomplete treasury manifest: "+cabinet.name);
+                int slot=candidates[match];
+                PlaceLoot(items[slot],slot);
+            }
         }
 
         void BedsideView(out Quaternion heading,out float pitch)
@@ -207,6 +238,90 @@ namespace Winterbourne.Pass
         bool UsableWorld => !Terminal && !InStartMenu && !InHub && !AtLanding && !Airborne &&
             body && body.enabled && !walker.externalMotion;
 
+        // First F selects the physical case. Only subsequent, fresh input edges
+        // advance its mechanism. The original inventory stays off screen here.
+        bool workingChest;
+        int chestStrokes, lastChestFrame=-1;
+        float revealStarted=-1;
+        Vector3 chestStance;
+        public bool WorkingChest => workingChest;
+        public bool RevealingChest => workingChest && OpenContainer && OpenContainer.Unlocked;
+        public int ChestStrokes => chestStrokes;
+
+        void BeginChest(PassLootContainer fixture)
+        {
+            chestStrokes=0;
+            workingChest=true;
+            lastChestFrame=Time.frameCount;
+            revealStarted=-1;
+            chestStance=fixture.transform.InverseTransformPoint(walker.transform.position);
+            float width=fixture.otherDoor ? 1.12f : .68f;
+            float share=fixture.otherDoor ? .66f : .57f;
+            // Frame the wider chief cornice or the domed trunk from the real
+            // first-person eye at its crouch height. Aspect ratio affects the
+            // horizontal frame, not the width of the physical prop.
+            Vector3 crouchedEye=walker.transform.position+Vector3.up*.62f;
+            Vector3 focus=fixture.otherDoor ? new Vector3(0,.383f,-.235f) : new Vector3(0,.346f,-.175f);
+            float lensDistance=Vector3.Distance(crouchedEye,fixture.transform.TransformPoint(focus));
+            float lens=2*Mathf.Atan(width/(2*Mathf.Max(.15f,lensDistance)*walker.eyeCamera.aspect*share))*Mathf.Rad2Deg;
+            walker.BeginChestInspection(fixture.transform,focus,Mathf.Clamp(lens,40,84));
+            fixture.BeginWork(walker.eyeCamera.transform);
+            LootRevision++;
+        }
+
+        bool CabinetStillInReach()
+        {
+            if(!ContactValid() || !OpenContainer) return false;
+            Vector3 feet=OpenContainer.transform.InverseTransformPoint(walker.transform.position);
+            // Measure relative to the case: a travelling train must not count as a step.
+            feet.y=chestStance.y;
+            if((feet-chestStance).sqrMagnitude>.26f*.26f)return false;
+            // Once the bolt clears, looking down at the goods inside is part of
+            // the reveal. A step away or Esc still dismisses it.
+            if(RevealingChest)return true;
+            Vector3 at=OpenContainer.transform.TransformPoint(searchedContact)-walker.eyeCamera.transform.position;
+            return Vector3.Dot(walker.eyeCamera.transform.forward,at.normalized)>.55f;
+        }
+
+        public bool TapFocusedChest()
+        {
+            if(!workingChest || !OpenContainer || RevealingChest || lastChestFrame==Time.frameCount)return false;
+            if(!CabinetStillInReach()){CloseSearch();return false;}
+            lastChestFrame=Time.frameCount;
+            chestStrokes++;
+            OpenContainer.Stroke(chestStrokes);
+            if(chestStrokes==OpenContainer.tapsRequired)
+            {
+                OpenContainer.Open();
+                foreach(var item in items)
+                {
+                    if(item.currentSite<0 || sites[item.currentSite].container!=OpenContainer)continue;
+                    var view=item.GetComponentInChildren<Renderer>();
+                    if(view)
+                    {
+                        Vector3 centre=OpenContainer.transform.InverseTransformPoint(view.bounds.center);
+                        walker.SetChestInspectionFocus(Vector3.Lerp(OpenContainer.gripLocal,centre,.48f));
+                    }
+                    break;
+                }
+            }
+            LootRevision++;
+            return true;
+        }
+
+        void AdvanceChestReveal()
+        {
+            if(!workingChest)return;
+            if(!Application.isFocused || !CabinetStillInReach()){CloseSearch();return;}
+            if(!RevealingChest || OpenContainer.Openness<.995f || OpenContainer.HandsVisible)return;
+            if(revealStarted<0)revealStarted=Time.unscaledTime;
+            if(Time.unscaledTime-revealStarted<.60f)return;
+            workingChest=false;
+            walker.EndChestInspection();
+            SetInventory(true);
+            RebuildResults();
+        }
+
         bool LootInSight(out PassPickup item,out PassLootContainer container,out Vector3 point)
         {
             item=null; container=null; point=default;
@@ -221,20 +336,35 @@ namespace Winterbourne.Pass
             return item || container;
         }
 
+        bool AtCaseFront(PassLootContainer fixture)
+        {
+            Vector3 at=fixture.transform.InverseTransformPoint(walker.transform.position);
+            float halfWidth=fixture.otherDoor ? .185f:.14f;
+            float front=fixture.otherDoor ? -.86f:-.81f;
+            return Mathf.Abs(at.x)<=halfWidth && at.z>=front && at.z<=-.59f;
+        }
+
         bool LootPrompt(out string text)
         {
             text=null;
             if(!LootInSight(out var item,out var container,out _)) return false;
-            text=container ? string.Format(PassText.Get(container.Unlocked?"search.open":"search.unlock"),PassText.Get(container.labelKey))
+            if(container && container.TapChest && !container.Unlocked && !AtCaseFront(container))
+            {
+                text=PassText.Get("search.approachFront");
+                return true;
+            }
+            text=container ? string.Format(PassText.Get(container.TapChest || container.Unlocked?"search.open":"search.unlock"),PassText.Get(container.labelKey))
                 : string.Format(PassText.Get("search.pick"),ItemName(item.itemId),PassLootCatalogue.Format(PassLootCatalogue.Value(item.itemId)));
             return true;
         }
 
         public bool UseFocused()
         {
+            if(ViewingCharacter)return false;
             if(SearchOpen)
             {
                 if(!ContactValid()) { CloseSearch(); return false; }
+                if(workingChest) return TapFocusedChest();
                 if(!pickingLock) return PickSelected();
                 if(LockPosition<.53f || LockPosition>.77f)
                 {
@@ -249,9 +379,18 @@ namespace Winterbourne.Pass
             if(Terminal || InStartMenu || InventoryOpen || walker.externalMotion) return false;
             if(!LootInSight(out var item,out var fixture,out var contact)) return TryUsePassage();
             if(!fixture) return TryPick(item);
+            if(fixture.TapChest && !fixture.Unlocked && !AtCaseFront(fixture))
+            {
+                Tell("search.approachFront");return false;
+            }
             noticeUntil=-1;
             OpenContainer=fixture;
             searchedContact=fixture.transform.InverseTransformPoint(contact);
+            if(fixture.TapChest && !fixture.Unlocked)
+            {
+                BeginChest(fixture);
+                return true;
+            }
             pickingLock=!fixture.Unlocked;
             lockTravel=0;
             if(!pickingLock) fixture.Open();
@@ -263,7 +402,7 @@ namespace Winterbourne.Pass
         void RebuildResults()
         {
             searchResults.Clear();
-            if(OpenContainer && !pickingLock)
+            if(OpenContainer && !pickingLock && !workingChest)
             {
                 foreach(var p in items)
                     if(p.currentSite>=0 && sites[p.currentSite].container==OpenContainer)
@@ -282,12 +421,19 @@ namespace Winterbourne.Pass
                 <=Mathf.Pow(walker.interactionDistance+.15f,2);
         }
 
-        public void CloseSearch() => SetInventory(false);
+        public void CloseSearch()
+        {
+            bool worldInput=workingChest;
+            SetInventory(false);
+            if(worldInput && !InStartMenu && !Terminal) walker.ResumeLook();
+        }
 
         void CancelSearch()
         {
+            if(workingChest)walker.EndChestInspection();
             if(OpenContainer) OpenContainer.Close();
             OpenContainer=null; looseOffer=null; AwaitingSwap=false; pickingLock=false;
+            workingChest=false; chestStrokes=0; revealStarted=-1;
             SelectedSearchIndex=0; searchResults.Clear();
             LootRevision++;
         }
@@ -304,7 +450,7 @@ namespace Winterbourne.Pass
             if(!item || !UsableWorld || !item.gameObject.activeInHierarchy || item.currentSite<0) return false;
             if(SearchOpen)
             {
-                if(!ContactValid() || pickingLock || !searchResults.Contains(item)) return false;
+                if(!ContactValid() || workingChest || pickingLock || !searchResults.Contains(item)) return false;
             }
             else
             {
@@ -326,7 +472,7 @@ namespace Winterbourne.Pass
 
         public int TakeAllFocused()
         {
-            if(!SearchOpen || pickingLock || !ContactValid()) return 0;
+            if(!SearchOpen || workingChest || pickingLock || !ContactValid()) return 0;
             int taken=0,initialValue=CarriedValue;
             while(SearchCount>0)
             {

@@ -12,23 +12,48 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Crystal
-    second: {fileID: 2100000, guid: c69708072b845d7097e99aa7a0fff93b, type: 2}
+      name: Cabinet antique gold
+    second: {fileID: 2100000, guid: faaa493bee86526ea0ea590c5a5a2453, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Gold
-    second: {fileID: 2100000, guid: 15f8b33863db5a7bb7d9c60b587c0b75, type: 2}
+      name: Cabinet chased gold
+    second: {fileID: 2100000, guid: b2c285264efe53bcbf3bf19fa96200dc, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Miniature
-    second: {fileID: 2100000, guid: b0851761c5255a1290e3709f65dd1e2a, type: 2}
+      name: Cabinet garnet
+    second: {fileID: 2100000, guid: b24b5ed942cf5649a632097f019883a1, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Peacock
-    second: {fileID: 2100000, guid: 2fa4d568a5115c73b6653ddb3ebb664f, type: 2}
+      name: Cabinet rose cut diamond
+    second: {fileID: 2100000, guid: 39601f2ac3fe5ce08b159a73dcc6d137, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cabinet velvet
+    second: {fileID: 2100000, guid: 7029e831fa1653b2ac7299ec59053abb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Geneva flinque enamel
+    second: {fileID: 2100000, guid: 57ceeaa713db5c5cbffa2d0355553213, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Greywater enamel miniature
+    second: {fileID: 2100000, guid: a278805668c059ae8fd8ce0ae02cffb1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Ink
+    second: {fileID: 2100000, guid: e7f53dc57bbd5e38a53016d93deced94, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mulberry flinque enamel
+    second: {fileID: 2100000, guid: 75e43d0b61705b0bbfd2adabd3425588, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -37,18 +62,13 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Rose
-    second: {fileID: 2100000, guid: fe1fadc12d36597cbb6e310fa53d60af, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Ruby
-    second: {fileID: 2100000, guid: 55fb854ba9d5533fa13c176fd91a29e8, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
       name: Silver
     second: {fileID: 2100000, guid: b816bb28320d533895aba40815215a1e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Walnut
+    second: {fileID: 2100000, guid: 98f18fa96a805114199c77f85f81d6c0, type: 2}
   materials:
     materialImportMode: 1
     materialName: 0

@@ -61,6 +61,11 @@
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
+        <ui:VisualElement name="chestWork" class="chest-work hidden" picking-mode="Ignore">
+            <ui:VisualElement name="chestDial" class="chest-dial" picking-mode="Ignore"><ui:Label class="chest-key" text="F" /></ui:VisualElement>
+            <ui:Label name="chestHint" class="chest-hint" />
+            <ui:Label name="chestCancel" class="chest-cancel" />
+        </ui:VisualElement>
         <ui:VisualElement name="runBoard" class="run-board" picking-mode="Ignore">
             <ui:VisualElement class="run-line"><ui:Label name="clockCaption" class="run-caption" /><ui:Label name="runClock" class="run-number" /></ui:VisualElement>
             <ui:VisualElement class="run-line"><ui:Label name="targetCaption" class="run-caption" /><ui:VisualElement name="targetDrop" class="drop" /><ui:Label name="runTarget" class="run-value" /></ui:VisualElement>

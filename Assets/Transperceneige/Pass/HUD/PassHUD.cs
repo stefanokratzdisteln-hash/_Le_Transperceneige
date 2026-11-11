@@ -26,6 +26,8 @@ namespace Winterbourne.Pass
         bool redrawText;
         VisualElement root,roomActions,titleScreen,kit,vitals,healthFill,runBoard;
         Label shortcuts,healthNumber,bagValue,runClock,runTarget,settlement,settledValue;
+        VisualElement chestWork,chestDial;
+        Label chestHint,chestCancel;
         VisualElement deployPrompt;
         Label deployKey,deployAction,impactLoss,impactResult;
         int previousHealth=-1;
@@ -78,6 +80,9 @@ namespace Winterbourne.Pass
             searchTitle=root.Q<Label>("searchTitle"); searchHelp=root.Q<Label>("searchHelp");
             lockTrack=root.Q("lockTrack");lockPin=root.Q("lockPin");
             inventoryValue=root.Q<Label>("inventoryValue");
+            chestWork=root.Q("chestWork");chestDial=root.Q("chestDial");
+            chestHint=root.Q<Label>("chestHint");chestCancel=root.Q<Label>("chestCancel");
+            chestDial.generateVisualContent+=PaintChestProgress;
             takeOne=root.Q<Button>("takeOne");takeAll=root.Q<Button>("takeAll");
             takeOne.clicked+=TakeOne;takeAll.clicked+=TakeAll;
             root.Q<Button>("retry").clicked+=Retry;
@@ -124,6 +129,7 @@ namespace Winterbourne.Pass
             if(journey && journey.walker) journey.walker.pointerOverControl=null;
             Changed-=ApplyLanguage;
             if(frost!=null) frost.generateVisualContent-=DrawFrost;
+            if(chestDial!=null) chestDial.generateVisualContent-=PaintChestProgress;
         }
         bool OverButton()
         {
@@ -244,9 +250,38 @@ namespace Winterbourne.Pass
         }
         static void Show(VisualElement el,bool visible)=>el.EnableInClassList("hidden",!visible);
 
+        void PaintChestProgress(MeshGenerationContext ctx)
+        {
+            if(!journey || !journey.WorkingChest || !journey.OpenContainer)return;
+            Rect area=chestDial.contentRect;
+            Vector2 centre=area.center;
+            float radius=Mathf.Min(area.width,area.height)*.43f;
+            if(radius<1)return;
+            var brush=ctx.painter2D;
+            brush.fillColor=new Color(.055f,.085f,.10f,.82f);
+            brush.BeginPath();brush.Arc(centre,radius+2,0,360);brush.Fill();
+            int segments=journey.OpenContainer.tapsRequired;
+            for(int i=0;i<segments;i++)
+            {
+                float a=-90+360f*i/segments;
+                brush.strokeColor=i<journey.ChestStrokes ? new Color(1,.8f,.34f) : new Color(.55f,.51f,.43f);
+                brush.lineWidth=3;brush.BeginPath();
+                brush.Arc(centre,radius,a+3,a+360f/segments-3);brush.Stroke();
+            }
+        }
+
         void RefreshSearch(bool dirty)
         {
-            bool search=journey.SearchOpen;
+            bool working=journey.WorkingChest;
+            Show(chestWork,working);
+            if(working)
+            {
+                chestHint.text=journey.RevealingChest ? Get("search.revealing") :
+                    string.Format(Get("search.tapChest"),journey.ChestStrokes,journey.OpenContainer.tapsRequired);
+                chestCancel.text=Get("search.tapCancel");
+                if(dirty)chestDial.MarkDirtyRepaint();
+            }
+            bool search=journey.SearchOpen && !working;
             Show(searchSheet,search);
             closeBag.text=Get(search?"search.close":"inventory.close");
             if(!search) return;
@@ -304,7 +339,7 @@ namespace Winterbourne.Pass
             Show(titleScreen,menu); Show(roomActions,hub&&journey.InsideCottage&&!bag&&!menu&&!end);
             Show(inventory,bag&&!menu); Show(ending,end&&!menu);
             Show(waybill,!menu&&!bag&&!end);
-            Show(reticle,!menu&&!bag&&!end&&journey.walker.HasMouse);
+            Show(reticle,!menu&&!bag&&!end&&journey.walker.HasMouse&&!journey.ViewingCharacter);
             Show(kit,!bag&&!menu&&!end); Show(vitals,!bag&&!menu&&!end);
             Show(runBoard,!menu&&!end);
             string value=journey.CarriedValue.ToString("N0",System.Globalization.CultureInfo.InvariantCulture);
@@ -377,7 +412,7 @@ namespace Winterbourne.Pass
                 deployAction.text=Get(journey.HasParachute?"flight.pull":"flight.noPack");
             }
             string hint=string.IsNullOrEmpty(journey.Notice)?journey.ActionPrompt():journey.Notice;
-            message.text=hint;Show(message,!freefall&&!menu&&!bag&&!end&&!string.IsNullOrEmpty(hint));
+            message.text=hint;Show(message,!journey.WorkingChest&&!freefall&&!menu&&!bag&&!end&&!string.IsNullOrEmpty(hint));
             if(end){
                 result.text=Get("ending.failed");
                 root.Q<Button>("retry").text=Get(journey.RunExpired?"menu.new":"controls.retry");

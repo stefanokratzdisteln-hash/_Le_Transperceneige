@@ -130,50 +130,8 @@ def cup():
 
 
 def music():
-    part("Geneva enamel music box with raised oval bezel")
-    box("Gold",(0,0,.020),(.122,.076,.040),.007)
-    box("Gold",(0,0,.0024),(.125,.077,.0048),.005)
-    box("Cobalt",(0,0,.037),(.119,.071,.012),.007)
-    box("Cobalt",(0,-.0382,.021),(.111,.0019,.026),.002)
-    front=lambda u,v,h:(u,-.03916-h,v)
-    for h in (-1,1):
-        gold_scroll(front,h*.014,.021,.011,.009,h)
-        gold_scroll(front,h*.036,.020,.010,.008,h)
-        enamel_leaf(front,(h*.025,.017),(h*.032,.011),.0027,"Peacock")
-        enamel_leaf(front,(h*.029,.024),(h*.034,.030),.0024,"Emerald")
-        blossom(front,h*.045,.021,.0068,"Rose","Ivory")
-    blossom(front,0,.021,.0078,"Turquoise","Pearl")
-    # The central enamel boss reaches the original front-panel extent.
-    rod("Gold",(0,-.03956,.021),(0,-.0399,.021),.0013,sides=10)
-    for h in (-1,1):
-        box("Cobalt",(h*.0613,0,.020),(.0006,.058,.022),.002)
-        flank=lambda u,v,l:(h*(.06169+l),h*u,v)
-        for hand in (-1,1):
-            gold_scroll(flank,hand*.011,.020,.008,.007,hand)
-        blossom(flank,0,.020,.0066,"Ivory","Turquoise")
-    lid=lambda u,v,h:(u,v,.043+h)
-    for h in (-1,1):
-        for k in (-1,1):
-            enamel_leaf(lid,(h*.050,k*.024),(h*.036,k*.027),.0033,"Peacock")
-            enamel_leaf(lid,(h*.049,k*.023),(h*.053,k*.013),.0028,"Rose")
-        gold_scroll(lid,h*.043,0,.006,.008,h)
-    for r in (.025,.029):wire("Gold",(-.010,0,.044),r,r*.75,.0016)
-    for h in (-1,1):
-        for k in (-1,1):stone((h*.050,k*.025,.044),.004,.004,.0028,"Crystal")
-    part("Gold filigree grille and miniature singing songbird")
-    for i in range(10):
-        a=i*tau/10; tube("Gold",[(-.01,0,.045),(-.01+.022*cos(a+.39),.014*sin(a+.39),.046),(-.01+.024*cos(a),.017*sin(a),.045)],.0007)
-    for x in (-.009,.000):rod("Gold",(x,0,.045),(x,.001,.057),.0009)
-    ellipsoid("Peacock",(-.006,0,.066),(.017,.008,.010));ellipsoid("Cobalt",(.006,-.0008,.078),(.008,.007,.008))
-    rod("Gold",(.011,-.002,.079),(.022,-.002,.079),.002,0)
-    pearl((.010,-.006,.081),.0013,"Ink")
-    for h in (-1,1):
-        ellipsoid("Emerald",(-.009,h*.006,.067),(.010,.0035,.005))
-        for i in range(3):
-            rod("Sapphire",(-.016,h*i*.002,.062),(-.038,h*(i+1)*.0025,.072+i*.001),.0018,.0003)
-    # A domed lid, hinged upright behind the bird.
-    turned("Gold",(-.009,.022,.065),[(0,.024),(.002,.025)],(0,1,0),oval=.79)
-    disc(1,(-.009,.0218,.065),.020,(.020,0,0),(0,0,.016))
+    import jewellers_work
+    jewellers_work.gallery()
 
 
 def snuff():
@@ -286,62 +244,8 @@ def aigrette():
 
 
 def egg():
-    part("Rose enamel lower shell and scrolled gold cradle")
-    turned("Gold",(0,0,0),[(0,.029),(.004,.032),(.009,.025),(.015,.023)],sides=36)
-    c=.071;h=.059;r=.041
-    def surface(a,lat):
-        width=r*cos(lat)*(1-.14*sin(lat))
-        return (width*cos(a),width*sin(a),c+h*sin(lat))
-    for half in (-1,1):
-        if half==1:part("Hinged upper shell, pearl lip and diamond finial")
-        for j in range(16):
-            lat=((0 if half>0 else -16)+j)*pi/32
-            for i in range(48):
-                a=i*tau/48;b=(i+1)*tau/48
-                pts=[surface(a,lat),surface(b,lat),surface(b,lat+pi/32),surface(a,lat+pi/32)]
-                if half<0 and j==0:pts.pop(0)
-                if half>0 and j==15:pts.pop(2)
-                face(pts,"Rose",True)
-        for i in range(10):
-            for spiral in (-1,1):
-                tube("Gold",[surface(tau*i/10+spiral*half*j*.025,half*j*.045) for j in range(31)],.00064)
-        for lat in (half*.02,half*.63):
-            z=surface(0,lat)[2];radius=surface(0,lat)[0]
-            wire("Gold",(0,0,z),radius,radius,.0014)
-            beads((0,0,z+.0004),radius,radius,40,.0011)
-        if half==1:
-            # Reflect a private railway collector's provenance in the inner lid.
-            # Its blue face is visible after it opens around the hinge at +Y.
-            disc(2,(0,0,c+.002),r*.94,(r*.94,0,0),(0,-r*.94,0))
-            stone((0,0,c+h-.002),.007,.007,.007,"Crystal")
-            pivot=Vector((0,r,c))
-            from mathutils import Matrix
-            opened=Matrix.Rotation(-1.79,3,"X")
-            s.group.verts[:]=[pivot+opened@(v-pivot) for v in s.group.verts]
-    part("Pearl-set pink rose cartouches")
-    for i in range(4):
-        a=(i+.5)*tau/4; x,y,z=surface(a,-.47)
-        for j in range(5):
-            t=j*tau/5;off=.0043*cos(t)
-            pearl((x-sin(a)*off,y+cos(a)*off,z+.0043*sin(t)),.0031,"Pearl")
-        pearl((x*1.026,y*1.026,z),.0035,"Ruby")
-    part("Surprise: a gilt locomotive crossing a three-arch viaduct")
-    turned("Peacock",(0,0,c-.006),[(0,r*.94),(.005,r*.96)],sides=48)
-    for x in (-.030,-.010,.010,.030):
-        box("Gold",(x,-.006,c+.005),(.004,.007,.010),.0006)
-    for x in (-.020,0,.020):
-        tube("Gold",[(x+.009*cos(t*pi/16),-.009,c+.006+.005*sin(t*pi/16)) for t in range(17)],.0011)
-    box("Silver",(0,-.006,c+.012),(.067,.012,.003),.0006)
-    box("Gold",(-.001,-.007,c+.017),(.043,.010,.003),.0005)
-    rod("Gold",(-.010,-.007,c+.025),(.021,-.007,c+.025),.0051,sides=20)
-    for z in (-.013,-.001):
-        for x in (-.012,-.003,.007,.014):
-            rod("Blued",(x,z,c+.017),(x,z-.0012,c+.017),.0031,sides=12)
-    for z in (-.012,-.002):
-        for x in (-.024,-.014):
-            rod("Gold",(x,z,c+.019),(x,z,c+.032),.0008)
-    box("Gold",(-.019,-.007,c+.033),(.014,.016,.0018),.0005)
-    turned("Gold",(.015,-.007,c+.028),[(0,.0017),(.004,.0016),(.007,.0023)],sides=14)
+    import jewellers_work
+    jewellers_work.egg()
 
 
 def fan():

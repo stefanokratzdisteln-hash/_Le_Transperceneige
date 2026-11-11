@@ -58,8 +58,12 @@ def palette():
     glass=glass.replace("{r: 1, g: 1, b: 1, a: 1}","{r: 0.64, g: 0.85, b: 0.90, a: 0.48}")
     (MODELS/"Ice.mat").write_text(glass,encoding="utf-8")
 
+    import jewellers_work
+    jewellers_work.palette()
 
-def portraits(scene):
+
+def portraits(scene, names=None):
+    names = tuple(ITEMS) if names is None else tuple(names)
     scene.render.engine="CYCLES"
     scene.cycles.samples=28
     scene.cycles.use_denoising=True
@@ -81,9 +85,9 @@ def portraits(scene):
         data.size=size;data.size_y=size*.46;data.color=tint
         obj=bpy.data.objects.new("Softbox",data);scene.collection.objects.link(obj)
         lights.append((obj,Vector(vector)))
-    for name in ITEMS:
+    for name in names:
         col=bpy.data.collections[name]
-        for other in ITEMS:bpy.data.collections[other].hide_render=other!=name
+        for other in names:bpy.data.collections[other].hide_render=other!=name
         bpy.context.view_layer.update()
         ps=[o.matrix_world@Vector(v) for o in col.objects if o.type=="MESH" for v in o.bound_box]
         low=Vector([min(p[k] for p in ps) for k in range(3)])
@@ -103,7 +107,7 @@ def portraits(scene):
         cam.ortho_scale=max(max(p[k] for p in projected)-min(p[k] for p in projected) for k in (0,1))*1.15
         scene.render.filepath=str(ICONS/(name+".png"));bpy.ops.render.render(write_still=True)
         craft.copied_meta(craft.STATION/"StationHouseEnamel.png.meta",ICONS/(name+".png.meta"),"icon-"+name)
-    for name in ITEMS:bpy.data.collections[name].hide_render=False
+    for name in names:bpy.data.collections[name].hide_render=False
     bpy.data.objects.remove(eye,do_unlink=True)
 
 
